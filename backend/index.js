@@ -1,10 +1,14 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const port = 3000;
 let server;
 
 // Middleware to parse JSON
 app.use(express.json());
+
+// Enable CORS
+app.use(cors());
 
 // Simple route
 app.get('/', (req, res) => {
@@ -13,6 +17,7 @@ app.get('/', (req, res) => {
 
 // API route
 app.get('/api/data', (req, res) => {
+    console.log('Frontend has successfully connected to the backend.');
     res.json({ message: 'This is sample data' });
 });
 
