@@ -14,7 +14,11 @@ const AuthScreen = ({ navigation }: any) => {
 
       {/* Login Button */}
 
+<<<<<<< HEAD
       <Link href={"/screens/LoginScreen"} asChild>
+=======
+      <Link href={"/screens/Login"} asChild>
+>>>>>>> mason
         <CustomButton title="Login"/>
       </Link>
 
