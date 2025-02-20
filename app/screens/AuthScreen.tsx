@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useRef } from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import CustomButton from "../components/CustomButton"
 import { Link } from "expo-router";
 const AuthScreen = ({ navigation }: any) => {
-  
   return (
     <View style={styles.container}>
       {/* Logo */}
@@ -13,18 +12,16 @@ const AuthScreen = ({ navigation }: any) => {
       <Text style={styles.appName}>UniFi</Text>
 
       {/* Login Button */}
-
-<<<<<<< HEAD
-      <Link href={"/screens/LoginScreen"} asChild>
-=======
       <Link href={"/screens/Login"} asChild>
->>>>>>> mason
-        <CustomButton title="Login"/>
+        <CustomButton title="Login" onPress={() => null}/>
       </Link>
 
 
       {/* Sign Up Button */}
-      <CustomButton title="Sign Up" /*onPress={() => navigation.navigate("SignUp")}*/ />
+      <Link href={"/screens/SignUp"} asChild>
+        <CustomButton title="Sign Up" onPress={() => null} />
+      </Link>
+      
     </View>
   );
 };
