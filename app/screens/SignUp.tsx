@@ -1,3 +1,4 @@
+import { Link } from "expo-router";
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 
@@ -67,9 +68,12 @@ const SignUp = ({ navigation }: any ) => {
                 />
 
                 {/* Continue Button */}
-                <TouchableOpacity style={styles.continueButton}>
-                    <Text style={styles.continueText}>Continue</Text>
-                </TouchableOpacity>
+                <Link href={"/screens/ProfileSetup"} asChild>
+                    <TouchableOpacity style={styles.continueButton}>
+                        <Text style={styles.continueText}>Continue</Text>
+                    </TouchableOpacity>
+                </Link>
+                
             </View>
         </View>
     );
