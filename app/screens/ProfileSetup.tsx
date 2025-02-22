@@ -7,6 +7,7 @@ const ProfileSetup = ({ navigation }: any ) => {
     return (
         <View style={styles.container}>
             <View style={styles.buttonContainer}>
+                {/* This will need to be replaced later */}
                 <CheckButton text="Example Button"></CheckButton>
                 <CheckButton text="Baking"></CheckButton>
                 <CheckButton text="Business"></CheckButton>
