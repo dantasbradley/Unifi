@@ -10,7 +10,7 @@ export default function BackendConnection() {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch('http://192.168.1.7:3000/api/data'); // Use your IP address if needed
+            const response = await fetch('http://3.84.91.69:3000/api/data'); // Use your IP address if needed
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
             }
