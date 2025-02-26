@@ -12,12 +12,12 @@ and the reference for radio-deselect.png is: <a href="https://www.flaticon.com/f
 const CheckButton: React.FC<ButtonProps> = ({ text }) => {
     const [selected, setSelected] = useState(false);
     return (
-        <Pressable onPress={() => setSelected(!selected)}>
-            <View style={styles.button}>
+        <View style={styles.button}>
+            <Pressable onPress={() => setSelected(!selected)}>
                 <Image style={styles.image} source={selected ? require("../../assets/images/radio-select.png") : require("../../assets/images/radio-deselect.png")}/>
                 {text ? <Text style={styles.text}>{text}</Text> : null}
-            </View>
-        </Pressable>
+            </Pressable>
+        </View>
     );
 };
 
@@ -32,13 +32,10 @@ const styles = StyleSheet.create({
     image: {
         width: 20,
         height: 20,
-        marginLeft: 5,
-        marginVertical: 5
+        marginHorizontal: 5
     },
     text: {
-        fontSize: 16,
-        marginLeft: 5,
-        marginRight: 10
+        fontSize: 16
     }
 });
 
