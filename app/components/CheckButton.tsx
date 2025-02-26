@@ -32,12 +32,14 @@ const styles = StyleSheet.create({
     image: {
         width: 20,
         height: 20,
-        marginHorizontal: 5
+        marginLeft: 5,
+        marginRight: 5
     },
     text: {
-        fontSize: 16
+        fontSize: 16,
+        marginLeft: 5,
+        marginRight: 10
     }
 });
-
 
 export default CheckButton;
