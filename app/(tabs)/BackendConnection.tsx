@@ -25,11 +25,33 @@ export default function BackendConnection() {
         setLoading(false);
     };
 
+    const fetchDatabase = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await fetch('http://3.84.91.69:3000/api/db-test'); // Consider moving this to an env variable
+            if (!response.ok) {
+                throw new Error('Failed to fetch data');
+            }
+            const result = await response.json();
+            setData(result.message);
+        } catch (err) {
+            setError('Error fetching data');
+            console.error(err);
+        }
+        setLoading(false);
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Backend Connection</Text>
             
             <Button title="Fetch Data from Backend" onPress={fetchData} />
+            {loading && <ActivityIndicator size="large" color="#0000ff" />}
+            {data && <Text style={styles.data}>Response: {data}</Text>}
+            {error && <Text style={styles.error}>{error}</Text>}
+
+            <Button title="Fetch Data from Database" onPress={fetchDatabase} />
             {loading && <ActivityIndicator size="large" color="#0000ff" />}
             {data && <Text style={styles.data}>Response: {data}</Text>}
             {error && <Text style={styles.error}>{error}</Text>}

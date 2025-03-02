@@ -1,74 +1,37 @@
-// const express = require('express');
-// const cors = require('cors');
-// const app = express();
-// const port = 3000;
-// let server;
-
-// // Middleware to parse JSON
-// app.use(express.json());
-
-// // Enable CORS
-// app.use(cors());
-
-// // Simple route
-// app.get('/', (req, res) => {
-//     res.send('Hello, World!');
-// });
-
-// // API route
-// app.get('/api/data', (req, res) => {
-//     console.log('Frontend has successfully connected to the backend.');
-//     res.json({ message: 'This is sample data' });
-// });
-
-// // Shutdown route
-// app.get('/shutdown', (req, res) => {
-//     res.send('Shutting down server...');
-//     if (server) {
-//         server.close(() => {
-//             console.log('Server has been shut down via /shutdown endpoint.');
-//             process.exit(0);
-//         });
-//     } else {
-//         console.log('No active server to shut down.');
-//         process.exit(1);
-//     }
-// });
-
-// // Start the server
-// server = app.listen(port, () => {
-//     console.log(`Server is running on http://localhost:${port}`);
-// });
-
-// // Handle server shutdown gracefully
-// const shutdownHandler = (signal) => {
-//     console.log(`Received ${signal}. Closing server...`);
-//     if (server) {
-//         server.close(() => {
-//             console.log('Server has been shut down. Releasing port.');
-//             process.exit(0);
-//         });
-//     } else {
-//         console.log('No active server to shut down.');
-//         process.exit(1);
-//     }
-// };
-
-// process.on('SIGINT', shutdownHandler);
-// process.on('SIGTERM', shutdownHandler);
-
-
 const express = require('express');
 const cors = require('cors');
+const mysql = require('mysql2');
+require('dotenv').config(); // Optional, if using .env for credentials
+
 const app = express();
-const port = process.env.PORT || 3000; // Use environment variable or default to 3000
+const port = process.env.PORT || 3000;
 let server;
 
-// Middleware to parse JSON
+// Middleware
 app.use(express.json());
-
-// Enable CORS for all origins (temporarily for testing)
 app.use(cors());
+
+// MySQL RDS connection setup
+const pool = mysql.createPool({
+    host: process.env.DB_HOST || 'database-1.cgvequuca8td.us-east-1.rds.amazonaws.com',
+    user: process.env.DB_USER || 'admin ',
+    password: process.env.DB_PASS || 'UnifiMaster21',
+    database: process.env.DB_NAME || 'test',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
+
+// Test DB connection route
+app.get('/api/db-test', (req, res) => {
+    pool.query('SELECT NOW() AS currentTime', (err, results) => {
+        if (err) {
+            console.error('Error querying RDS:', err);
+            return res.status(500).json({ error: 'Database connection failed' });
+        }
+        res.json({ message: 'Connected to RDS successfully!', time: results[0].currentTime });
+    });
+});
 
 // Simple route
 app.get('/', (req, res) => {
@@ -81,7 +44,7 @@ app.get('/api/data', (req, res) => {
     res.json({ message: 'This is sample data from AWS EC2' });
 });
 
-// Shutdown route (use cautiously in production)
+// Shutdown route
 app.get('/shutdown', (req, res) => {
     res.send('Shutting down server...');
     if (server) {
