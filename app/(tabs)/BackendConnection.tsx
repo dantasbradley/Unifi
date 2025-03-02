@@ -4,58 +4,67 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function BackendConnection() {
     const navigation = useNavigation();
-    const [data, setData] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+
+    const [backendData, setBackendData] = useState<string | null>(null);
+    const [backendLoading, setBackendLoading] = useState(false);
+    const [backendError, setBackendError] = useState<string | null>(null);
+
+    const [dbData, setDbData] = useState<string | null>(null);
+    const [dbLoading, setDbLoading] = useState(false);
+    const [dbError, setDbError] = useState<string | null>(null);
 
     const fetchData = async () => {
-        setLoading(true);
-        setError(null);
+        setBackendLoading(true);
+        setBackendError(null);
+        setBackendData(null);
         try {
-            const response = await fetch('http://3.84.91.69:3000/api/data'); // Consider moving this to an env variable
+            const response = await fetch('http://3.84.91.69:3000/api/data');
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
             }
             const result = await response.json();
-            setData(result.message);
+            setBackendData(result.message);
         } catch (err) {
-            setError('Error fetching data');
+            setBackendError('Error fetching backend data');
             console.error(err);
         }
-        setLoading(false);
+        setBackendLoading(false);
     };
 
     const fetchDatabase = async () => {
-        setLoading(true);
-        setError(null);
+        setDbLoading(true);
+        setDbError(null);
+        setDbData(null);
         try {
-            const response = await fetch('http://3.84.91.69:3000/api/db-test'); // Consider moving this to an env variable
+            const response = await fetch('http://3.84.91.69:3000/api/db-test');
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
             }
             const result = await response.json();
-            setData(result.message);
+            setDbData(result.message);
         } catch (err) {
-            setError('Error fetching data');
+            setDbError('Error fetching database data');
             console.error(err);
         }
-        setLoading(false);
+        setDbLoading(false);
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Backend Connection</Text>
-            
+
             <Button title="Fetch Data from Backend" onPress={fetchData} />
-            {loading && <ActivityIndicator size="large" color="#0000ff" />}
-            {data && <Text style={styles.data}>Response: {data}</Text>}
-            {error && <Text style={styles.error}>{error}</Text>}
+            {backendLoading && <ActivityIndicator size="large" color="#0000ff" />}
+            {backendData && <Text style={styles.data}>Response: {backendData}</Text>}
+            {backendError && <Text style={styles.error}>{backendError}</Text>}
+
+            <View style={{ marginTop: 30 }} />
 
             <Button title="Fetch Data from Database" onPress={fetchDatabase} />
-            {loading && <ActivityIndicator size="large" color="#0000ff" />}
-            {data && <Text style={styles.data}>Response: {data}</Text>}
-            {error && <Text style={styles.error}>{error}</Text>}
-            
+            {dbLoading && <ActivityIndicator size="large" color="#0000ff" />}
+            {dbData && <Text style={styles.data}>Response: {dbData}</Text>}
+            {dbError && <Text style={styles.error}>{dbError}</Text>}
+
             <View style={styles.backButtonContainer}>
                 <Button title="Go Back" onPress={() => navigation.goBack()} />
             </View>
@@ -91,4 +100,3 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
 });
-

@@ -14,7 +14,7 @@ app.use(cors());
 // MySQL RDS connection setup
 const pool = mysql.createPool({
     host: process.env.DB_HOST || 'database-1.cgvequuca8td.us-east-1.rds.amazonaws.com',
-    user: process.env.DB_USER || 'admin ',
+    user: process.env.DB_USER || 'admin',
     password: process.env.DB_PASS || 'UnifiMaster21',
     database: process.env.DB_NAME || 'test',
     waitForConnections: true,
