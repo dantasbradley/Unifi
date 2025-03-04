@@ -31,7 +31,7 @@ export default function TabLayout() {
             if (route.name === "HomeScreen") iconSource = homeIcon;
             else if (route.name === "ExploreScreen") iconSource = exploreIcon;
             else if (route.name === "CalendarScreen") iconSource = calendarIcon;
-            else if (route.name === "ProfileScreen") iconSource = profileIcon;
+            else if (route.name === "ProfileScreen" || route.name === "NotificationScreen") iconSource = profileIcon;
 
             return (
               <Image
@@ -55,6 +55,7 @@ export default function TabLayout() {
         <Tabs.Screen name="ExploreScreen" options={{ tabBarLabel: () => null }} />
         <Tabs.Screen name="CalendarScreen" options={{ tabBarLabel: () => null }} />
         <Tabs.Screen name="ProfileScreen" options={{ tabBarLabel: () => null }} />
+        <Tabs.Screen name="NotificationScreen" options={{ tabBarLabel: () => null}} />
       </Tabs>
     </View>
   );

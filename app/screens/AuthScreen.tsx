@@ -21,6 +21,11 @@ const AuthScreen = ({ navigation }: any) => {
       <Link href={"/screens/SignUp"} asChild>
         <CustomButton title="Sign Up" onPress={() => null} />
       </Link>
+
+      {/* Button for testing */}
+      <Link href={"/tabs/HomeScreen"} asChild>
+        <CustomButton title="Home Screen" onPress={() => null} />
+      </Link>
       
     </View>
   );
