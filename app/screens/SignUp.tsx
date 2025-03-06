@@ -14,6 +14,10 @@ const SignUp = ({ navigation }: any ) => {
     const black = "#000";
     const gray = "#aaa";
 
+    // async function sendAccountInfo(email: string, password: string, firstName: string, lastName: string) {
+    //     fetch("http://")
+    // }
+
     const contSel: React.JSX.Element = (
         <Link href={"/screens/ProfileSetup"} asChild>
             <TouchableOpacity style={styles.continueButton}>

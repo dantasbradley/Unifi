@@ -21,33 +21,32 @@ const NotificationScreen = () => {
 
     //Yuckers
     function timeSinceCreation(toc: number) : string {
-        const pos = "Posted ";
         let res : number = 0;
         let timeDiff : number = Date.now() - toc;
 
         if (timeDiff / min < 59) {
             res = Math.round(timeDiff / min);
-            return pos + res.toString() + "min";
+            return res.toString() + "min ago";
         }
         else if (timeDiff / hour <= 24) {
             res = Math.round(timeDiff / hour);
-            return pos + res.toString() + "h";
+            return res.toString() + "h ago";
         }
         else if (timeDiff / day < 7) {
             res = Math.round(timeDiff / day);
-            return pos + res.toString() + "d";
+            return res.toString() + "d ago";
         }
         else if (timeDiff / week < 5) {
             res = Math.round(timeDiff / week);
-            return pos + res.toString() + "w";
+            return res.toString() + "w ago";
         }
         else if (timeDiff / month < 12) {
             res = Math.round(timeDiff / month);
-            return pos + res.toString() + " mon";
+            return res.toString() + " mon ago";
         }
         else {
             res = Math.round(timeDiff / year);
-            return pos + res.toString() + "y";
+            return res.toString() + "y";
         }
     }
 
@@ -58,7 +57,7 @@ const NotificationScreen = () => {
                 type : "New Event", 
                 toc : 1741044839957, 
                 body : "Weekly book organizing: Sort new books into the correct area" }, 
-                { org : "Gator Alliance for World Health paddingsssadfasdfss", 
+                { org : "Gator Alliance for World Health paddingssss", 
                     type : "New Event", 
                     toc : 1741044839957, 
                     body : "Weekly book organizing: Sort new books into the correct area asdfhsalkdfsadfgasdfasdfadsfhsakdfhdjaksjldhfjsaasasd" }]} 
