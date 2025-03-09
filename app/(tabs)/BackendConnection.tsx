@@ -18,7 +18,7 @@ export default function BackendConnection() {
         setBackendError(null);
         setBackendData(null);
         try {
-            const response = await fetch('http://3.84.91.69:3000/api/data');
+            const response = await fetch('http://3.85.25.255:3000/api/data');
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
             }
@@ -36,7 +36,7 @@ export default function BackendConnection() {
         setDbError(null);
         setDbData(null);
         try {
-            const response = await fetch('http://3.84.91.69:3000/api/db-test');
+            const response = await fetch('http://3.85.25.255:3000/api/db-test');
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
             }

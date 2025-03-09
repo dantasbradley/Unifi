@@ -3,6 +3,7 @@ To install the backend
 1. Install express and cors
 
    ```bash
+   npm install bcrypt
    npm install express
    npm install cors
    
