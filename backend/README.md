@@ -6,6 +6,7 @@ To install the backend
    npm install bcrypt
    npm install express
    npm install cors
+   npm install react-native-toast-message
    
    ```
 
