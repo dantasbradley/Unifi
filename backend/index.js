@@ -71,27 +71,33 @@ app.post('/login', (req, res) => {
     });
 });
 
-// // Example route to get extra data from the database
-// app.get('/api/user-info', (req, res) => {
-//     const { email } = req.query;
+app.post('/signup_cognito', async (req, res) => {
+    const { email, password, firstName, lastName } = req.body;
 
-//     if (!email) {
-//         return res.status(400).json({ message: 'Email is required.' });
-//     }
+    // ✅ Validate inputs
+    if (!email || !password || !firstName || !lastName) {
+        return res.status(400).json({ message: "All fields are required." });
+    }
 
-//     pool.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
-//         if (err) {
-//             console.error('Database error:', err);
-//             return res.status(500).json({ message: 'Database query failed.' });
-//         }
+    const params = {
+        ClientId: COGNITO_CLIENT_ID,
+        Username: email,
+        Password: password,
+        UserAttributes: [
+            { Name: "email", Value: email },
+            { Name: "given_name", Value: firstName },
+            { Name: "family_name", Value: lastName }
+        ]
+    };
 
-//         if (results.length === 0) {
-//             return res.status(404).json({ message: 'User not found in database.' });
-//         }
-
-//         res.json({ user: results[0] });
-//     });
-// });
+    try {
+        const response = await cognito.signUp(params).promise();
+        res.json({ message: "Signup successful! Please confirm your email.", userSub: response.UserSub });
+    } catch (error) {
+        console.error("❌ Cognito signup error:", error);
+        res.status(500).json({ message: error.message || "Failed to register user." });
+    }
+});
 
 // Test DB connection route
 app.get('/api/db-test', (req, res) => {
