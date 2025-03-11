@@ -53,6 +53,14 @@ app.post('/login', (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password.' });
         }
 
+        // ✅ Check if AuthenticationResult exists before accessing it
+        if (!data.AuthenticationResult) {
+            console.error('Cognito did not return AuthenticationResult:', data);
+            return res.status(500).json({ message: 'Failed to authenticate. Please try again later.' });
+        }
+
+	console.log('Login successful for user:', email);
+
         // ✅ Return the tokens
         res.json({
             message: 'Login successful!',
