@@ -36,7 +36,7 @@ const SignUp = () => {
 
         setLoading(true);
         try {
-            const response = await fetch("http://3.85.25.255:3000/signup", {
+            const response = await fetch("http://3.85.25.255:3000/signup_cognito", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password, firstName, lastName }),

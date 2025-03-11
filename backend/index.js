@@ -85,8 +85,7 @@ app.post('/signup_cognito', async (req, res) => {
         Password: password,
         UserAttributes: [
             { Name: "email", Value: email },
-            { Name: "given_name", Value: firstName },
-            { Name: "family_name", Value: lastName }
+            { Name: "name", Value: firstName + " " + lastName },
         ]
     };
 
