@@ -3,6 +3,7 @@ const cors = require('cors');
 const mysql = require('mysql2');
 const AWS = require('aws-sdk');
 require('dotenv').config();
+const bcrypt = require("bcryptjs");
 
 const app = express();
 const port = process.env.PORT || 3000;
