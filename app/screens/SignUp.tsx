@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
-import Toast from "react-native-toast-message";
+import Toast, { ToastConfig, ToastConfigParams } from "react-native-toast-message";
 
 const SignUp = () => {
     const router = useRouter();
@@ -16,21 +16,33 @@ const SignUp = () => {
     const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
     const isValidPassword = (password: string) => password.length >= 8;
 
+    const showToast = (type: "success" | "error" | "info", text1: string, text2: string) => {
+        Toast.show({
+            type,
+            text1,
+            text2,
+            visibilityTime: 4000,
+            position: "top",
+            text1Style: { fontSize: 24, fontWeight: "bold" },
+            text2Style: { fontSize: 20 },
+        });
+    };
+
     const handleSignUp = async () => {
         if (!email || !password || !firstName || !lastName || !passwordConf) {
-            Toast.show({ type: "error", text1: "Missing Fields", text2: "Please fill in all fields." });
+            showToast("error", "Missing Fields", "Please fill in all fields.");
             return;
         }
         if (!isValidEmail(email)) {
-            Toast.show({ type: "error", text1: "Invalid Email", text2: "Please enter a valid email address." });
+            showToast("error", "Invalid Email", "Please enter a valid email address.");
             return;
         }
         if (!isValidPassword(password)) {
-            Toast.show({ type: "error", text1: "Weak Password", text2: "Password must be at least 8 characters long." });
+            showToast("error", "Weak Password", "Password must be at least 8 characters long.");
             return;
         }
         if (password !== passwordConf) {
-            Toast.show({ type: "error", text1: "Password Mismatch", text2: "Passwords do not match." });
+            showToast("error", "Password Mismatch", "Passwords do not match.");
             return;
         }
 
@@ -46,16 +58,16 @@ const SignUp = () => {
             setLoading(false);
 
             if (!response.ok) {
-                Toast.show({ type: "error", text1: "Signup Failed", text2: result.message });
+                showToast("error", "Signup Failed", result.message);
                 return;
             }
 
-            Toast.show({ type: "success", text1: "Signup Successful", text2: "Check your email for verification." });
+            showToast("success", "Signup Successful", "Check your email for verification.");
             setTimeout(() => router.push(`/screens/Verification?email=${encodeURIComponent(email)}`), 1000);
 
         } catch (error) {
             setLoading(false);
-            Toast.show({ type: "error", text1: "Signup Failed", text2: "Network error, please try again." });
+            showToast("error", "Signup Failed", "Network error, please try again.");
         }
     };
 
@@ -82,9 +94,31 @@ const SignUp = () => {
                 </TouchableOpacity>
             </View>
 
-            <Toast />
+            <Toast config={toastConfig} />
         </View>
     );
+};
+
+// ✅ Fix: Ensure correct TypeScript typing for toastConfig
+const toastConfig: ToastConfig = {
+    success: ({ text1, text2 }: ToastConfigParams<any>) => (
+        <View style={[styles.toastContainer, { backgroundColor: "green" }]}>
+            <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{text1}</Text>
+            <Text style={[styles.toastText, { fontSize: 20 }]}>{text2}</Text>
+        </View>
+    ),
+    error: ({ text1, text2 }: ToastConfigParams<any>) => (
+        <View style={[styles.toastContainer, { backgroundColor: "red" }]}>
+            <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{text1}</Text>
+            <Text style={[styles.toastText, { fontSize: 20 }]}>{text2}</Text>
+        </View>
+    ),
+    info: ({ text1, text2 }: ToastConfigParams<any>) => (
+        <View style={[styles.toastContainer, { backgroundColor: "blue" }]}>
+            <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{text1}</Text>
+            <Text style={[styles.toastText, { fontSize: 20 }]}>{text2}</Text>
+        </View>
+    ),
 };
 
 const styles = StyleSheet.create({
@@ -94,6 +128,19 @@ const styles = StyleSheet.create({
     input: { height: 40, borderColor: "#ddd", borderWidth: 1, borderRadius: 5, paddingHorizontal: 10, marginBottom: 15 },
     signupButton: { backgroundColor: "#222", paddingVertical: 12, borderRadius: 5, alignItems: "center", marginBottom: 15 },
     signupText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+    toastContainer: {
+        padding: 15,
+        borderRadius: 10,
+        alignItems: "center",
+        justifyContent: "center",
+        width: "90%",
+        alignSelf: "center",
+        marginTop: 50,
+    },
+    toastText: {
+        color: "#fff",
+        textAlign: "center",
+    },
 });
 
 export default SignUp;

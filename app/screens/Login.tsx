@@ -5,34 +5,28 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  FlatList,
   ActivityIndicator,
 } from "react-native";
-import { useRouter } from "expo-router"; // ✅ Use useRouter() instead of useNavigation()
-import Toast from "react-native-toast-message"; // Import toast message library
+import { useRouter } from "expo-router";
+import Toast, { ToastShowParams } from "react-native-toast-message";
 
 const Login = () => {
-  const router = useRouter(); // ✅ Use router for navigation
+  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [initState, setInitState] = useState(true);
-  const [filled, setFilled] = useState([false, false]); // [email, password]
-
-  function checkInputChange(text: string, index: number): void {
-    const updatedState = [...filled];
-    updatedState[index] = text.trim() !== "";
-    setFilled(updatedState);
-  }
 
   const handleLogin = async () => {
-    setInitState(false);
-    if (!filled.every(Boolean)) {
+    if (!email || !password) {
       Toast.show({
         type: "error",
         text1: "Missing Fields",
-        text2: "Please fill in all fields before logging in.",
+        text2: "Please enter your email and password.",
+        visibilityTime: 4000,
+        position: "top",
+        text1Style: { fontSize: 22, fontWeight: "bold" },
+        text2Style: { fontSize: 18 },
       });
       return;
     }
@@ -56,6 +50,10 @@ const Login = () => {
             type: "error",
             text1: "Login Failed",
             text2: result.error || "Invalid email or password.",
+            visibilityTime: 4000,
+            position: "top",
+            text1Style: { fontSize: 22, fontWeight: "bold" },
+            text2Style: { fontSize: 18 },
           });
           return;
         }
@@ -67,12 +65,16 @@ const Login = () => {
         type: "success",
         text1: "Success",
         text2: "Logged in successfully!",
+        visibilityTime: 3000,
+        position: "top",
+        text1Style: { fontSize: 24, fontWeight: "bold" },
+        text2Style: { fontSize: 20 },
       });
 
       // Navigate **directly after showing toast**
       setTimeout(() => {
         router.push("/tabs/HomeScreen");
-      }, 1000); // ✅ Ensure correct path
+      }, 1000);
 
     } catch (error) {
       setLoading(false);
@@ -80,6 +82,10 @@ const Login = () => {
         type: "error",
         text1: "Login Failed",
         text2: error instanceof Error ? error.message : "An unexpected error occurred.",
+        visibilityTime: 4000,
+        position: "top",
+        text1Style: { fontSize: 22, fontWeight: "bold" },
+        text2Style: { fontSize: 18 },
       });
     }
   };
@@ -89,33 +95,21 @@ const Login = () => {
       <View style={styles.form}>
         <Text style={styles.label}>Email</Text>
         <TextInput
-          style={[
-            styles.input,
-            !initState && !filled[0] ? styles.red : styles.white,
-          ]}
+          style={styles.input}
           placeholder="Enter your email"
           keyboardType="email-address"
           autoCapitalize="none"
           value={email}
-          onChangeText={(text) => {
-            setEmail(text);
-            checkInputChange(text, 0);
-          }}
+          onChangeText={setEmail}
         />
 
         <Text style={styles.label}>Password</Text>
         <TextInput
-          style={[
-            styles.input,
-            !initState && !filled[1] ? styles.red : styles.white,
-          ]}
+          style={styles.input}
           placeholder="Enter your password"
           secureTextEntry
           value={password}
-          onChangeText={(text) => {
-            setPassword(text);
-            checkInputChange(text, 1);
-          }}
+          onChangeText={setPassword}
         />
 
         <TouchableOpacity
@@ -126,33 +120,44 @@ const Login = () => {
           {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginText}>Login</Text>}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => Toast.show({ type: "info", text1: "Reset Password", text2: "Feature coming soon!" })}>
+        <TouchableOpacity onPress={() => Toast.show({
+          type: "info",
+          text1: "Reset Password",
+          text2: "Feature coming soon!",
+          visibilityTime: 3000,
+          position: "top",
+          text1Style: { fontSize: 22, fontWeight: "bold" },
+          text2Style: { fontSize: 18 },
+        })}>
           <Text style={styles.forgotPassword}>Forgot password?</Text>
         </TouchableOpacity>
-
-        {!initState && (
-          <FlatList
-            data={[0, 1]}
-            renderItem={({ item }) => {
-              const fieldNames = ["Email", "Password"];
-              if (!filled[item]) {
-                return (
-                  <Text style={styles.missingListText}>
-                    ** Missing {fieldNames[item]} **
-                  </Text>
-                );
-              }
-              return null;
-            }}
-            keyExtractor={(item) => item.toString()}
-          />
-        )}
       </View>
 
-      {/* Add Toast Component */}
-      <Toast />
+      {/* Add Toast Component with Custom Configuration */}
+      <Toast config={toastConfig} />
     </View>
   );
+};
+
+const toastConfig = {
+  success: (props: ToastShowParams) => (
+    <View style={[styles.toastContainer, { backgroundColor: "green" }]}>
+      <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{props.text1}</Text>
+      <Text style={[styles.toastText, { fontSize: 20 }]}>{props.text2}</Text>
+    </View>
+  ),
+  error: (props: ToastShowParams) => (
+    <View style={[styles.toastContainer, { backgroundColor: "red" }]}>
+      <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{props.text1}</Text>
+      <Text style={[styles.toastText, { fontSize: 20 }]}>{props.text2}</Text>
+    </View>
+  ),
+  info: (props: ToastShowParams) => (
+    <View style={[styles.toastContainer, { backgroundColor: "blue" }]}>
+      <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{props.text1}</Text>
+      <Text style={[styles.toastText, { fontSize: 20 }]}>{props.text2}</Text>
+    </View>
+  ),
 };
 
 const styles = StyleSheet.create({
@@ -198,15 +203,15 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
     textAlign: "center",
   },
-  white: {
-    backgroundColor: "#fff",
+  toastContainer: {
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  red: {
-    backgroundColor: "#FF474C",
-  },
-  missingListText: {
-    color: "#FF474C",
-    fontWeight: "bold",
+  toastText: {
+    color: "#fff",
+    textAlign: "center",
   },
 });
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router"; // ✅ Use useLocalSearchParams
-import Toast from "react-native-toast-message";
+import Toast, { ToastConfig, ToastConfigParams } from "react-native-toast-message";
 
 const Verification = () => {
     const router = useRouter();
@@ -10,14 +10,26 @@ const Verification = () => {
     const [verificationCode, setVerificationCode] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const showToast = (type: "success" | "error" | "info", text1: string, text2: string) => {
+        Toast.show({
+            type,
+            text1,
+            text2,
+            visibilityTime: 4000,
+            position: "top",
+            text1Style: { fontSize: 24, fontWeight: "bold" },
+            text2Style: { fontSize: 20 },
+        });
+    };
+
     const handleVerification = async () => {
         if (!email) {
-            Toast.show({ type: "error", text1: "Error", text2: "Email not found, please sign up again." });
+            showToast("error", "Error", "Email not found, please sign up again.");
             return;
         }
 
         if (!verificationCode) {
-            Toast.show({ type: "error", text1: "Missing Code", text2: "Please enter your verification code." });
+            showToast("error", "Missing Code", "Please enter your verification code.");
             return;
         }
 
@@ -33,16 +45,15 @@ const Verification = () => {
             setLoading(false);
 
             if (!response.ok) {
-                Toast.show({ type: "error", text1: "Verification Failed", text2: result.message });
+                showToast("error", "Verification Failed", result.message);
                 return;
             }
 
-            Toast.show({ type: "success", text1: "Verified", text2: "Your account is now verified. Redirecting to login..." });
-
+            showToast("success", "Verified", "Your account is now verified. Redirecting to login...");
             setTimeout(() => router.push("/screens/Login"), 1500);
         } catch (error) {
             setLoading(false);
-            Toast.show({ type: "error", text1: "Verification Failed", text2: "Network error, please try again." });
+            showToast("error", "Verification Failed", "Network error, please try again.");
         }
     };
 
@@ -63,9 +74,31 @@ const Verification = () => {
                 </TouchableOpacity>
             </View>
 
-            <Toast />
+            <Toast config={toastConfig} />
         </View>
     );
+};
+
+// ✅ Fix: Ensure correct TypeScript typing for toastConfig
+const toastConfig: ToastConfig = {
+    success: ({ text1, text2 }: ToastConfigParams<any>) => (
+        <View style={[styles.toastContainer, { backgroundColor: "green" }]}>
+            <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{text1}</Text>
+            <Text style={[styles.toastText, { fontSize: 20 }]}>{text2}</Text>
+        </View>
+    ),
+    error: ({ text1, text2 }: ToastConfigParams<any>) => (
+        <View style={[styles.toastContainer, { backgroundColor: "red" }]}>
+            <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{text1}</Text>
+            <Text style={[styles.toastText, { fontSize: 20 }]}>{text2}</Text>
+        </View>
+    ),
+    info: ({ text1, text2 }: ToastConfigParams<any>) => (
+        <View style={[styles.toastContainer, { backgroundColor: "blue" }]}>
+            <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{text1}</Text>
+            <Text style={[styles.toastText, { fontSize: 20 }]}>{text2}</Text>
+        </View>
+    ),
 };
 
 const styles = StyleSheet.create({
@@ -75,6 +108,19 @@ const styles = StyleSheet.create({
     input: { height: 40, borderColor: "#ddd", borderWidth: 1, borderRadius: 5, paddingHorizontal: 10, marginBottom: 15 },
     verifyButton: { backgroundColor: "#222", paddingVertical: 12, borderRadius: 5, alignItems: "center", marginBottom: 15 },
     verifyText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+    toastContainer: {
+        padding: 15,
+        borderRadius: 10,
+        alignItems: "center",
+        justifyContent: "center",
+        width: "90%",
+        alignSelf: "center",
+        marginTop: 50,
+    },
+    toastText: {
+        color: "#fff",
+        textAlign: "center",
+    },
 });
 
 export default Verification;
