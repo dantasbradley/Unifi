@@ -1,16 +1,21 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router"; // ✅ Use useLocalSearchParams
 import Toast from "react-native-toast-message";
 
-const Verification = ({ route }: any) => {
+const Verification = () => {
     const router = useRouter();
-    const { email } = route.params; // Get the email passed from SignUp.tsx
+    const { email } = useLocalSearchParams(); // ✅ Correct way to retrieve params
 
     const [verificationCode, setVerificationCode] = useState("");
     const [loading, setLoading] = useState(false);
 
     const handleVerification = async () => {
+        if (!email) {
+            Toast.show({ type: "error", text1: "Error", text2: "Email not found, please sign up again." });
+            return;
+        }
+
         if (!verificationCode) {
             Toast.show({ type: "error", text1: "Missing Code", text2: "Please enter your verification code." });
             return;

@@ -51,7 +51,7 @@ const SignUp = () => {
             }
 
             Toast.show({ type: "success", text1: "Signup Successful", text2: "Check your email for verification." });
-            setTimeout(() => router.push({ pathname: "/screens/Verification", params: { email } }), 1000);
+            setTimeout(() => router.push(`/screens/Verification?email=${encodeURIComponent(email)}`), 1000);
 
         } catch (error) {
             setLoading(false);
