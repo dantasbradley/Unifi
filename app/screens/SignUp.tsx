@@ -48,6 +48,7 @@ const SignUp = () => {
 
         setLoading(true);
         try {
+            // ✅ Send the raw password (Backend will hash it)
             const response = await fetch("http://3.85.25.255:3000/signup_cognito", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

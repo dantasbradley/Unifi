@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import Toast, { ToastShowParams } from "react-native-toast-message";
 
@@ -33,6 +26,7 @@ const Login = () => {
 
     setLoading(true);
     try {
+      // ✅ Send the raw password (no hashing) and let the backend compare it
       const response = await fetch("http://3.85.25.255:3000/login", {
         method: "POST",
         headers: {

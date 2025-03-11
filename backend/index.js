@@ -30,44 +30,33 @@ const pool = mysql.createPool({
 });
 
 // ✅ LOGIN Route with AWS Cognito
-app.post('/login', (req, res) => {
+app.post("/login", (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password are required.' });
+        return res.status(400).json({ error: "Email and password are required." });
     }
 
-    const params = {
-        AuthFlow: 'USER_PASSWORD_AUTH',
-        ClientId: COGNITO_CLIENT_ID,
-        AuthParameters: {
-            USERNAME: email,
-            PASSWORD: password,
-        },
-    };
-
-    // ✅ Initiate Authentication
-    cognito.initiateAuth(params, (err, data) => {
+    // Query database for user
+    pool.query("SELECT * FROM users WHERE email = ?", [email], async (err, results) => {
         if (err) {
-            console.error('❌ Cognito login error:', err);
-            return res.status(401).json({ message: 'Invalid email or password.' });
+            return res.status(500).json({ error: "Database error." });
         }
 
-        // ✅ Check if AuthenticationResult exists before accessing it
-        if (!data.AuthenticationResult) {
-            console.error('Cognito did not return AuthenticationResult:', data);
-            return res.status(500).json({ message: 'Failed to authenticate. Please try again later.' });
+        if (results.length === 0) {
+            return res.status(401).json({ error: "Invalid email or password." });
         }
 
-	console.log('Login successful for user:', email);
+        const user = results[0];
 
-        // ✅ Return the tokens
-        res.json({
-            message: 'Login successful!',
-            accessToken: data.AuthenticationResult.AccessToken,
-            idToken: data.AuthenticationResult.IdToken,
-            refreshToken: data.AuthenticationResult.RefreshToken,
-        });
+        // ✅ Compare hashed password with input password
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            return res.status(401).json({ error: "Invalid email or password." });
+        }
+
+        res.json({ message: "Login successful!", userId: user.id });
     });
 });
 
