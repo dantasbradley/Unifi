@@ -1,28 +1,42 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
+import { useRouter } from "expo-router"; // ✅ Use useRouter() instead of useNavigation()
+import Toast from "react-native-toast-message"; // Import toast message library
 
-const Login = ({ navigation }: any) => {
+const Login = () => {
+  const router = useRouter(); // ✅ Use router for navigation
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [initState, setInitState] = useState(true);
   const [filled, setFilled] = useState([false, false]); // [email, password]
 
-  const black = "#000";
-  const gray = "#aaa";
-
   function checkInputChange(text: string, index: number): void {
     const updatedState = [...filled];
-    updatedState[index] = text !== "";
+    updatedState[index] = text.trim() !== "";
     setFilled(updatedState);
   }
 
   const handleLogin = async () => {
-    setInitState(false); // Trigger validation on login attempt
+    setInitState(false);
     if (!filled.every(Boolean)) {
-      return; // Prevent login if fields are missing
+      Toast.show({
+        type: "error",
+        text1: "Missing Fields",
+        text2: "Please fill in all fields before logging in.",
+      });
+      return;
     }
-  
+
     setLoading(true);
     try {
       const response = await fetch("http://3.85.25.255:3000/login", {
@@ -30,40 +44,45 @@ const Login = ({ navigation }: any) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
-  
+
+      const result = await response.json();
+      setLoading(false);
+
       if (!response.ok) {
         if (response.status === 401) {
-          const result = await response.json();
-          Alert.alert("Login Failed", result.message);
-  
-          // Reset fields and validation
-          setEmail("");
-          setPassword("");
-          setFilled([false, false]);
-          setInitState(true); // Reset field colors after invalid login
-  
+          Toast.show({
+            type: "error",
+            text1: "Login Failed",
+            text2: result.error || "Invalid email or password.",
+          });
           return;
         }
         throw new Error("Something went wrong.");
       }
-  
-      const result = await response.json();
-      Alert.alert("Success", result.message || "Logged in successfully!");
-  
-      // Navigate to HomeScreen on successful login
-      navigation.replace('/tabs/HomeScreen');
+
+      // Show success message
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Logged in successfully!",
+      });
+
+      // Navigate **directly after showing toast**
+      setTimeout(() => {
+        router.push("/tabs/HomeScreen");
+      }, 1000); // ✅ Ensure correct path
+
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "An unexpected error occurred.";
-      Alert.alert("Login Failed", errorMessage);
-    } finally {
       setLoading(false);
+      Toast.show({
+        type: "error",
+        text1: "Login Failed",
+        text2: error instanceof Error ? error.message : "An unexpected error occurred.",
+      });
     }
   };
-  
-  
 
   return (
     <View style={styles.container}>
@@ -75,8 +94,8 @@ const Login = ({ navigation }: any) => {
             !initState && !filled[0] ? styles.red : styles.white,
           ]}
           placeholder="Enter your email"
-          placeholderTextColor={!initState && !filled[0] ? black : gray}
           keyboardType="email-address"
+          autoCapitalize="none"
           value={email}
           onChangeText={(text) => {
             setEmail(text);
@@ -91,7 +110,6 @@ const Login = ({ navigation }: any) => {
             !initState && !filled[1] ? styles.red : styles.white,
           ]}
           placeholder="Enter your password"
-          placeholderTextColor={!initState && !filled[1] ? black : gray}
           secureTextEntry
           value={password}
           onChangeText={(text) => {
@@ -105,12 +123,10 @@ const Login = ({ navigation }: any) => {
           onPress={handleLogin}
           disabled={loading}
         >
-          <Text style={styles.loginText}>
-            {loading ? "Logging in..." : "Login"}
-          </Text>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginText}>Login</Text>}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => alert("Button was clicked")}>
+        <TouchableOpacity onPress={() => Toast.show({ type: "info", text1: "Reset Password", text2: "Feature coming soon!" })}>
           <Text style={styles.forgotPassword}>Forgot password?</Text>
         </TouchableOpacity>
 
@@ -132,6 +148,9 @@ const Login = ({ navigation }: any) => {
           />
         )}
       </View>
+
+      {/* Add Toast Component */}
+      <Toast />
     </View>
   );
 };
