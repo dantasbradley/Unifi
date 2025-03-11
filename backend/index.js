@@ -60,31 +60,21 @@ app.post("/login", (req, res) => {
     });
 });
 
-app.post('/signup_cognito', async (req, res) => {
+app.post("/signup_cognito", async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
 
-    // ✅ Validate inputs
     if (!email || !password || !firstName || !lastName) {
-        return res.status(400).json({ message: "All fields are required." });
+        return res.status(400).json({ error: "All fields are required." });
     }
 
-    const params = {
-        ClientId: COGNITO_CLIENT_ID,
-        Username: email,
-        Password: password,
-        UserAttributes: [
-            { Name: "email", Value: email },
-            { Name: "name", Value: firstName + " " + lastName },
-        ]
-    };
+    // ✅ Hash the password before storing it
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    try {
-        const response = await cognito.signUp(params).promise();
-        res.json({ message: "Signup successful! Please confirm your email.", userSub: response.UserSub });
-    } catch (error) {
-        console.error("❌ Cognito signup error:", error);
-        res.status(500).json({ message: error.message || "Failed to register user." });
-    }
+    pool.query("INSERT INTO users (email, password, first_name, last_name) VALUES (?, ?, ?, ?)", 
+    [email, hashedPassword, firstName, lastName], (err, results) => {
+        if (err) return res.status(500).json({ error: "Database error." });
+        res.json({ message: "User registered successfully!" });
+    });
 });
 
 app.post('/verification', async (req, res) => {
