@@ -98,6 +98,29 @@ app.post('/signup_cognito', async (req, res) => {
     }
 });
 
+app.post('/verification', async (req, res) => {
+    const { email, verificationCode } = req.body;
+
+    if (!email || !verificationCode) {
+        return res.status(400).json({ message: "Email and verification code are required." });
+    }
+
+    const params = {
+        ClientId: COGNITO_CLIENT_ID,
+        Username: email,
+        ConfirmationCode: verificationCode,
+    };
+
+    try {
+        await cognito.confirmSignUp(params).promise();
+        res.json({ message: "Verification successful! You can now log in." });
+    } catch (error) {
+        console.error("❌ Cognito verification error:", error);
+        res.status(500).json({ message: error.message || "Verification failed." });
+    }
+});
+
+
 // Test DB connection route
 app.get('/api/db-test', (req, res) => {
     pool.query('SELECT NOW() AS currentTime', (err, results) => {
