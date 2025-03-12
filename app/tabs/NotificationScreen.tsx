@@ -1,8 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 
-const NotificationScreen = () => {
-    //const [notification, setNotification] = useState([]);
+interface NotificationProps {
+    profile: string
+}
+
+type Notification = {
+    org: string,
+    type: string,
+    toc: number,
+    body: string
+}
+
+const NotificationScreen: React.FC<NotificationProps> = ({profile}) => {
+    const [notifications, setNotifications] = useState<Notification[] | null>(null);
 
     const min = 60 * 1000;
     const hour = min * 60;
@@ -13,6 +24,21 @@ const NotificationScreen = () => {
 
     const bodyTrunc = 97;
     const orgTrunc = 43;
+
+    //Retrieve notifications from the backend
+    const getNotifications = async () => {
+        try {
+            const url = `http://3.84.91.69:3000/${profile}/notifications`;
+            const res = await fetch(url, {method: 'GET'});
+            const json = await res.json();
+            setNotifications(json.notifcations);
+        }
+        catch (err) {
+            console.error(err);
+        }
+    }
+
+    useEffect(() => {getNotifications()}, []);
 
     function truncateText(text: string, maxLength: number) : string {
         if (text.length > maxLength) return text.substring(0, maxLength - 3) + "...";
@@ -52,6 +78,7 @@ const NotificationScreen = () => {
 
     return (
         <View style={styles.container}>
+            {/* Change this to use the notifications state variable */}
             <FlatList data={[
                 { org : "Alachua County Library", 
                 type : "New Event", 

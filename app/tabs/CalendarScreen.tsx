@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Calendar, CalendarList, CalendarUtils } from "react-native-calendars";
+import { MarkedDates } from "react-native-calendars/src/types";
 import XDate from "xdate";
+import EventList from "../components/EventList";
 
 const CalendarScreen = () => {
 
   const today = new XDate().toDateString();
 
-  const [selectedDate, setSelectedDate] = useState({});
+  const [markedDate, setMarkedDate] = useState<MarkedDates | undefined>(undefined);
+  const [selectedDate, setSelectedDate] = useState<XDate | null>(null);
   const [monthEvents, setMonthEvents] = useState({});
   const [selectedEvents, setSelectedEvents] = useState({});
 
@@ -23,10 +26,15 @@ const CalendarScreen = () => {
     enableSwipeMonths={true}
     onDayPress={(date) => {
       let marked = {[date.dateString]: {selected: true, marked: true, selectedColor: 'blue'}};
-      setSelectedDate(marked);
+      setMarkedDate(marked);
+      setSelectedDate(new XDate(date.dateString));
     }}
-    markedDates={selectedDate}
+    markedDates={markedDate}
     />
+    <View style={styles.event}>
+      {selectedDate !== null ? <EventList date={selectedDate.toDateString()} profile=""/> : null}
+    </View>
+    
   </View>
   );
 };
@@ -36,12 +44,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#000"
+    backgroundColor: "#000",
   },
   calendarContainer: {
     borderRadius: 10,
     height: 375,
-    width: 300
+    width: 300,
+    alignSelf: 'center',
+    marginTop: 5,
+    marginBottom: 10
+  },
+  event: {
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: "#000",
   }
 });
 
