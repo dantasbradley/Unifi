@@ -120,6 +120,51 @@ app.post('/verification', async (req, res) => {
     }
 });
 
+app.post('/verify', async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: "Email is required." });
+    }
+
+    const params = {
+        ClientId: COGNITO_CLIENT_ID,
+        Username: email,
+    };
+
+    try {
+        await cognito.forgotPassword(params).promise();
+        res.json({ message: "Verification code sent! Check your email." });
+    } catch (error) {
+        console.error("❌ Cognito forgot password error:", error);
+        res.status(500).json({ message: error.message || "Failed to send verification code." });
+    }
+});
+
+app.post('/reset_password', async (req, res) => {
+    const { email, verificationCode, newPassword } = req.body;
+
+    if (!email || !verificationCode || !newPassword) {
+        return res.status(400).json({ message: "Email, verification code, and new password are required." });
+    }
+
+    const params = {
+        ClientId: COGNITO_CLIENT_ID,
+        Username: email,
+        ConfirmationCode: verificationCode,
+        Password: newPassword,
+    };
+
+    try {
+        await cognito.confirmForgotPassword(params).promise();
+        res.json({ message: "Password reset successful! You can now log in with your new password." });
+    } catch (error) {
+        console.error("❌ Cognito reset password error:", error);
+        res.status(500).json({ message: error.message || "Failed to reset password." });
+    }
+});
+
+
 
 // Test DB connection route
 app.get('/api/db-test', (req, res) => {
