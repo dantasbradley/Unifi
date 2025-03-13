@@ -11,6 +11,7 @@ export default function Layout() {
         <Stack.Screen name="screens/SignUp" options={{ title: "Sign Up" }} />
         <Stack.Screen name="screens/ProfileSetup" options={{ title: "Profile Setup" }} />
 
+
         <Stack.Screen name="tabs" options={{ headerShown: false }} />
       </Stack>
     </HamburgerProvider>
