@@ -7,22 +7,20 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { useRouter } from "expo-router";
 import Toast, { ToastShowParams } from "react-native-toast-message";
+import { useRouter } from "expo-router"; // ✅ Ensure router is imported
 
-const Login = () => {
-  const router = useRouter();
+const VerifyEmail = () => {
+  const [email, setEmail] = useState(""); // ✅ Ensure email and setEmail are defined
+  const [loading, setLoading] = useState(false); // ✅ Ensure setLoading is defined
+  const router = useRouter(); // ✅ Ensure router is initialized
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleLogin = async () => {
-    if (!email || !password) {
+  const handleVerify = async () => {
+    if (!email) {
       Toast.show({
         type: "error",
-        text1: "Missing Fields",
-        text2: "Please enter your email and password.",
+        text1: "Missing Email",
+        text2: "Please enter your email address.",
         visibilityTime: 4000,
         position: "top",
         text1Style: { fontSize: 22, fontWeight: "bold" },
@@ -33,55 +31,45 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const response = await fetch("http://3.85.25.255:3000/login", {
+      const response = await fetch("http://3.85.25.255:3000/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({ email: email.trim() }),
       });
 
       const result = await response.json();
       setLoading(false);
 
       if (!response.ok) {
-        if (response.status === 401) {
-          Toast.show({
-            type: "error",
-            text1: "Login Failed",
-            text2: result.error || "Invalid email or password.",
-            visibilityTime: 4000,
-            position: "top",
-            text1Style: { fontSize: 22, fontWeight: "bold" },
-            text2Style: { fontSize: 18 },
-          });
-          return;
-        }
-        throw new Error("Something went wrong.");
+        throw new Error(result.message || "Something went wrong.");
       }
 
-      // Show success message
       Toast.show({
         type: "success",
-        text1: "Success",
-        text2: "Logged in successfully!",
-        visibilityTime: 3000,
+        text1: "Verification Sent",
+        text2: "Check your email for the verification code.",
+        visibilityTime: 4000,
         position: "top",
-        text1Style: { fontSize: 24, fontWeight: "bold" },
-        text2Style: { fontSize: 20 },
+        text1Style: { fontSize: 22, fontWeight: "bold" },
+        text2Style: { fontSize: 18 },
       });
 
-      // Navigate **directly after showing toast**
+      // ✅ Navigate to Verification screen after a short delay
       setTimeout(() => {
-        router.push("/tabs/HomeScreen");
+        router.push(`/screens/resetPassword?email=${encodeURIComponent(email)}`);
       }, 1000);
 
     } catch (error) {
       setLoading(false);
+      
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
+
       Toast.show({
         type: "error",
-        text1: "Login Failed",
-        text2: error instanceof Error ? error.message : "An unexpected error occurred.",
+        text1: "Verification Failed",
+        text2: errorMessage,
         visibilityTime: 4000,
         position: "top",
         text1Style: { fontSize: 22, fontWeight: "bold" },
@@ -103,29 +91,15 @@ const Login = () => {
           onChangeText={setEmail}
         />
 
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your password"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-
         <TouchableOpacity
-          style={styles.loginButton}
-          onPress={handleLogin}
+          style={styles.verifyButton}
+          onPress={handleVerify}
           disabled={loading}
         >
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginText}>Login</Text>}
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => router.push("/screens/resetEmail")}>
-          <Text style={styles.forgotPassword}>Forgot password?</Text>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.verifyText}>Send Verification</Text>}
         </TouchableOpacity>
       </View>
 
-      {/* Add Toast Component with Custom Configuration */}
       <Toast config={toastConfig} />
     </View>
   );
@@ -140,12 +114,6 @@ const toastConfig = {
   ),
   error: (props: ToastShowParams) => (
     <View style={[styles.toastContainer, { backgroundColor: "red" }]}>
-      <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{props.text1}</Text>
-      <Text style={[styles.toastText, { fontSize: 20 }]}>{props.text2}</Text>
-    </View>
-  ),
-  info: (props: ToastShowParams) => (
-    <View style={[styles.toastContainer, { backgroundColor: "blue" }]}>
       <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{props.text1}</Text>
       <Text style={[styles.toastText, { fontSize: 20 }]}>{props.text2}</Text>
     </View>
@@ -178,22 +146,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 15,
   },
-  loginButton: {
+  verifyButton: {
     backgroundColor: "#222",
     paddingVertical: 12,
     borderRadius: 5,
     alignItems: "center",
-    marginBottom: 15,
   },
-  loginText: {
+  verifyText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
-  },
-  forgotPassword: {
-    color: "#000",
-    textDecorationLine: "underline",
-    textAlign: "center",
   },
   toastContainer: {
     padding: 15,
@@ -207,4 +169,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default VerifyEmail;

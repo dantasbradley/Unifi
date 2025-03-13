@@ -7,22 +7,37 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import Toast, { ToastShowParams } from "react-native-toast-message";
 
-const Login = () => {
+const Verification = () => {
   const router = useRouter();
+  const { email } = useLocalSearchParams(); // Get email from query params
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
+  const handleResetPassword = async () => {
+    if (!verificationCode || !newPassword || !confirmPassword) {
       Toast.show({
         type: "error",
         text1: "Missing Fields",
-        text2: "Please enter your email and password.",
+        text2: "All fields are required.",
+        visibilityTime: 4000,
+        position: "top",
+        text1Style: { fontSize: 22, fontWeight: "bold" },
+        text2Style: { fontSize: 18 },
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      Toast.show({
+        type: "error",
+        text1: "Passwords Do Not Match",
+        text2: "Please ensure both passwords are identical.",
         visibilityTime: 4000,
         position: "top",
         text1Style: { fontSize: 22, fontWeight: "bold" },
@@ -33,55 +48,49 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const response = await fetch("http://3.85.25.255:3000/login", {
+      const response = await fetch("http://3.85.25.255:3000/reset_password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({
+          email,
+          verificationCode: verificationCode.trim(),
+          newPassword,
+        }),
       });
 
       const result = await response.json();
       setLoading(false);
 
       if (!response.ok) {
-        if (response.status === 401) {
-          Toast.show({
-            type: "error",
-            text1: "Login Failed",
-            text2: result.error || "Invalid email or password.",
-            visibilityTime: 4000,
-            position: "top",
-            text1Style: { fontSize: 22, fontWeight: "bold" },
-            text2Style: { fontSize: 18 },
-          });
-          return;
-        }
-        throw new Error("Something went wrong.");
+        throw new Error(result.message || "Failed to reset password.");
       }
 
-      // Show success message
       Toast.show({
         type: "success",
-        text1: "Success",
-        text2: "Logged in successfully!",
-        visibilityTime: 3000,
+        text1: "Password Reset Successful",
+        text2: "You can now log in with your new password.",
+        visibilityTime: 4000,
         position: "top",
-        text1Style: { fontSize: 24, fontWeight: "bold" },
-        text2Style: { fontSize: 20 },
+        text1Style: { fontSize: 22, fontWeight: "bold" },
+        text2Style: { fontSize: 18 },
       });
 
-      // Navigate **directly after showing toast**
+      // ✅ Redirect to Login page after success
       setTimeout(() => {
-        router.push("/tabs/HomeScreen");
+        router.push("/screens/Login");
       }, 1000);
 
     } catch (error) {
       setLoading(false);
+      
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
+
       Toast.show({
         type: "error",
-        text1: "Login Failed",
-        text2: error instanceof Error ? error.message : "An unexpected error occurred.",
+        text1: "Reset Failed",
+        text2: errorMessage,
         visibilityTime: 4000,
         position: "top",
         text1Style: { fontSize: 22, fontWeight: "bold" },
@@ -93,39 +102,42 @@ const Login = () => {
   return (
     <View style={styles.container}>
       <View style={styles.form}>
-        <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>Verification Code</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
+          placeholder="Enter the code sent to your email"
+          keyboardType="numeric"
+          value={verificationCode}
+          onChangeText={setVerificationCode}
         />
 
-        <Text style={styles.label}>Password</Text>
+        <Text style={styles.label}>New Password</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your password"
+          placeholder="Enter new password"
           secureTextEntry
-          value={password}
-          onChangeText={setPassword}
+          value={newPassword}
+          onChangeText={setNewPassword}
+        />
+
+        <Text style={styles.label}>Confirm Password</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Confirm new password"
+          secureTextEntry
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
         />
 
         <TouchableOpacity
-          style={styles.loginButton}
-          onPress={handleLogin}
+          style={styles.resetButton}
+          onPress={handleResetPassword}
           disabled={loading}
         >
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginText}>Login</Text>}
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => router.push("/screens/resetEmail")}>
-          <Text style={styles.forgotPassword}>Forgot password?</Text>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.resetText}>Reset Password</Text>}
         </TouchableOpacity>
       </View>
 
-      {/* Add Toast Component with Custom Configuration */}
       <Toast config={toastConfig} />
     </View>
   );
@@ -140,12 +152,6 @@ const toastConfig = {
   ),
   error: (props: ToastShowParams) => (
     <View style={[styles.toastContainer, { backgroundColor: "red" }]}>
-      <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{props.text1}</Text>
-      <Text style={[styles.toastText, { fontSize: 20 }]}>{props.text2}</Text>
-    </View>
-  ),
-  info: (props: ToastShowParams) => (
-    <View style={[styles.toastContainer, { backgroundColor: "blue" }]}>
       <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{props.text1}</Text>
       <Text style={[styles.toastText, { fontSize: 20 }]}>{props.text2}</Text>
     </View>
@@ -178,22 +184,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 15,
   },
-  loginButton: {
+  resetButton: {
     backgroundColor: "#222",
     paddingVertical: 12,
     borderRadius: 5,
     alignItems: "center",
-    marginBottom: 15,
   },
-  loginText: {
+  resetText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
-  },
-  forgotPassword: {
-    color: "#000",
-    textDecorationLine: "underline",
-    textAlign: "center",
   },
   toastContainer: {
     padding: 15,
@@ -207,4 +207,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default Verification;

@@ -9,12 +9,15 @@ const ProfileSetup = ({ navigation }: any ) => {
             <View style={styles.buttonContainer}>
                 {/* This will probably need to be replaced later */}
                 <CheckButton text="Example Button"></CheckButton>
-                <CheckButton text="Baking"></CheckButton>
-                <CheckButton text="Business"></CheckButton>
-                <CheckButton text="Baking"></CheckButton>
-                <CheckButton text="Coding"></CheckButton>
-                <CheckButton text="Cooking"></CheckButton>
+                <CheckButton text="Animal Wellfare"></CheckButton>
                 <CheckButton text="Art"></CheckButton>
+                <CheckButton text="Education"></CheckButton>
+                <CheckButton text="Environment"></CheckButton>
+                <CheckButton text="Food"></CheckButton>
+                <CheckButton text="Humanitarian Aid"></CheckButton>
+                <CheckButton text="Health"></CheckButton>
+                <CheckButton text="Mentorship"></CheckButton>
+                <CheckButton text="Tech"></CheckButton>
             </View>
 
             {/* Continue Button */}

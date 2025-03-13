@@ -1,20 +1,14 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router"; // ✅ Use useLocalSearchParams
 import Toast, { ToastConfig, ToastConfigParams } from "react-native-toast-message";
 
-const SignUp = () => {
+const Verification = () => {
     const router = useRouter();
+    const { email } = useLocalSearchParams(); // ✅ Correct way to retrieve params
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [passwordConf, setPasswordConf] = useState("");
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
+    const [verificationCode, setVerificationCode] = useState("");
     const [loading, setLoading] = useState(false);
-
-    const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
-    const isValidPassword = (password: string) => password.length >= 8;
 
     const showToast = (type: "success" | "error" | "info", text1: string, text2: string) => {
         Toast.show({
@@ -28,69 +22,55 @@ const SignUp = () => {
         });
     };
 
-    const handleSignUp = async () => {
-        if (!email || !password || !firstName || !lastName || !passwordConf) {
-            showToast("error", "Missing Fields", "Please fill in all fields.");
+    const handleVerification = async () => {
+        if (!email) {
+            showToast("error", "Error", "Email not found, please sign up again.");
             return;
         }
-        if (!isValidEmail(email)) {
-            showToast("error", "Invalid Email", "Please enter a valid email address.");
-            return;
-        }
-        if (!isValidPassword(password)) {
-            showToast("error", "Weak Password", "Password must be at least 8 characters long.");
-            return;
-        }
-        if (password !== passwordConf) {
-            showToast("error", "Password Mismatch", "Passwords do not match.");
+
+        if (!verificationCode) {
+            showToast("error", "Missing Code", "Please enter your verification code.");
             return;
         }
 
         setLoading(true);
         try {
-            const response = await fetch("http://3.85.25.255:3000/signup_cognito", {
+            const response = await fetch("http://3.85.25.255:3000/verification", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password, firstName, lastName }),
+                body: JSON.stringify({ email, verificationCode }),
             });
 
             const result = await response.json();
             setLoading(false);
 
             if (!response.ok) {
-                showToast("error", "Signup Failed", result.message);
+                showToast("error", "Verification Failed", result.message);
                 return;
             }
 
-            showToast("success", "Signup Successful", "Check your email for verification.");
-            setTimeout(() => router.push(`/screens/Verification?email=${encodeURIComponent(email)}`), 1000);
-
+            showToast("success", "Verified", "Your account is now verified. Redirecting to login...");
+            setTimeout(() => router.push("/screens/Login"), 1500);
         } catch (error) {
             setLoading(false);
-            showToast("error", "Signup Failed", "Network error, please try again.");
+            showToast("error", "Verification Failed", "Network error, please try again.");
         }
     };
 
     return (
         <View style={styles.container}>
             <View style={styles.form}>
-                <Text style={styles.label}>First Name</Text>
-                <TextInput style={styles.input} placeholder="First Name" value={firstName} onChangeText={setFirstName} />
+                <Text style={styles.label}>Enter Verification Code</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Verification Code"
+                    keyboardType="numeric"
+                    value={verificationCode}
+                    onChangeText={setVerificationCode}
+                />
 
-                <Text style={styles.label}>Last Name</Text>
-                <TextInput style={styles.input} placeholder="Last Name" value={lastName} onChangeText={setLastName} />
-
-                <Text style={styles.label}>Email</Text>
-                <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" value={email} onChangeText={setEmail} />
-
-                <Text style={styles.label}>Password</Text>
-                <TextInput style={styles.input} placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} />
-
-                <Text style={styles.label}>Confirm Password</Text>
-                <TextInput style={styles.input} placeholder="Confirm Password" secureTextEntry value={passwordConf} onChangeText={setPasswordConf} />
-
-                <TouchableOpacity style={styles.signupButton} onPress={handleSignUp} disabled={loading}>
-                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.signupText}>Sign Up</Text>}
+                <TouchableOpacity style={styles.verifyButton} onPress={handleVerification} disabled={loading}>
+                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.verifyText}>Verify</Text>}
                 </TouchableOpacity>
             </View>
 
@@ -126,8 +106,8 @@ const styles = StyleSheet.create({
     form: { backgroundColor: "#fff", padding: 20, borderRadius: 10, width: "80%" },
     label: { fontSize: 16, color: "#000", marginBottom: 5 },
     input: { height: 40, borderColor: "#ddd", borderWidth: 1, borderRadius: 5, paddingHorizontal: 10, marginBottom: 15 },
-    signupButton: { backgroundColor: "#222", paddingVertical: 12, borderRadius: 5, alignItems: "center", marginBottom: 15 },
-    signupText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+    verifyButton: { backgroundColor: "#222", paddingVertical: 12, borderRadius: 5, alignItems: "center", marginBottom: 15 },
+    verifyText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
     toastContainer: {
         padding: 15,
         borderRadius: 10,
@@ -143,4 +123,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default SignUp;
+export default Verification;
