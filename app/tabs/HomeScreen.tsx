@@ -1,41 +1,52 @@
-import React, { useState, useEffect } from "react";
-import { View, Text } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router"; // Use hooks from expo-router
+import React, { useEffect, useState } from "react";
+import { View, Text, ActivityIndicator } from "react-native";
+// import AsyncStorage from "@react-native-async-storage/async-storage"; // For localStorage in React Native
 
 const HomeScreen = () => {
-  const [name, setName] = useState({ firstName: "", lastName: "" });
+  const [userName, setUserName] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { cognitoId } = useLocalSearchParams(); // Ensure this is inside a component or hook
 
   useEffect(() => {
-    const fetchName = async () => {
-      if (cognitoId) {
-        try {
-          const response = await fetch(`http://3.85.25.255:3000/get_name?cognitoId=${cognitoId}`);
-          const data = await response.json();
-          if (response.ok) {
-            setName({ firstName: data.firstName, lastName: data.lastName });
-          } else {
-            throw new Error(data.message || "Unable to fetch name");
-          }
-        } catch (error) {
-          console.error("Error fetching name:", error);
-        } finally {
+    const fetchUserName = async () => {
+      try {
+        // Get Cognito sub from local storage
+        const cognitoSub = localStorage.getItem('cognitoSub')
+        if (!cognitoSub) {
+          console.error("Cognito sub not found in localStorage.");
           setLoading(false);
+          return;
         }
+
+        const response = await fetch("http://3.85.25.255:3000/get-user-name", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ sub: cognitoSub }) // Send sub to backend
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          setUserName(data.name);
+        } else {
+          console.error("Error fetching name:", data.message);
+        }
+      } catch (error) {
+        console.error("❌ Network error:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchName();
-  }, [cognitoId]); // Dependency array, re-run effect if cognitoId changes
+    fetchUserName();
+  }, []);
 
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Home Screen</Text>
       {loading ? (
-        <Text>Loading...</Text>
+        <ActivityIndicator size="large" color="#0000ff" />
       ) : (
-        <Text>Welcome {name.firstName} {name.lastName}!</Text>
+        <Text>Welcome, {userName || "Guest"}!</Text>
       )}
     </View>
   );

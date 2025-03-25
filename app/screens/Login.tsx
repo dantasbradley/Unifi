@@ -60,6 +60,8 @@ const Login = () => {
         throw new Error("Something went wrong.");
       }
 
+      localStorage.setItem("cognitoSub", result.cognitoSub);
+
       // Show success message
       Toast.show({
         type: "success",
@@ -72,11 +74,9 @@ const Login = () => {
       });
 
       // Navigate **directly after showing toast**
-      const cognitoId = result.idToken;
-      // setTimeout(() => {
-      //   router.push("/tabs/HomeScreen");
-      // }, 1000);
-      setTimeout(() => router.push(`/tabs/HomeScreen?cognitoId=${encodeURIComponent(cognitoId)}`), 1000);
+      setTimeout(() => {
+        router.push("/tabs/HomeScreen");
+      }, 1000);
 
     } catch (error) {
       setLoading(false);
