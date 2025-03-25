@@ -67,6 +67,8 @@ app.post('/login', (req, res) => {
 
     // Get the sub (Cognito user identifier)
     const _cognitoSub = decoded.sub;
+
+    console.log('cognito sub:', _cognitoSub);
         
         // ✅ Return the tokens
         res.json({
@@ -86,10 +88,12 @@ app.post('/get-user-name', async (req, res) => {
         return res.status(400).json({ message: "Cognito sub is required." });
     }
 
+    console.log('cognito sub:', _cognitoSub);
+
     try {
         // List users in the user pool and filter by sub
         const params = {
-            UserPoolId: process.env.COGNITO_USER_POOL_ID, // Ensure you have this in your .env
+            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
             Filter: sub = "${sub}",
             Limit: 1
         };
