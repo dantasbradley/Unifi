@@ -173,7 +173,7 @@ app.get('/get_name', async (req, res) => {
     }
 
     const params = {
-        UserPoolId: process.env.COGNITO_USER_POOL_ID, // Ensure your user pool ID is set in the environment variables
+        UserPoolId: COGNITO_CLIENT_ID,
         Username: cognitoId
     };
 
