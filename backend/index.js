@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2');
 const AWS = require('aws-sdk');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
@@ -61,14 +62,54 @@ app.post('/login', (req, res) => {
 
 	console.log('Login successful for user:', email);
 
+    // Decode the idToken to get the sub
+    const decoded = jwt.decode(data.AuthenticationResult.IdToken);
+
+    // Get the sub (Cognito user identifier)
+    const _cognitoSub = decoded.sub;
+        
         // ✅ Return the tokens
         res.json({
             message: 'Login successful!',
             accessToken: data.AuthenticationResult.AccessToken,
             idToken: data.AuthenticationResult.IdToken,
             refreshToken: data.AuthenticationResult.RefreshToken,
+            cognitoSub: _cognitoSub,
         });
     });
+});
+
+app.post('/get-user-name', async (req, res) => {
+    const { sub } = req.body;
+
+    if (!sub) {
+        return res.status(400).json({ message: "Cognito sub is required." });
+    }
+
+    try {
+        // List users in the user pool and filter by sub
+        const params = {
+            UserPoolId: process.env.COGNITO_USER_POOL_ID, // Ensure you have this in your .env
+            Filter: sub = "${sub}",
+            Limit: 1
+        };
+
+        const data = await cognito.listUsers(params).promise();
+        if (!data.Users || data.Users.length === 0) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        // Extract name from attributes
+        const nameAttribute = data.Users[0].Attributes.find(attr => attr.Name === "name");
+        const name = nameAttribute ? nameAttribute.Value : "Unknown Name";
+
+        console.log('User:', name);
+        res.json({ name });
+
+    } catch (error) {
+        console.error("❌ Error retrieving user:", error);
+        res.status(500).json({ message: "Failed to retrieve user details." });
+    }
 });
 
 app.post('/signup_cognito', async (req, res) => {
@@ -165,33 +206,33 @@ app.post('/reset_password', async (req, res) => {
 });
 
 // Get User's First and Last Name by Cognito ID
-app.get('/get_name', async (req, res) => {
-    const { cognitoId } = req.query;
+// app.get('/get_name', async (req, res) => {
+//     const { cognitoId } = req.query;
 
-    if (!cognitoId) {
-        return res.status(400).json({ message: "Cognito ID is required." });
-    }
+//     if (!cognitoId) {
+//         return res.status(400).json({ message: "Cognito ID is required." });
+//     }
 
-    const params = {
-        UserPoolId: COGNITO_CLIENT_ID,
-        Username: cognitoId
-    };
+//     const params = {
+//         UserPoolId: COGNITO_CLIENT_ID,
+//         Username: cognitoId
+//     };
 
-    try {
-        const userData = await cognito.adminGetUser(params).promise();
-        const firstName = userData.UserAttributes.find(attr => attr.Name === 'given_name')?.Value;
-        const lastName = userData.UserAttributes.find(attr => attr.Name === 'family_name')?.Value;
+//     try {
+//         const userData = await cognito.adminGetUser(params).promise();
+//         const firstName = userData.UserAttributes.find(attr => attr.Name === 'given_name')?.Value;
+//         const lastName = userData.UserAttributes.find(attr => attr.Name === 'family_name')?.Value;
 
-        if (!firstName || !lastName) {
-            return res.status(404).json({ message: "User's name not found." });
-        }
+//         if (!firstName || !lastName) {
+//             return res.status(404).json({ message: "User's name not found." });
+//         }
 
-        res.json({ firstName, lastName });
-    } catch (error) {
-        console.error('Error fetching user data:', error);
-        res.status(500).json({ message: 'Failed to retrieve user details.', error: error.message });
-    }
-});
+//         res.json({ firstName, lastName });
+//     } catch (error) {
+//         console.error('Error fetching user data:', error);
+//         res.status(500).json({ message: 'Failed to retrieve user details.', error: error.message });
+//     }
+// });
 
 
 
