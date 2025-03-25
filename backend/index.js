@@ -83,23 +83,26 @@ app.post('/login', (req, res) => {
 
 app.post('/get-user-name', async (req, res) => {
     const { sub } = req.body;
+	console.log('cognito sub1:', sub);
 
     if (!sub) {
         return res.status(400).json({ message: "Cognito sub is required." });
     }
 
-    console.log('cognito sub:', _cognitoSub);
+    console.log('cognito sub2:', sub);
 
     try {
         // List users in the user pool and filter by sub
         const params = {
             UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
-            Filter: sub = "${sub}",
+            Filter: `sub = "${sub}"`,
             Limit: 1
         };
 
         const data = await cognito.listUsers(params).promise();
+	console.log('data: ', data);
         if (!data.Users || data.Users.length === 0) {
+		console.log('no users found with that sub');
             return res.status(404).json({ message: "User not found." });
         }
 
