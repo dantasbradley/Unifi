@@ -164,6 +164,36 @@ app.post('/reset_password', async (req, res) => {
     }
 });
 
+// Get User's First and Last Name by Cognito ID
+app.get('/get_name', async (req, res) => {
+    const { cognitoId } = req.query;
+
+    if (!cognitoId) {
+        return res.status(400).json({ message: "Cognito ID is required." });
+    }
+
+    const params = {
+        UserPoolId: process.env.COGNITO_USER_POOL_ID, // Ensure your user pool ID is set in the environment variables
+        Username: cognitoId
+    };
+
+    try {
+        const userData = await cognito.adminGetUser(params).promise();
+        const firstName = userData.UserAttributes.find(attr => attr.Name === 'given_name')?.Value;
+        const lastName = userData.UserAttributes.find(attr => attr.Name === 'family_name')?.Value;
+
+        if (!firstName || !lastName) {
+            return res.status(404).json({ message: "User's name not found." });
+        }
+
+        res.json({ firstName, lastName });
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        res.status(500).json({ message: 'Failed to retrieve user details.', error: error.message });
+    }
+});
+
+
 
 
 // Test DB connection route

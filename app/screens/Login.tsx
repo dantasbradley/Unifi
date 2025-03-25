@@ -72,9 +72,11 @@ const Login = () => {
       });
 
       // Navigate **directly after showing toast**
-      setTimeout(() => {
-        router.push("/tabs/HomeScreen");
-      }, 1000);
+      const cognitoId = result.idToken;
+      // setTimeout(() => {
+      //   router.push("/tabs/HomeScreen");
+      // }, 1000);
+      setTimeout(() => router.push(`/tabs/HomeScreen?cognitoId=${encodeURIComponent(cognitoId)}`), 1000);
 
     } catch (error) {
       setLoading(false);
