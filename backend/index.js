@@ -157,6 +157,53 @@ app.post('/get-email', async (req, res) => {
     }
 });
 
+app.post('/change-user-name', async (req, res) => {
+    const { sub, newName } = req.body;
+    console.log('cognito sub:', sub);
+
+    if (!sub || !newName) {
+        return res.status(400).json({ message: "Cognito sub and new name are required." });
+    }
+
+    try {
+        // List users in the user pool and filter by sub
+        const params = {
+            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+            Filter: `sub = "${sub}"`,
+            Limit: 1
+        };
+
+        const data = await cognito.listUsers(params).promise();
+        console.log('data: ', data);
+        if (!data.Users || data.Users.length === 0) {
+            console.log('no users found with that sub');
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        // User found, proceed to update name
+        const user = data.Users[0];
+        const updateParams = {
+            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+            Username: user.Username,
+            UserAttributes: [
+                {
+                    Name: 'name',
+                    Value: newName
+                }
+            ]
+        };
+
+        const updateData = await cognito.adminUpdateUserAttributes(updateParams).promise();
+        console.log('Update success:', updateData);
+        res.json({ message: "User name updated successfully." });
+
+    } catch (error) {
+        console.error("❌ Error updating user name:", error);
+        res.status(500).json({ message: "Failed to update user name." });
+    }
+});
+
+
 app.post('/signup_cognito', async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
 

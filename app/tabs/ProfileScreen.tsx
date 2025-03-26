@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = () => {
     const [name, setName] = useState('');
+    const [originalName, setOriginalName] = useState('');
     const [email, setEmail] = useState('user@example.com');
     const [image, setImage] = useState<string | null>(null);
     const [editMode, setEditMode] = useState(false);
@@ -48,7 +49,8 @@ const ProfileScreen = () => {
     
             const data = await response.json();
             if (response.ok) {
-              setName(data.name);
+                setName(data.name);
+                setOriginalName(data.name);
             } else {
               console.error("Error fetching name:", data.message);
             }
@@ -92,6 +94,31 @@ const ProfileScreen = () => {
         fetchEmail();
       }, []);
 
+      const handleSave = async () => {
+        const cognitoSub = await getCognitoSub();
+        if (!cognitoSub) {
+            console.error("Cognito sub not found.");
+            return;
+        }
+
+        if (name !== originalName) {
+            const response = await fetch("http://3.85.25.255:3000/change-user-name", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ sub: cognitoSub, newName: name })
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                console.error("Error updating name:", data.message);
+            }
+        }
+
+        toggleEditMode(); // This will turn off edit mode
+    };
+
     const handleImageUpload = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
@@ -114,6 +141,9 @@ const ProfileScreen = () => {
 
     const toggleEditMode = () => {
         setEditMode(!editMode);
+        if (editMode) {
+            handleSave();
+        }
     };
 
     return (
