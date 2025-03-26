@@ -4,16 +4,14 @@ import * as ImagePicker from 'expo-image-picker';
 
 const ProfileScreen = () => {
     const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('user@example.com');
     const [image, setImage] = useState<string | null>(null);
-    // each notification type is set by a boolean
+    const [editMode, setEditMode] = useState(false);
     const [notifications, setNotifications] = useState({
         communityUpdates: true,
         nearbyUpdates: true,
         eventReminders: true,
-        other: true, // TODO: change the name of this later and add more as needed
+        other: true,
     });
 
     const handleImageUpload = async () => {
@@ -29,31 +27,28 @@ const ProfileScreen = () => {
         }
     };
 
-    {/* restricts key to only valid, exact keys of the notifications object */}
-    const toggleNotification = (key: keyof typeof notifications) => {
-        const updatedNotifications = { ...notifications };
-        updatedNotifications[key] = !notifications[key];
-        setNotifications(updatedNotifications);
+    const toggleNotification = (key: keyof typeof notifications, newValue: boolean) => {
+        setNotifications(prevNotifications => ({
+            ...prevNotifications,
+            [key]: newValue
+        }));
+    };
+
+    const toggleEditMode = () => {
+        setEditMode(!editMode);
     };
 
     return (
         <View style={{ flex: 1 }}>
-            {/* Header Section */}
             <View style={styles.header}>
                 <Text style={styles.headerText}>Account</Text>
+                <TouchableOpacity onPress={toggleEditMode} style={styles.editButton}>
+                    <Text style={styles.editButtonText}>{editMode ? 'Save' : 'Edit'}</Text>
+                </TouchableOpacity>
             </View>
 
-            {/* Rest of Content */}
             <ScrollView style={styles.container}>
-                <Text style={styles.sectionHeader}>Contact Information</Text>
-                <TextInput style={styles.input} value={name} onChangeText={setName} />
-                <TextInput style={styles.input} value={email} onChangeText={setEmail} />
-                <TextInput style={styles.input} value={phone} onChangeText={setPhone} />
-
-                <Text style={styles.sectionHeader}>Password</Text>
-                <TextInput style={styles.input} secureTextEntry value={password} onChangeText={setPassword} />
-
-                <View style={styles.imageContainer}> {/* Allows the image to be centered */}
+            <View style={styles.imageContainer}> {/* Allows the image to be centered */}
                   {image ? (
                       <Image source={{ uri: image }} style={styles.image} />
                   ) : (
@@ -68,6 +63,20 @@ const ProfileScreen = () => {
                 </TouchableOpacity>
                 {image && <Text style={styles.uploadedText}>{image.split('/').pop()} uploaded</Text>}
 
+                <View style={styles.inputContainer}>
+                    <Text style={styles.inputLabel}>Full Name:</Text>
+                    <TextInput 
+                        style={styles.input} 
+                        value={name} 
+                        onChangeText={setName} 
+                        placeholder="Full Name"
+                        editable={editMode} 
+                    />
+                </View>
+                <View style={styles.emailContainer}>
+                    <Text style={styles.emailLabel}>Email: {email}</Text>
+                </View>
+
                 <Text style={styles.sectionHeader}>Notifications</Text>
                 {Object.entries(notifications).map(([key, value]) => (
                     <View key={key} style={styles.notificationRow}>
@@ -79,7 +88,11 @@ const ProfileScreen = () => {
                         </Text>
                         <Switch
                             value={value}
-                            onValueChange={() => toggleNotification(key as keyof typeof notifications)}
+                            onValueChange={(newValue) => {
+                                if (editMode) {
+                                    toggleNotification(key as keyof typeof notifications, newValue);
+                                }
+                            }}
                         />
                     </View>
                 ))}
@@ -100,6 +113,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#fff',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     headerText: {
         fontSize: 28,
@@ -114,11 +130,11 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     input: {
-        backgroundColor: '#d3d3d3',
+        backgroundColor: '#000',
         padding: 12,
         borderRadius: 5,
         marginBottom: 10,
-        color: '#000',
+        color: '#fff',
     },
     imageContainer: {
       justifyContent: 'center',
@@ -165,6 +181,37 @@ const styles = StyleSheet.create({
         flex: 1,
         marginRight: 10,
     },
+    editButton: {
+        padding: 10,
+        backgroundColor: '#666',
+        borderRadius: 5,
+    },
+    editButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    inputLabel: {
+        color: '#fff',
+        marginBottom: 10,
+        marginLeft: 90
+    },
+    emailContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    emailLabel: {
+        color: '#fff',
+        flex: 1,
+        textAlign: 'center',
+    }
 });
 
 export default ProfileScreen;
