@@ -3,6 +3,8 @@ const cors = require('cors');
 const mysql = require('mysql2');
 const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
+const multerS3 = require('multer-s3');
+const s3 = new AWS.S3();
 require('dotenv').config();
 
 const app = express();
@@ -28,6 +30,27 @@ const pool = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
+});
+
+const upload = multer({
+    storage: multerS3({
+        s3: s3,
+        bucket: process.env.S3_BUCKET_NAME,
+        acl: 'public-read',
+        metadata: function (req, file, cb) {
+            cb(null, { fieldName: file.fieldname });
+        },
+        key: function (req, file, cb) {
+            cb(null, `uploads/${Date.now()}_${file.originalname}`);
+        }
+    })
+});
+
+app.post('/upload', upload.single('image'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded.' });
+    }
+    res.json({ message: 'File uploaded successfully!', fileUrl: req.file.location });
 });
 
 // ✅ LOGIN Route with AWS Cognito
