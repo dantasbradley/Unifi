@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import Toast, { ToastShowParams } from "react-native-toast-message";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const Login = () => {
   const router = useRouter();
@@ -16,6 +18,15 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const storeCognitoSub = async (cognitoSub : string) => {
+    try {
+      await AsyncStorage.setItem("cognitoSub", cognitoSub);
+      console.log('cognitoSub stored successfully');
+    } catch (error) {
+      console.error('Failed to store cognitoSub', error);
+    }
+  }
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -60,7 +71,8 @@ const Login = () => {
         throw new Error("Something went wrong.");
       }
 
-      localStorage.setItem("cognitoSub", result.cognitoSub);
+      // localStorage.setItem("cognitoSub", result.cognitoSub);
+      await storeCognitoSub(result.cognitoSub);  
 
       // Show success message
       Toast.show({

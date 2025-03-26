@@ -1,16 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 // import AsyncStorage from "@react-native-async-storage/async-storage"; // For localStorage in React Native
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = () => {
   const [userName, setUserName] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const getCognitoSub = async () => {
+    try {
+      const value = await AsyncStorage.getItem('cognitoSub');
+      if (value !== null) {
+        console.log('cognitoSub retrieved successfully:', value);
+        return value;
+      }
+    } catch (e) {
+      console.error('Failed to retrieve cognitoSub', e);
+    }
+  }
+
   useEffect(() => {
     const fetchUserName = async () => {
       try {
         // Get Cognito sub from local storage
-        const cognitoSub = localStorage.getItem('cognitoSub')
+        const cognitoSub = await getCognitoSub();
         if (!cognitoSub) {
           console.error("Cognito sub not found in localStorage.");
           setLoading(false);
