@@ -1,19 +1,26 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2');
-// const AWS = require('aws-sdk');
+const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 const multerS3 = require('multer-s3');
 const multer = require('multer');
 
+const s3 = new AWS.S3();
+
+// const { S3Client, ListObjectsCommand } = require('@aws-sdk/client-s3');
+// const s3 = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
+
 const { S3 } = require('@aws-sdk/client-s3');
 const s3Client = new S3({});
 
-const { S3Client, ListObjectsCommand } = require('@aws-sdk/client-s3');
-const s3 = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
+const cognito = new AWS.CognitoIdentityServiceProvider({
+    region: process.env.COGNITO_REGION || 'us-east-1',
+});
 
-const { CognitoIdentityServiceProvider } = require('@aws-sdk/client-cognito-identity-provider');
-const cognito = new CognitoIdentityServiceProvider({ region: process.env.COGNITO_REGION || 'us-east-1' });
+// const { CognitoIdentityServiceProvider } = require('@aws-sdk/client-cognito-identity-provider');
+// const cognito = new CognitoIdentityServiceProvider({ region: process.env.COGNITO_REGION || 'us-east-1' });
+
 
 
 require('dotenv').config();
@@ -40,26 +47,30 @@ const pool = mysql.createPool({
 
 const upload = multer({
     storage: multerS3({
-        s3: s3Client,
+        s3: s3,
         bucket: process.env.S3_BUCKET_NAME || 'bucket-unify',
         acl: 'public-read',
+        metadata: function (req, file, cb) {
+            cb(null, { fieldName: file.fieldname });
+        },
         key: function (req, file, cb) {
-            cb(null, `uploads/${Date.now()}_${file.originalname}`);
+            // cb(null, uploads/${Date.now()}_${file.originalname});
         }
     })
 });
 
 // Test route to check S3 bucket connectivity
-app.get('/test-s3', async (req, res) => {
-    try {
-        const data = await s3.send(new ListObjectsCommand({ Bucket: 'bucket-unify' }));
+app.get('/test-s3', (req, res) => {
+    s3.listObjects({ Bucket: 'bucket-unify' }, function(err, data) {
+      if (err) {
+        console.log(err, err.stack); // an error occurred
+        res.status(500).send('Error accessing S3: ' + err.message);
+      } else {
         console.log(data); // successful response
         res.send('S3 Bucket Contents: ' + JSON.stringify(data));
-    } catch (err) {
-        console.log(err);
-        res.status(500).send('Error accessing S3: ' + err.message);
-    }
-});
+      }
+    });
+  });
 
 app.post('/upload', upload.single('image'), (req, res) => {
     if (!req.file) {
