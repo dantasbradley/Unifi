@@ -145,8 +145,8 @@ app.post('/get-email', async (req, res) => {
         }
 
         // Extract name from attributes
-        const emailAttribute = data.Users[0].Attributes.find(attr => attr.email === "email");
-        const email = emailAttribute ? emailAttribute.Value : "Unknown Name";
+        const emailAttribute = data.Users[0].Attributes.find(attr => attr.Name === "email");
+        const email = emailAttribute ? emailAttribute.Value : "Unknown Email";
 
         console.log('User:', email);
         res.json({ email });
