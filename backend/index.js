@@ -119,6 +119,44 @@ app.post('/get-user-name', async (req, res) => {
     }
 });
 
+app.post('/get-email', async (req, res) => {
+    const { sub } = req.body;
+	console.log('cognito sub1:', sub);
+
+    if (!sub) {
+        return res.status(400).json({ message: "Cognito sub is required." });
+    }
+
+    console.log('cognito sub2:', sub);
+
+    try {
+        // List users in the user pool and filter by sub
+        const params = {
+            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+            Filter: `sub = "${sub}"`,
+            Limit: 1
+        };
+
+        const data = await cognito.listUsers(params).promise();
+	console.log('data: ', data);
+        if (!data.Users || data.Users.length === 0) {
+		console.log('no users found with that sub');
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        // Extract name from attributes
+        const emailAttribute = data.Users[0].Attributes.find(attr => attr.email === "email");
+        const email = emailAttribute ? emailAttribute.Value : "Unknown Name";
+
+        console.log('User:', email);
+        res.json({ email });
+
+    } catch (error) {
+        console.error("❌ Error retrieving user:", error);
+        res.status(500).json({ message: "Failed to retrieve user details." });
+    }
+});
+
 app.post('/signup_cognito', async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
 
