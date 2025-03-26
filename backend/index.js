@@ -47,6 +47,19 @@ const upload = multer({
     })
 });
 
+// Test route to check S3 bucket connectivity
+app.get('/test-s3', (req, res) => {
+    s3.listObjects({ Bucket: 'bucket-unify' }, function(err, data) {
+      if (err) {
+        console.log(err, err.stack); // an error occurred
+        res.status(500).send('Error accessing S3: ' + err.message);
+      } else {
+        console.log(data); // successful response
+        res.send('S3 Bucket Contents: ' + JSON.stringify(data));
+      }
+    });
+  });
+
 app.post('/upload', upload.single('image'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded.' });
