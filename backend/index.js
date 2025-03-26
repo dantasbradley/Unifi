@@ -82,6 +82,7 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/get-user-name', async (req, res) => {
+	console.log('calling function: /get-user-name');
     const { sub } = req.body;
 	console.log('cognito sub1:', sub);
 
@@ -120,6 +121,7 @@ app.post('/get-user-name', async (req, res) => {
 });
 
 app.post('/get-email', async (req, res) => {
+	console.log('calling function: /get-email');
     const { sub } = req.body;
 	console.log('cognito sub1:', sub);
 
@@ -158,6 +160,7 @@ app.post('/get-email', async (req, res) => {
 });
 
 app.post('/change-user-name', async (req, res) => {
+	console.log('calling function: /change-user-name');
     const { sub, newName } = req.body;
     console.log('cognito sub:', sub);
 
