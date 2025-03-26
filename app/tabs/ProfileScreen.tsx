@@ -3,7 +3,6 @@ import { View, Text, TextInput, Switch, Image, TouchableOpacity, StyleSheet, Scr
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 const ProfileScreen = () => {
     const [name, setName] = useState('');
     const [originalName, setOriginalName] = useState('');
@@ -27,74 +26,62 @@ const ProfileScreen = () => {
         } catch (e) {
           console.error('Failed to retrieve cognitoSub', e);
         }
-      }
+        return null;
+    };
+
+    const fetchUserName = async () => {
+        const cognitoSub = await getCognitoSub();
+        if (!cognitoSub) {
+            console.error("Cognito sub not found in localStorage.");
+            return;
+        }
+
+        const response = await fetch("http://3.85.25.255:3000/get-user-name", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ sub: cognitoSub })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            setName(data.name);
+            setOriginalName(data.name);
+        } else {
+            console.error("Error fetching name:", data.message);
+        }
+    };
+
+    const fetchEmail = async () => {
+        const cognitoSub = await getCognitoSub();
+        if (!cognitoSub) {
+            console.error("Cognito sub not found in localStorage.");
+            return;
+        }
+
+        const response = await fetch("http://3.85.25.255:3000/get-email", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ sub: cognitoSub })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            setEmail(data.email);
+        } else {
+            console.error("Error fetching email:", data.message);
+        }
+    };
 
     useEffect(() => {
-        const fetchUserName = async () => {
-          try {
-            // Get Cognito sub from local storage
-            const cognitoSub = await getCognitoSub();
-            if (!cognitoSub) {
-              console.error("Cognito sub not found in localStorage.");
-              return;
-            }
-    
-            const response = await fetch("http://3.85.25.255:3000/get-user-name", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ sub: cognitoSub }) // Send sub to backend
-            });
-    
-            const data = await response.json();
-            if (response.ok) {
-                setName(data.name);
-                setOriginalName(data.name);
-            } else {
-              console.error("Error fetching name:", data.message);
-            }
-          } catch (error) {
-            console.error("❌ Network error:", error);
-          }
-        };
-    
         fetchUserName();
-      }, []);
-
-      useEffect(() => {
-        const fetchEmail = async () => {
-          try {
-            // Get Cognito sub from local storage
-            const cognitoSub = await getCognitoSub();
-            if (!cognitoSub) {
-              console.error("Cognito sub not found in localStorage.");
-              return;
-            }
-    
-            const response = await fetch("http://3.85.25.255:3000/get-email", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ sub: cognitoSub }) // Send sub to backend
-            });
-    
-            const data = await response.json();
-            if (response.ok) {
-              setEmail(data.email);
-            } else {
-              console.error("Error fetching name:", data.message);
-            }
-          } catch (error) {
-            console.error("❌ Network error:", error);
-          }
-        };
-    
         fetchEmail();
-      }, []);
+    }, []);
 
-      const handleSave = async () => {
+    const handleSave = async () => {
         const cognitoSub = await getCognitoSub();
         if (!cognitoSub) {
             console.error("Cognito sub not found.");
@@ -110,18 +97,19 @@ const ProfileScreen = () => {
                 body: JSON.stringify({ sub: cognitoSub, newName: name })
             });
 
-            if (!response.ok) {
+            if (response.ok) {
+                console.log("Name updated successfully.");
+                setOriginalName(name);
+            } else {
                 const data = await response.json();
                 console.error("Error updating name:", data.message);
             }
         }
-
-        toggleEditMode(); // This will turn off edit mode
     };
 
     const handleImageUpload = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [1, 1],
             quality: 1,
@@ -140,10 +128,10 @@ const ProfileScreen = () => {
     };
 
     const toggleEditMode = () => {
-        setEditMode(!editMode);
         if (editMode) {
             handleSave();
         }
+        setEditMode(!editMode);
     };
 
     return (
@@ -156,14 +144,14 @@ const ProfileScreen = () => {
             </View>
 
             <ScrollView style={styles.container}>
-            <View style={styles.imageContainer}> {/* Allows the image to be centered */}
-                  {image ? (
-                      <Image source={{ uri: image }} style={styles.image} />
-                  ) : (
-                      <View style={styles.placeholderImage}>
-                          <Text>None</Text>
-                      </View>
-                  )}
+                <View style={styles.imageContainer}>
+                    {image ? (
+                        <Image source={{ uri: image }} style={styles.image} />
+                    ) : (
+                        <View style={styles.placeholderImage}>
+                            <Text>None</Text>
+                        </View>
+                    )}
                 </View>
 
                 <TouchableOpacity style={styles.uploadButton} onPress={handleImageUpload}>
@@ -245,9 +233,9 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     imageContainer: {
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginVertical: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical: 10,
     },
     image: {
         width: 150,
