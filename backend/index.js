@@ -94,9 +94,11 @@ app.get('/get-user-image', async (req, res) => {
             Key: filePath
         };
         await s3.send(new HeadObjectCommand(headParams));
+        console.log('File found in S3, generating URL...');
         generateSignedUrl(filePath, bucketName, res);
     } catch (headErr) {
         if (headErr.name === 'NotFound') {
+            console.log('File not found, using default path...');
             generateSignedUrl(defaultPath, bucketName, res);
         } else {
             res.status(500).json({ error: 'Error accessing S3', details: headErr });
