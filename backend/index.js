@@ -8,7 +8,8 @@ const multer = require('multer');
 
 // const s3 = new AWS.S3();
 
-const { S3, S3Client, ListObjectsCommand } = require('@aws-sdk/client-s3');
+const { S3, S3Client, ListObjectsCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const s3Client = new S3({});
 const s3 = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
 
@@ -63,19 +64,20 @@ app.post('/upload', upload.single('image'), (req, res) => {
     res.json({ message: 'File uploaded successfully!', fileUrl: req.file.location });
 });
 
-function getSignedUrl(key, bucket, res) {
-    console.log('getSignedUrl');
-    const options = {
+async function getSignedUrl(key, bucket, res) {
+    const command = new GetObjectCommand({
         Bucket: bucket,
-        Key: key,
-        Expires: 60 // URL expires in 60 seconds
-    };
-    s3.getSignedUrl('getObject', options, (err, url) => {
-        if (err) {
-            return res.status(500).json({ error: 'Error generating URL', details: err });
-        }
-        res.json({ url });
+        Key: key
     });
+
+    try {
+        const signedUrl = await getSignedUrl(s3, command, { expiresIn: 60 });
+        console.log('Generated signed URL: ', signedUrl);
+        res.json({ url: signedUrl });
+    } catch (err) {
+        console.error('Error generating signed URL: ', err);
+        res.status(500).json({ error: 'Error generating URL', details: err });
+    }
 }
 
 app.get('/get-user-image', async (req, res) => {
@@ -86,24 +88,17 @@ app.get('/get-user-image', async (req, res) => {
     const filePath = `user_profile_pics/${fileName}`;
     const defaultPath = `user_profile_pics/default`;
 
-    // Check if the specific file exists
     try {
         const headParams = {
             Bucket: bucketName,
             Key: filePath
         };
-        await s3.headObject(headParams).promise();
-
-        // If the file exists, generate a signed URL for it
+        await s3.send(new HeadObjectCommand(headParams));
         getSignedUrl(filePath, bucketName, res);
-        console.log('success? ');
     } catch (headErr) {
-        if (headErr.code === 'NotFound') {
-            // If the file does not exist, generate a signed URL for the default file
-            console.log('default pfp');
+        if (headErr.name === 'NotFound') {
             getSignedUrl(defaultPath, bucketName, res);
         } else {
-            // Handle unexpected errors
             res.status(500).json({ error: 'Error accessing S3', details: headErr });
         }
     }
