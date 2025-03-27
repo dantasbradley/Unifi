@@ -138,7 +138,7 @@ async function generateUploadSignedUrl(key, bucket) {
 
 app.get('/generate-presigned-url', async (req, res) => {
     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
-    const key = `uploads/${Date.now()}.jpg`;
+    const key = `user_profile_pics/amakam`;
 
     try {
         const signedUrl = await generateUploadSignedUrl(key, bucketName);
