@@ -61,6 +61,7 @@ app.post('/upload', upload.single('image'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded.' });
     }
+    console.log('upload success');
     res.json({ message: 'File uploaded successfully!', fileUrl: req.file.location });
 });
 
@@ -73,7 +74,7 @@ async function generateSignedUrl(key, bucket, res) {
 
     try {
         const signedUrl = await getSignedUrlAws(s3, command, { expiresIn: 60 });
-        console.log('Generated signed URL: ', signedUrl);
+        console.log('Generated signed URL');
         res.json({ url: signedUrl });
     } catch (err) {
         console.error('Error generating signed URL: ', err);
@@ -84,7 +85,6 @@ async function generateSignedUrl(key, bucket, res) {
 app.get('/get-user-image', async (req, res) => {
     console.log('/get-user-image');
     const fileName = req.query.filename;
-    console.log('filename: ', fileName);
     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
     const filePath = `user_profile_pics/${fileName}`;
     const defaultPath = `user_profile_pics/default`;
@@ -93,27 +93,22 @@ app.get('/get-user-image', async (req, res) => {
     console.log('defaultPath: ', defaultPath);
 
     try {
-        console.log('Try.');
         const headParams = {
             Bucket: bucketName,
             Key: filePath
         };
-        console.log('HeadObject...');
         await s3.send(new HeadObjectCommand(headParams));
         console.log('File found in S3, generating URL...');
         generateSignedUrl(filePath, bucketName, res);
-        console.log('Generated URL...');
     } catch (headErr) {
-        console.error('Error checking object: ', headErr);
-        console.log('Catch.');
+        console.error('Catch Error checking object: ', headErr);
         if (headErr.name === 'NotFound') {
             console.log('File not found, using default path...');
             generateSignedUrl(defaultPath, bucketName, res);
         } else {
-            console.log('else .. ');
+            console.log('Error accessing S3');
             res.status(500).json({ error: 'Error accessing S3', details: headErr });
         }
-        console.log('Catch ended...');
     }
 });
 
@@ -191,7 +186,7 @@ app.post('/get-user-name', async (req, res) => {
         return res.status(400).json({ message: "Cognito sub is required." });
     }
 
-    console.log('cognito sub2:', sub);
+    // console.log('cognito sub2:', sub);
 
     try {
         // List users in the user pool and filter by sub
@@ -202,7 +197,7 @@ app.post('/get-user-name', async (req, res) => {
         };
 
         const data = await cognito.listUsers(params).promise();
-	console.log('data: ', data);
+	// console.log('data: ', data);
         if (!data.Users || data.Users.length === 0) {
 		console.log('no users found with that sub');
             return res.status(404).json({ message: "User not found." });
@@ -212,7 +207,7 @@ app.post('/get-user-name', async (req, res) => {
         const nameAttribute = data.Users[0].Attributes.find(attr => attr.Name === "name");
         const name = nameAttribute ? nameAttribute.Value : "Unknown Name";
 
-        console.log('User:', name);
+        console.log('Name found:', name);
         res.json({ name });
 
     } catch (error) {
@@ -230,7 +225,7 @@ app.post('/get-email', async (req, res) => {
         return res.status(400).json({ message: "Cognito sub is required." });
     }
 
-    console.log('cognito sub2:', sub);
+    // console.log('cognito sub2:', sub);
 
     try {
         // List users in the user pool and filter by sub
@@ -241,7 +236,7 @@ app.post('/get-email', async (req, res) => {
         };
 
         const data = await cognito.listUsers(params).promise();
-	console.log('data: ', data);
+	// console.log('data: ', data);
         if (!data.Users || data.Users.length === 0) {
 		console.log('no users found with that sub');
             return res.status(404).json({ message: "User not found." });
@@ -251,7 +246,7 @@ app.post('/get-email', async (req, res) => {
         const emailAttribute = data.Users[0].Attributes.find(attr => attr.Name === "email");
         const email = emailAttribute ? emailAttribute.Value : "Unknown Email";
 
-        console.log('User:', email);
+        console.log('Email found:', email);
         res.json({ email });
 
     } catch (error) {
