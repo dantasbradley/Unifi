@@ -49,8 +49,7 @@ const upload = multer({
         s3: s3Client,
         bucket: process.env.S3_BUCKET_NAME || 'bucket-unify',
         key: function (req, file, cb) {
-            const newFilename = `Bradley_${Date.now()}${file.originalname}`;
-            const fullPath = `user_profile_pics/${newFilename}`;
+            const fullPath = `user_profile_pics/${file.originalname}`;
             cb(null, fullPath);
         }
     })
