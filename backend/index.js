@@ -9,7 +9,7 @@ const multer = require('multer');
 // const s3 = new AWS.S3();
 
 const { S3, S3Client, ListObjectsCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const { getSignedUrl: getSignedUrlAws } = require('@aws-sdk/s3-request-presigner');
 const s3Client = new S3({});
 const s3 = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
 
@@ -64,14 +64,14 @@ app.post('/upload', upload.single('image'), (req, res) => {
     res.json({ message: 'File uploaded successfully!', fileUrl: req.file.location });
 });
 
-async function getSignedUrl(key, bucket, res) {
+async function generateSignedUrl(key, bucket, res) {
     const command = new GetObjectCommand({
         Bucket: bucket,
         Key: key
     });
 
     try {
-        const signedUrl = await getSignedUrl(s3, command, { expiresIn: 60 });
+        const signedUrl = await getSignedUrlAws(s3, command, { expiresIn: 60 });
         console.log('Generated signed URL: ', signedUrl);
         res.json({ url: signedUrl });
     } catch (err) {
@@ -94,10 +94,10 @@ app.get('/get-user-image', async (req, res) => {
             Key: filePath
         };
         await s3.send(new HeadObjectCommand(headParams));
-        getSignedUrl(filePath, bucketName, res);
+        generateSignedUrl(filePath, bucketName, res);
     } catch (headErr) {
         if (headErr.name === 'NotFound') {
-            getSignedUrl(defaultPath, bucketName, res);
+            generateSignedUrl(defaultPath, bucketName, res);
         } else {
             res.status(500).json({ error: 'Error accessing S3', details: headErr });
         }
