@@ -48,25 +48,13 @@ const upload = multer({
     storage: multerS3({
         s3: s3Client,
         bucket: process.env.S3_BUCKET_NAME || 'bucket-unify',
-        acl: 'public-read',
         key: function (req, file, cb) {
-            cb(null, `uploads/${Date.now()}_${file.originalname}`);
+            const newFilename = `Bradley_${Date.now()}${file.originalname}`;
+            const fullPath = `user_profile_pics/${newFilename}`;
+            cb(null, fullPath);
         }
     })
 });
-
-// Test route to check S3 bucket connectivity
-app.get('/test-s3', (req, res) => {
-    s3.listObjects({ Bucket: 'bucket-unify' }, function(err, data) {
-      if (err) {
-        console.log(err, err.stack); // an error occurred
-        res.status(500).send('Error accessing S3: ' + err.message);
-      } else {
-        console.log(data); // successful response
-        res.send('S3 Bucket Contents: ' + JSON.stringify(data));
-      }
-    });
-  });
 
 app.post('/upload', upload.single('image'), (req, res) => {
     if (!req.file) {
@@ -74,6 +62,19 @@ app.post('/upload', upload.single('image'), (req, res) => {
     }
     res.json({ message: 'File uploaded successfully!', fileUrl: req.file.location });
 });
+
+// Test route to check S3 bucket connectivity
+// app.get('/test-s3', (req, res) => {
+//     s3.listObjects({ Bucket: 'bucket-unify' }, function(err, data) {
+//       if (err) {
+//         console.log(err, err.stack); // an error occurred
+//         res.status(500).send('Error accessing S3: ' + err.message);
+//       } else {
+//         console.log(data); // successful response
+//         res.send('S3 Bucket Contents: ' + JSON.stringify(data));
+//       }
+//     });
+//   });
 
 // ✅ LOGIN Route with AWS Cognito
 app.post('/login', (req, res) => {
