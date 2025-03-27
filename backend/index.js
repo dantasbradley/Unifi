@@ -65,6 +65,7 @@ app.post('/upload', upload.single('image'), (req, res) => {
 });
 
 async function generateSignedUrl(key, bucket, res) {
+    console.log('generateSignedUrl ', signedUrl);
     const command = new GetObjectCommand({
         Bucket: bucket,
         Key: key
@@ -87,16 +88,22 @@ app.get('/get-user-image', async (req, res) => {
     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
     const filePath = `user_profile_pics/${fileName}`;
     const defaultPath = `user_profile_pics/default`;
+    console.log('filepath: ', filePath);
+    console.log('defaultPath: ', defaultPath);
 
     try {
+        console.log('Try.');
         const headParams = {
             Bucket: bucketName,
             Key: filePath
         };
+        console.log('HeadObject...');
         await s3.send(new HeadObjectCommand(headParams));
         console.log('File found in S3, generating URL...');
         generateSignedUrl(filePath, bucketName, res);
+        console.log('Generated URL...');
     } catch (headErr) {
+        console.log('Catch.');
         if (headErr.name === 'NotFound') {
             console.log('File not found, using default path...');
             generateSignedUrl(defaultPath, bucketName, res);
