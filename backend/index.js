@@ -62,6 +62,48 @@ app.post('/upload', upload.single('image'), (req, res) => {
     res.json({ message: 'File uploaded successfully!', fileUrl: req.file.location });
 });
 
+app.get('/get-user-image', async (req, res) => {
+    const fileName = req.query.filename;
+    const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
+    const filePath = `user_profile_pics/${fileName}`;
+    const defaultPath = `user_profile_pics/default`;
+
+    // Check if the specific file exists
+    try {
+        const headParams = {
+            Bucket: bucketName,
+            Key: filePath
+        };
+        await s3.headObject(headParams).promise();
+
+        // If the file exists, generate a signed URL for it
+        getSignedUrl(filePath, bucketName, res);
+    } catch (headErr) {
+        if (headErr.code === 'NotFound') {
+            // If the file does not exist, generate a signed URL for the default file
+            getSignedUrl(defaultPath, bucketName, res);
+        } else {
+            // Handle unexpected errors
+            res.status(500).json({ error: 'Error accessing S3', details: headErr });
+        }
+    }
+});
+
+function getSignedUrl(key, bucket, res) {
+    const options = {
+        Bucket: bucket,
+        Key: key,
+        Expires: 60 // URL expires in 60 seconds
+    };
+    s3.getSignedUrl('getObject', options, (err, url) => {
+        if (err) {
+            return res.status(500).json({ error: 'Error generating URL', details: err });
+        }
+        res.json({ url });
+    });
+}
+
+
 // Test route to check S3 bucket connectivity
 // app.get('/test-s3', (req, res) => {
 //     s3.listObjects({ Bucket: 'bucket-unify' }, function(err, data) {
