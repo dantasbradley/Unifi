@@ -65,7 +65,7 @@ app.post('/upload', upload.single('image'), (req, res) => {
 });
 
 async function generateSignedUrl(key, bucket, res) {
-    console.log('generateSignedUrl ', signedUrl);
+    console.log('generateSignedUrl called');
     const command = new GetObjectCommand({
         Bucket: bucket,
         Key: key
