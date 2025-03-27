@@ -8,7 +8,7 @@ const multer = require('multer');
 
 // const s3 = new AWS.S3();
 
-const { S3, S3Client, ListObjectsCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { S3, S3Client, ListObjectsCommand, GetObjectCommand, HeadObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl: getSignedUrlAws } = require('@aws-sdk/s3-request-presigner');
 const s3Client = new S3({});
 const s3 = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
