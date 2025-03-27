@@ -30,6 +30,10 @@ let server;
 
 app.use(express.json());
 app.use(cors());
+// Set a higher limit if you expect large payloads
+app.use(bodyParser.json({ limit: '50mb' }));
+// If you're also expecting large URL encoded data:
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 const COGNITO_CLIENT_ID = process.env.COGNITO_CLIENT_ID || 'eoesr0bfd0n7i9l8t0vttgjff';
 
