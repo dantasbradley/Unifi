@@ -88,6 +88,7 @@ app.get('/get-user-image', async (req, res) => {
     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
     const filePath = `user_profile_pics/${fileName}`;
     const defaultPath = `user_profile_pics/default`;
+    console.log('bucketName: ', bucketName);
     console.log('filepath: ', filePath);
     console.log('defaultPath: ', defaultPath);
 
