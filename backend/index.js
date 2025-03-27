@@ -125,6 +125,18 @@ async function generateSignedUrl(key, bucket, res) {
     }
 }
 
+// Function to generate PUT signed URL
+async function generateUploadSignedUrl(key, bucket) {
+    const command = new PutObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        ContentType: 'image/jpeg',  // Adjust as needed
+        ACL: 'public-read',         // Adjust as needed
+    });
+
+    return await getSignedUrlAws(s3, command, { expiresIn: 300 }); // 5 mins expiry
+}
+
 app.get('/generate-presigned-url', async (req, res) => {
     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
     const key = `uploads/${Date.now()}.jpg`;
