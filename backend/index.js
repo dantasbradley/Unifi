@@ -73,6 +73,7 @@ const upload = multer({
 
 app.post('/upload', (req, res) => {
     console.log('/upload');
+    console.log('Request Body:', req.body);
     const { image, filename } = req.body; // Assume the image is sent as a Base64 string
 
     if (!image) {
