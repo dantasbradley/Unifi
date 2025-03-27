@@ -107,6 +107,24 @@ app.post('/upload', (req, res) => {
     });
 });
 
+app.get('/generate-presigned-url', (req, res) => {
+    const params = {
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: `uploads/${Date.now()}.jpg`, // Ensure this key is unique for each upload
+        Expires: 60 * 5, // The URL will expire in 5 minutes
+        ContentType: 'image/jpeg', // Required if you are uploading an image
+        ACL: 'public-read' // Set appropriate ACL according to your requirements
+    };
+
+    s3.getSignedUrl('putObject', params, (err, url) => {
+        if (err) {
+            console.error("Error creating signed URL", err);
+            return res.status(500).json({ error: 'Error creating signed URL' });
+        }
+        res.json({ url });
+    });
+});
+
 async function generateSignedUrl(key, bucket, res) {
     console.log('generateSignedUrl called');
     const command = new GetObjectCommand({
