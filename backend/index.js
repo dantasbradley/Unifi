@@ -61,14 +61,49 @@ const upload = multer({
     })
 });
 
-app.post('/upload', upload.single('image'), (req, res) => {
+// app.post('/upload', upload.single('image'), (req, res) => {
+//     console.log('/upload');
+//     if (!req.file) {
+//         console.log('No file uploaded');
+//         return res.status(400).json({ message: 'No file uploaded.' });
+//     }
+//     console.log('upload success');
+//     res.json({ message: 'File uploaded successfully!', fileUrl: req.file.location });
+// });
+
+app.post('/upload', (req, res) => {
     console.log('/upload');
-    if (!req.file) {
-        console.log('No file uploaded');
-        return res.status(400).json({ message: 'No file uploaded.' });
+    const { image, filename } = req.body; // Assume the image is sent as a Base64 string
+
+    if (!image) {
+        console.log('No image data provided');
+        return res.status(400).json({ message: 'No image data provided.' });
     }
-    console.log('upload success');
-    res.json({ message: 'File uploaded successfully!', fileUrl: req.file.location });
+
+    // Decode the Base64 string to binary data
+    const buffer = Buffer.from(image, 'base64');
+
+    // Specify the S3 Bucket and Key
+    const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
+    const key = `user_profile_pics/${filename}`;
+
+    // Upload to S3
+    const params = {
+        Bucket: bucketName,
+        Key: key,
+        Body: buffer,
+        ContentType: 'image/png', // You might want to dynamically determine the content type
+        ACL: 'public-read' // Depending on your S3 bucket policy
+    };
+
+    s3Client.upload(params, function(s3Err, data) {
+        if (s3Err) {
+            console.error('Error uploading to S3:', s3Err);
+            return res.status(500).json({ message: 'Failed to upload image.', error: s3Err });
+        }
+        console.log('Upload successful:', data);
+        res.json({ message: 'File uploaded successfully!', fileUrl: data.Location });
+    });
 });
 
 async function generateSignedUrl(key, bucket, res) {
