@@ -8,9 +8,8 @@ const multer = require('multer');
 
 // const s3 = new AWS.S3();
 
-const { S3 } = require('@aws-sdk/client-s3');
+const { S3, S3Client, ListObjectsCommand } = require('@aws-sdk/client-s3');
 const s3Client = new S3({});
-const { S3Client, ListObjectsCommand } = require('@aws-sdk/client-s3');
 const s3 = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
 
 const cognito = new AWS.CognitoIdentityServiceProvider({
@@ -48,7 +47,7 @@ const pool = mysql.createPool({
 const upload = multer({
     storage: multerS3({
         s3: s3Client,
-        bucket: process.env.S3_BUCKET_NAME,
+        bucket: process.env.S3_BUCKET_NAME || 'bucket-unify',
         acl: 'public-read',
         key: function (req, file, cb) {
             cb(null, `uploads/${Date.now()}_${file.originalname}`);
