@@ -131,7 +131,6 @@ async function generateUploadSignedUrl(key, bucket) {
         Bucket: bucket,
         Key: key,
         ContentType: 'image/jpeg',  // Adjust as needed
-        ACL: 'public-read',         // Adjust as needed
     });
 
     return await getSignedUrlAws(s3, command, { expiresIn: 300 }); // 5 mins expiry
