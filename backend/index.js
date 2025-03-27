@@ -5,6 +5,7 @@ const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 const multerS3 = require('multer-s3');
 const multer = require('multer');
+const bodyParser = require('body-parser');
 
 // const s3 = new AWS.S3();
 
