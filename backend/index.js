@@ -108,8 +108,10 @@ app.get('/get-user-image', async (req, res) => {
             console.log('File not found, using default path...');
             generateSignedUrl(defaultPath, bucketName, res);
         } else {
+            console.log('else .. ');
             res.status(500).json({ error: 'Error accessing S3', details: headErr });
         }
+        console.log('Catch ended...');
     }
 });
 
