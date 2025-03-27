@@ -9,12 +9,19 @@ const ProfileScreen = () => {
     const [email, setEmail] = useState('user@example.com');
     const [image, setImage] = useState<string | null>(null);
     const [editMode, setEditMode] = useState(false);
+    const [imageUrl, setImageUrl] = useState('');
     const [notifications, setNotifications] = useState({
         communityUpdates: true,
         nearbyUpdates: true,
         eventReminders: true,
         other: true,
     });
+
+    useEffect(() => {
+        fetchUserName();
+        fetchEmail();
+        fetchImage();
+    }, []);
 
     const getCognitoSub = async () => {
         try {
@@ -35,7 +42,6 @@ const ProfileScreen = () => {
             console.error("Cognito sub not found in localStorage.");
             return;
         }
-
         const response = await fetch("http://3.85.25.255:3000/get-user-name", {
             method: "POST",
             headers: {
@@ -43,7 +49,6 @@ const ProfileScreen = () => {
             },
             body: JSON.stringify({ sub: cognitoSub })
         });
-
         const data = await response.json();
         if (response.ok) {
             setName(data.name);
@@ -59,7 +64,6 @@ const ProfileScreen = () => {
             console.error("Cognito sub not found in localStorage.");
             return;
         }
-
         const response = await fetch("http://3.85.25.255:3000/get-email", {
             method: "POST",
             headers: {
@@ -67,7 +71,6 @@ const ProfileScreen = () => {
             },
             body: JSON.stringify({ sub: cognitoSub })
         });
-
         const data = await response.json();
         if (response.ok) {
             setEmail(data.email);
@@ -76,49 +79,134 @@ const ProfileScreen = () => {
         }
     };
 
-    useEffect(() => {
-        fetchUserName();
-        fetchEmail();
-    }, []);
-
-    const handleSave = async () => {
-        const cognitoSub = await getCognitoSub();
-        if (!cognitoSub) {
-            console.error("Cognito sub not found.");
-            return;
-        }
-
-        if (name !== originalName) {
-            const response = await fetch("http://3.85.25.255:3000/change-user-name", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ sub: cognitoSub, newName: name })
-            });
-
-            if (response.ok) {
-                console.log("Name updated successfully.");
-                setOriginalName(name);
-            } else {
-                const data = await response.json();
-                console.error("Error updating name:", data.message);
-            }
+    const fetchImage = async () => {
+        try {
+            // const emailPrefix = email.split('@')[0];
+            const emailPrefix = 'amakam';
+            const response = await fetch(`http://3.85.25.255:3000/get-user-image?filename=${emailPrefix}`);
+            const data = await response.json();
+            console.log("Signed URL: ", data.url);
+            setImageUrl(data.url);
+        } catch (error) {
+            console.error('Failed to fetch image:', error);
         }
     };
 
+    // const handleImageUpload = async () => {
+    //     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    //     if (permissionResult.granted === false) {
+    //         alert("You've refused to allow this app to access your photos!");
+    //         return;
+    //     }
+
+    //     // const result = await ImagePicker.launchImageLibraryAsync({
+    //     //     mediaTypes: ImagePicker.MediaTypeOptions.Images, // Correct usage
+    //     //     allowsEditing: true,
+    //     //     aspect: [1, 1],
+    //     //     quality: 1,
+    //     // });
+    //     const result = await ImagePicker.launchImageLibraryAsync({
+    //         mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    //         allowsEditing: true,
+    //         aspect: [1, 1],
+    //         quality: 1,
+    //         base64: true,  // Enable base64 data
+    //     }) as any;
+
+    //     if (!result.canceled) {
+    //         // const fileUri = result.assets[0].uri;
+    //         // console.log('File URI:', fileUri);
+    //         // const response = await fetch(fileUri);
+    //         // console.log('Fetched File URI');
+    //         // const blob = await response.blob();
+    //         // console.log('got blob response');
+    //         // let formData = new FormData();
+    //         // console.log('new form data');
+    //         // formData.append('image', blob);
+    //         // console.log('append image with blob data');
+    //         // console.log('blob: ', blob, 'filename.png');
+    //         // console.log('formData: ', formData);
+    //         // console.log('Base64 Data:', result.base64.substring(0, 100));
+
+    //         try {
+    //             console.log('in try block');
+    //             const uploadResponse = await fetch('http://3.85.25.255:3000/upload', {
+    //                 // method: 'POST',
+    //                 // body: formData,
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json'
+    //                 },
+    //                 body: JSON.stringify({
+    //                     image: result.base64,
+    //                     filename: 'upload.png'
+    //                 }),
+    //             });
+    //             if (!uploadResponse.ok) throw new Error(`HTTP status ${uploadResponse.status}`);
+    //             console.log('after upload response');
+    //             const uploadData = await uploadResponse.json();
+    //             console.log(uploadData);
+    //             if (uploadResponse.ok) {
+    //                 alert('Upload successful!');
+    //             } else {
+    //                 alert('Upload failed!');
+    //             }
+    //         } catch (error) {
+    //             console.error("Error uploading file:", error);
+    //             alert('Upload failed!');
+    //         }
+    //     }
+    // };
+
     const handleImageUpload = async () => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (permissionResult.granted === false) {
+            alert("You've refused to allow this app to access your photos!");
+            return;
+        }
+    
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [1, 1],
-            quality: 1,
+            quality: 1,  // Consider whether you need the base64 encoding now
         });
-
+    
         if (!result.canceled) {
-            setImage(result.assets[0].uri);
+            console.log('Image URI:', result.assets[0].uri);
+            uploadImage(result.assets[0].uri);  // Call the upload function with the URI of the picked image
         }
+
     };
+    
+
+    const uploadImage = async (imageUri : any) => {
+        // Fetch the pre-signed URL from your backend
+        const response = await fetch('http://3.85.25.255:3000/generate-presigned-url');
+        const { url } = await response.json();
+    
+        // Fetch the blob from the local file URI
+        const blob = await (await fetch(imageUri)).blob();
+    
+        // Use the pre-signed URL to upload the blob
+        const uploadResponse = await fetch(url, {
+            method: 'PUT',
+            body: blob,
+        });
+    
+        if (uploadResponse.ok) {
+            console.log('Image successfully uploaded to cloud storage');
+            alert('Upload successful!');
+            // Optionally update the state or UI to reflect the upload success
+        } else {
+            console.error('Failed to upload image', await uploadResponse.text());
+            alert('Upload failed!');
+        }
+        console.log("Fetch.");
+        fetchImage();
+        console.log("Fetch done.");
+    };
+    
 
     const toggleNotification = (key: keyof typeof notifications, newValue: boolean) => {
         setNotifications(prevNotifications => ({
@@ -134,6 +222,30 @@ const ProfileScreen = () => {
         setEditMode(!editMode);
     };
 
+    const handleSave = async () => {
+        const cognitoSub = await getCognitoSub();
+        if (!cognitoSub) {
+            console.error("Cognito sub not found.");
+            return;
+        }
+        if (name !== originalName) {
+            const response = await fetch("http://3.85.25.255:3000/change-user-name", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ sub: cognitoSub, newName: name })
+            });
+            if (response.ok) {
+                console.log("Name updated successfully.");
+                setOriginalName(name);
+            } else {
+                const data = await response.json();
+                console.error("Error updating name:", data.message);
+            }
+        }
+    };
+
     return (
         <View style={{ flex: 1 }}>
             <View style={styles.header}>
@@ -142,23 +254,18 @@ const ProfileScreen = () => {
                     <Text style={styles.editButtonText}>{editMode ? 'Save' : 'Edit'}</Text>
                 </TouchableOpacity>
             </View>
-
             <ScrollView style={styles.container}>
                 <View style={styles.imageContainer}>
-                    {image ? (
-                        <Image source={{ uri: image }} style={styles.image} />
+                    {imageUrl ? (
+                        <Image source={{ uri: imageUrl }} style={styles.image} />
                     ) : (
-                        <View style={styles.placeholderImage}>
-                            <Text>None</Text>
-                        </View>
+                        <Text>Loading image...</Text>
                     )}
                 </View>
-
                 <TouchableOpacity style={styles.uploadButton} onPress={handleImageUpload}>
                     <Text style={styles.uploadButtonText}>📂 Select file to upload</Text>
                 </TouchableOpacity>
                 {image && <Text style={styles.uploadedText}>{image.split('/').pop()} uploaded</Text>}
-
                 <View style={styles.inputContainer}>
                     <Text style={styles.inputLabel}>Full Name:</Text>
                     <TextInput 
@@ -172,7 +279,6 @@ const ProfileScreen = () => {
                 <View style={styles.emailContainer}>
                     <Text style={styles.emailLabel}>Email: {email}</Text>
                 </View>
-
                 <Text style={styles.sectionHeader}>Notifications</Text>
                 {Object.entries(notifications).map(([key, value]) => (
                     <View key={key} style={styles.notificationRow}>
@@ -292,16 +398,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 10,
     },
-    inputLabel: {
-        color: '#fff',
-        marginBottom: 10,
-        marginLeft: 90
-    },
     emailContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 10,
+    },
+    inputLabel: {
+        color: '#fff',
+        marginBottom: 10,
+        marginLeft: 90
     },
     emailLabel: {
         color: '#fff',
