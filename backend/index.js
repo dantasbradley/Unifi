@@ -104,6 +104,7 @@ app.get('/get-user-image', async (req, res) => {
         generateSignedUrl(filePath, bucketName, res);
         console.log('Generated URL...');
     } catch (headErr) {
+        console.error('Error checking object: ', headErr);
         console.log('Catch.');
         if (headErr.name === 'NotFound') {
             console.log('File not found, using default path...');
