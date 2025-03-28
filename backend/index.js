@@ -484,30 +484,34 @@ app.get('/api/clubs', (req, res) => {
             console.error('Error fetching clubs:', err);
             return res.status(500).json({ message: 'Failed to retrieve clubs' });
         }
-        console.log('Clubs fetched successfully:', results);
+        console.log('Clubs fetched successfully');
         res.json(results); // Send the retrieved clubs as a JSON response
     });
 });
 
 app.post('/api/add-club', (req, res) => {
     console.log('=== /api/add-club');
-    const { name } = req.body;
+    const { name, location } = req.body;
 
     console.log('name: ', name);
+    console.log('location:', location);
 
-    if (!name) {
-        console.log('name is required');
-        return res.status(400).json({ message: 'Club name is required.' });
+    if (!name || !location) {
+        console.log('Both name and location are required');
+        return res.status(400).json({ message: 'Club name and location are required.' });
     }
 
-    const query = 'INSERT INTO test.clubs (name) VALUES (?)';
+    const query = 'INSERT INTO test.clubs (name, location) VALUES (?, ?)';
 
-    pool.query(query, [name], (error, results) => {
+    pool.query(query, [name, location], (error, results) => {
         if (error) {
             console.error('Error inserting club:', error);
             return res.status(500).json({ message: 'Database error', error });
         }
-        res.status(201).json({ message: 'Club added successfully', club_id: results.insertId });
+        res.status(201).json({ 
+            message: 'Club added successfully', 
+            id: results.insertId 
+        });
     });
 });
 
