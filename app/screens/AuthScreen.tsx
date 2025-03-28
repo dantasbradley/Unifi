@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
-import CustomButton from "../components/ExploreComponents/CustomButton"
+import CustomButton from "../components/CustomButton"
 import { Link } from "expo-router";
 const AuthScreen = ({ navigation }: any) => {
   return (
@@ -13,7 +13,7 @@ const AuthScreen = ({ navigation }: any) => {
 
       {/* Login Button */}
       <Link href={"/screens/Login"} asChild>
-        <CustomButton title="Login" onPress={() => null}/>
+        <CustomButton title="Login" onPress={() => null} />
       </Link>
 
 

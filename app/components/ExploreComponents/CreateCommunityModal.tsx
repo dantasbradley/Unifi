@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import CustomButton from "./CustomButton";
+import CustomButton from "./JoinButton";
 
 interface CreateCommunityModalProps {
   visible: boolean;
