@@ -119,6 +119,7 @@ async function generateUploadSignedUrl(key, bucket) {
 }
 
 app.get('/generate-presigned-url', async (req, res) => {
+    console.log('=== /generate-presigned-url');
     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
     // const key = `user_profile_pics/amakam`;
     const key = req.query.key;

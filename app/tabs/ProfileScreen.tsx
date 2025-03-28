@@ -17,10 +17,18 @@ const ProfileScreen = () => {
         other: true,
     });
 
+    // Define dynamic styles based on editMode
+    const getInputStyle = () => ({
+        flex: 1,
+        backgroundColor: editMode ? '#fff' : '#000', // White when editing, black otherwise
+        color: editMode ? '#000' : '#fff', // Black text when editing, white otherwise
+        padding: 12,
+        borderRadius: 5,
+    });
+
     useEffect(() => {
         fetchUserName();
-        fetchEmail();
-        fetchImage();
+        fetchEmail(); //fetchImage() is called inside this fetch
     }, []);
 
     const getCognitoSub = async () => {
@@ -74,18 +82,20 @@ const ProfileScreen = () => {
         const data = await response.json();
         if (response.ok) {
             setEmail(data.email);
+            fetchImage(data.email); // Call fetchImage directly with the fetched email.
         } else {
             console.error("Error fetching email:", data.message);
         }
     };
 
-    const fetchImage = async () => {
+    const fetchImage = async (_email : any) => {
         try {
-            // const emailPrefix = email.split('@')[0];
-            const emailPrefix = 'amakam';
-            const response = await fetch(`http://3.85.25.255:3000/get-user-image?filename=${emailPrefix}`);
+            const emailPrefix = _email.split('@')[0];
+            // const emailPrefix = 'amakam';
+            const filePath = `user_profile_pics/${emailPrefix}`;
+            const response = await fetch(`http://3.85.25.255:3000/get-user-image?filepath=${filePath}`);
             const data = await response.json();
-            console.log("Signed URL: ", data.url);
+            // console.log("Signed URL: ", data.url);
             setImageUrl(data.url);
         } catch (error) {
             console.error('Failed to fetch image:', error);
@@ -173,16 +183,20 @@ const ProfileScreen = () => {
         });
     
         if (!result.canceled) {
-            console.log('Image URI:', result.assets[0].uri);
-            uploadImage(result.assets[0].uri);  // Call the upload function with the URI of the picked image
+            // console.log('Image URI:', result.assets[0].uri);
+
+            const emailPrefix = email.split('@')[0];
+            const key = `user_profile_pics/${emailPrefix}`;
+            // const key = 'user_profile_pics/amakam';
+            uploadImage(result.assets[0].uri, key);  // Call the upload function with the URI of the picked image
         }
 
     };
     
 
-    const uploadImage = async (imageUri : any) => {
+    const uploadImage = async (imageUri : any, key : any) => {
         // Fetch the pre-signed URL from your backend
-        const response = await fetch('http://3.85.25.255:3000/generate-presigned-url');
+        const response = await fetch(`http://3.85.25.255:3000/generate-presigned-url?key=${key}`);
         const { url } = await response.json();
     
         // Fetch the blob from the local file URI
@@ -203,7 +217,7 @@ const ProfileScreen = () => {
             alert('Upload failed!');
         }
         console.log("Fetch.");
-        fetchImage();
+        fetchImage(email);
         console.log("Fetch done.");
     };
     
@@ -247,7 +261,7 @@ const ProfileScreen = () => {
     };
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.headerText}>Account</Text>
                 <TouchableOpacity onPress={toggleEditMode} style={styles.editButton}>
@@ -266,19 +280,26 @@ const ProfileScreen = () => {
                     <Text style={styles.uploadButtonText}>📂 Select file to upload</Text>
                 </TouchableOpacity>
                 {image && <Text style={styles.uploadedText}>{image.split('/').pop()} uploaded</Text>}
+                
+                {/* Input container for Full Name */}
                 <View style={styles.inputContainer}>
-                    <Text style={styles.inputLabel}>Full Name:</Text>
+                    <Text style={styles.label}>Full Name:</Text>
                     <TextInput 
-                        style={styles.input} 
+                        style={getInputStyle()}  // Apply dynamic styles here
                         value={name} 
                         onChangeText={setName} 
                         placeholder="Full Name"
                         editable={editMode} 
                     />
                 </View>
-                <View style={styles.emailContainer}>
-                    <Text style={styles.emailLabel}>Email: {email}</Text>
+                
+                {/* Input container for Email */}
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Email:</Text>
+                    <Text style={styles.input}>{email}</Text>
                 </View>
+                
+                {/* Notifications Section */}
                 <Text style={styles.sectionHeader}>Notifications</Text>
                 {Object.entries(notifications).map(([key, value]) => (
                     <View key={key} style={styles.notificationRow}>
@@ -331,12 +352,23 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginBottom: 10,
     },
+    inputContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    label: {
+        color: '#fff',
+        marginRight: 10,
+        width: 100,  // Fixed width for alignment
+    },
     input: {
+        flex: 1,
         backgroundColor: '#000',
+        color: '#fff',
         padding: 12,
         borderRadius: 5,
-        marginBottom: 10,
-        color: '#fff',
     },
     imageContainer: {
         justifyContent: 'center',
@@ -391,12 +423,6 @@ const styles = StyleSheet.create({
     editButtonText: {
         color: '#fff',
         fontWeight: 'bold',
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 10,
     },
     emailContainer: {
         flexDirection: 'row',
