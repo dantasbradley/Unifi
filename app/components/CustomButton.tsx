@@ -17,15 +17,15 @@ CustomButton.displayName = "CustomButton";
 
 const styles = StyleSheet.create({
   button: {
-    width: "80%",
     backgroundColor: "#fff",
-    padding: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
     borderRadius: 10,
     alignItems: "center",
-    marginVertical: 10,
+    justifyContent: "center",
   },
   text: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     color: "#000",
   },

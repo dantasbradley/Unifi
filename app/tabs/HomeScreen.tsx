@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native
 import { Ionicons } from "@expo/vector-icons";
 
 const HomeScreen = () => {
-  // Sample data; Replace later with data from communities
+  // Sample data; replace later with data from communities
   const [posts, setPosts] = useState([
     {
       id: "1",
