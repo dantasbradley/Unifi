@@ -476,6 +476,17 @@ app.get('/api/db-test', (req, res) => {
     });
 });
 
+// Function to retrieve all clubs
+app.get('/api/clubs', (req, res) => {
+    pool.query('SELECT * FROM clubs', (err, results) => {
+        if (err) {
+            console.error('Error fetching clubs:', err);
+            return res.status(500).json({ message: 'Failed to retrieve clubs' });
+        }
+        res.json(results); // Send the retrieved clubs as a JSON response
+    });
+});
+
 app.post('/api/add-club', (req, res) => {
     console.log('=== /api/add-club');
     const { name } = req.body;
