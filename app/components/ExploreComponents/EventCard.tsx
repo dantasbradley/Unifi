@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -14,10 +14,16 @@ export interface Event {
 
 interface EventCardProps {
   event: Event;
-  onJoin?: () => void;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, onJoin }) => {
+const EventCard: React.FC<EventCardProps> = ({ event }) => {
+  // tracks if user is attending
+  const [isAttending, setIsAttending] = useState(false);
+
+  const handleAttend = () => {
+    setIsAttending((prev) => !prev);
+  };
+
   return (
     <View style={styles.eventContainer}>
       <View style={styles.eventHeader}>
@@ -33,8 +39,10 @@ const EventCard: React.FC<EventCardProps> = ({ event, onJoin }) => {
       </View>
       <Text style={styles.eventTitle}>{event.title}</Text>
       <Text style={styles.eventDescription}>{event.description}</Text>
-      <TouchableOpacity style={styles.joinButton} onPress={onJoin}>
-        <Text style={styles.joinButtonText}>Join</Text>
+      <TouchableOpacity style={styles.attendButton} onPress={handleAttend}>
+        <Text style={styles.attendButtonText}>
+          {isAttending ? "Attending" : "Attend"}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -76,7 +84,7 @@ const styles = StyleSheet.create({
     color: "#ccc",
     marginTop: 5,
   },
-  joinButton: {
+  attendButton: {
     marginTop: 10,
     alignSelf: "flex-end",
     backgroundColor: "#fff",
@@ -84,7 +92,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
-  joinButtonText: {
+  attendButtonText: {
     color: "#000",
     fontWeight: "bold",
   },

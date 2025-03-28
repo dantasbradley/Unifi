@@ -27,7 +27,7 @@ const initialPosts: Post[] = [
   {
     id: "1",
     name: "Group Reading",
-    time: "10h",
+    time: "8h",
     content: "Last Tuesday, we had a huge turnout!",
     likes: 2,
     comments: 0,
