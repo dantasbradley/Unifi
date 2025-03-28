@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, FlatList, StyleSheet, Image, TouchableOpacity,} from "react-native";
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  FlatList, 
+  StyleSheet, 
+  Image, 
+  TouchableOpacity 
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import CustomButton from "../../components/CustomButton";
@@ -17,11 +25,13 @@ const dummyCommunities = [
     name: "Coding Club",
     description: "We tutor and create coding solutions for underprivileged communities.",
   },
-  { id: "3", 
+  { 
+    id: "3", 
     name: "Baking Society",
     description: "Insert description",
   },
-  { id: "4", 
+  { 
+    id: "4", 
     name: "Art Enthusiasts",
     description: "Insert description",
   }
@@ -56,7 +66,7 @@ export default function ExploreScreen() {
       name: newCommunityName || `New Community ${newId}`,
       description:
         newCommunityDescription.trim() ||
-        "We are a group that loves to meet up and share ideas...",
+        "We are a new group looking for more members!",
     };
 
     setCommunities([...communities, newCommunity]);
@@ -123,6 +133,13 @@ export default function ExploreScreen() {
       {modalVisible && (
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
+            {/* x button to exit */}
+            <TouchableOpacity
+              style={styles.modalCloseButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Ionicons name="close" size={24} color="#fff" />
+            </TouchableOpacity>
             <Text style={styles.modalTitle}>Create New Community</Text>
 
             {/* Community Name Field */}
@@ -145,15 +162,11 @@ export default function ExploreScreen() {
               onChangeText={setNewCommunityDescription}
             />
 
-            {/* Row for Create & Cancel buttons */}
+            {/* Row for Create button */}
             <View style={styles.modalButtonRow}>
               <CustomButton
                 title="Create"
                 onPress={addCommunity}
-              />
-              <CustomButton
-                title="Cancel"
-                onPress={() => setModalVisible(false)}
               />
             </View>
           </View>
@@ -237,6 +250,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: "80%",
     alignItems: "center",
+    position: "relative",
+  },
+  modalCloseButton: {
+    position: "absolute",
+    top: 10,
+    left: 10,
   },
   modalTitle: {
     color: "#fff",
@@ -259,8 +278,9 @@ const styles = StyleSheet.create({
   },
   modalButtonRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     width: "100%",
+    marginTop: 10,
   },
   modalButton: {
     width: "45%",
