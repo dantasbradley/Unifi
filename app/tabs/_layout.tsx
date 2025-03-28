@@ -8,7 +8,7 @@ const homeIcon = require("../../assets/images/home.png");
 const exploreIcon = require("../../assets/images/compass.png");
 const calendarIcon = require("../../assets/images/calendar.png");
 const profileIcon = require("../../assets/images/profile.png");
-const notificationIcon = require("../../assets/images/profile.png"); 
+const notificationIcon = require("../../assets/images/notification.png"); 
 const menuIcon = require("../../assets/images/hamburger.png");
 const fallbackIcon = require("../../assets/images/profile.png"); 
 export default function TabLayout() {
