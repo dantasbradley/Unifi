@@ -1,17 +1,18 @@
 import { Tabs } from "expo-router";
 import { Image, TouchableOpacity, View, StyleSheet } from "react-native";
 import Sidebar from "../components/Sidebar";
-import { useHamburger } from "../components/Hamburger"; 
+import { useHamburger } from "../components/Hamburger";
 
-// Import local images
+// Icons
 const homeIcon = require("../../assets/images/home.png");
 const exploreIcon = require("../../assets/images/compass.png");
 const calendarIcon = require("../../assets/images/calendar.png");
 const profileIcon = require("../../assets/images/profile.png");
-const menuIcon = require("../../assets/images/hamburger.png"); 
-
+const notificationIcon = require("../../assets/images/bell.png"); 
+const menuIcon = require("../../assets/images/hamburger.png");
+const fallbackIcon = require("../../assets/images/profile.png"); 
 export default function TabLayout() {
-  const { toggleSidebar } = useHamburger(); 
+  const { toggleSidebar } = useHamburger();
 
   return (
     <View style={styles.container}>
@@ -19,43 +20,67 @@ export default function TabLayout() {
 
       <Tabs
         screenOptions={({ route }) => ({
-          headerShown: true, 
+          headerShown: true,
           headerTitle: "",
-          headerStyle: { backgroundColor: "black" }, 
-          headerTitleStyle: { color: "white" }, // 
-          tabBarStyle: { backgroundColor: "black", height: 60 },
+          headerStyle: { backgroundColor: "black" },
+          headerTitleStyle: { color: "white" },
+
+          tabBarStyle: {
+            backgroundColor: "black",
+            height: 88,
+            paddingBottom: 12,
+            borderTopWidth: 0,
+          },
+          tabBarItemStyle: {
+            height: 88,
+          },
           tabBarShowLabel: false,
-          tabBarLabelStyle: { display: "none" },
+
           tabBarIcon: ({ focused }) => {
-            let iconSource;
-            if (route.name === "HomeScreen") iconSource = homeIcon;
-            else if (route.name === "ExploreScreen") iconSource = exploreIcon;
-            else if (route.name === "CalendarScreen") iconSource = calendarIcon;
-            else if (route.name === "ProfileScreen" || route.name === "NotificationScreen") iconSource = profileIcon;
+            const icons: Record<string, any> = {
+              HomeScreen: homeIcon,
+              ExploreScreen: exploreIcon,
+              CalendarScreen: calendarIcon,
+              ProfileScreen: profileIcon,
+              NotificationScreen: notificationIcon,
+            };
+
+            const iconSource = icons[route.name] || fallbackIcon;
 
             return (
-              <Image
-                source={iconSource}
-                style={{
-                  width: 24,
-                  height: 24,
-                  tintColor: focused ? "white" : "gray",
-                }}
-              />
+              <View style={styles.iconContainer}>
+                <Image
+                  source={iconSource}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    tintColor: focused ? "white" : "gray",
+                  }}
+                />
+              </View>
             );
           },
-          headerLeft: () => ( 
-            <TouchableOpacity onPress={toggleSidebar} style={{ marginLeft: 15 }}>
+
+          headerLeft: () => (
+            <TouchableOpacity onPress={toggleSidebar} style={styles.hamburger}>
               <Image source={menuIcon} style={{ width: 24, height: 24 }} />
             </TouchableOpacity>
           ),
         })}
       >
-        <Tabs.Screen name="HomeScreen" options={{ tabBarLabel: () => null }} />
-        <Tabs.Screen name="ExploreScreen" options={{ tabBarLabel: () => null }} />
-        <Tabs.Screen name="CalendarScreen" options={{ tabBarLabel: () => null }} />
-        <Tabs.Screen name="ProfileScreen" options={{ tabBarLabel: () => null }} />
-        <Tabs.Screen name="NotificationScreen" options={{ tabBarLabel: () => null}} />
+        <Tabs.Screen name="HomeScreen" />
+        <Tabs.Screen name="ExploreScreen" />
+        <Tabs.Screen name="CalendarScreen" />
+        <Tabs.Screen name="ProfileScreen" />
+        <Tabs.Screen name="NotificationScreen" />
+
+        // removes interest page from navbar
+        <Tabs.Screen
+          name="ProfileSetup"
+          options={{
+            href: null, // removes interest page from navbar
+          }}
+        />
       </Tabs>
     </View>
   );
@@ -64,6 +89,14 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black", 
+    backgroundColor: "black",
+  },
+  iconContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  hamburger: {
+    marginLeft: 15,
   },
 });

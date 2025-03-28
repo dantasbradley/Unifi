@@ -13,7 +13,7 @@ const AuthScreen = ({ navigation }: any) => {
 
       {/* Login Button */}
       <Link href={"/screens/Login"} asChild>
-        <CustomButton title="Login" onPress={() => null}/>
+        <CustomButton title="Login" onPress={() => null} />
       </Link>
 
 
