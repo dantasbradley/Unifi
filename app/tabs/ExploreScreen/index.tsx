@@ -1,13 +1,5 @@
 import React, { useState } from "react";
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  FlatList, 
-  StyleSheet, 
-  Image, 
-  TouchableOpacity 
-} from "react-native";
+import { View, Text, TextInput, FlatList, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import CustomButton from "../../components/CustomButton";
@@ -19,21 +11,29 @@ const dummyCommunities = [
     id: "1",
     name: "Alachua County Library District",
     description: "We are a group that loves to read, meet up, and share ideas!",
+    membersCount: "5.0k",
+    location: "Gainesville, FL"
   },
   {
     id: "2",
     name: "Coding Club",
     description: "We tutor and create coding solutions for underprivileged communities.",
+    membersCount: "2.3k",
+    location: "Online"
   },
-  { 
-    id: "3", 
+  {
+    id: "3",
     name: "Baking Society",
     description: "Insert description",
+    membersCount: "900",
+    location: "Ocala, Florida"
   },
-  { 
-    id: "4", 
+  {
+    id: "4",
     name: "Art Enthusiasts",
     description: "Insert description",
+    membersCount: "1.2k",
+    location: "Sarasota, Florida"
   }
 ];
 
@@ -49,7 +49,7 @@ export default function ExploreScreen() {
   const [newCommunityName, setNewCommunityName] = useState("");
   const [newCommunityDescription, setNewCommunityDescription] = useState("");
 
-  // Toggle "join" status
+  // Toggle "join" status 
   const toggleJoinCommunity = (id: string) => {
     setJoinedCommunities((prev) => {
       const newSet = new Set(prev);
@@ -67,6 +67,8 @@ export default function ExploreScreen() {
       description:
         newCommunityDescription.trim() ||
         "We are a new group looking for more members!",
+      membersCount: "0",
+      location: "Unknown"
     };
 
     setCommunities([...communities, newCommunity]);
@@ -81,8 +83,8 @@ export default function ExploreScreen() {
       pathname: "/tabs/ExploreScreen/CommunityDetails",
       params: {
         id: community.id,
-        name: community.name,
-      },
+        name: community.name
+      }
     });
   };
 
@@ -105,18 +107,36 @@ export default function ExploreScreen() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.cardContainer}>
-            {/* Clickable area for details */}
+            {/* Tap area to view details */}
             <TouchableOpacity
               style={styles.infoContainer}
               activeOpacity={0.8}
               onPress={() => goToCommunityDetails(item)}
             >
+              {/* Circular community image */}
               <Image source={placeholderImage} style={styles.communityImage} />
               <View style={styles.textContainer}>
+                {/* Community Name */}
                 <Text style={styles.communityName}>{item.name}</Text>
-                <Text style={styles.communityDesc}>
-                  {item.description}
-                </Text>
+
+                {/* Members + Location */}
+                <View style={styles.secondLine}>
+                  <Ionicons
+                    name="people"
+                    size={14}
+                    color="#ccc"
+                    style={{ marginRight: 4 }}
+                  />
+                  <Text style={styles.secondLineText}>{item.membersCount}</Text>
+
+                  <Ionicons
+                    name="location"
+                    size={14}
+                    color="#ccc"
+                    style={{ marginLeft: 16, marginRight: 4 }}
+                  />
+                  <Text style={styles.secondLineText}>{item.location}</Text>
+                </View>
               </View>
             </TouchableOpacity>
 
@@ -164,10 +184,7 @@ export default function ExploreScreen() {
 
             {/* Row for Create button */}
             <View style={styles.modalButtonRow}>
-              <CustomButton
-                title="Create"
-                onPress={addCommunity}
-              />
+              <CustomButton title="Create" onPress={addCommunity} />
             </View>
           </View>
         </View>
@@ -188,14 +205,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
-    padding: 15,
+    padding: 15
   },
   searchBar: {
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
-    fontSize: 16,
+    fontSize: 16
   },
   cardContainer: {
     flexDirection: "row",
@@ -203,38 +220,42 @@ const styles = StyleSheet.create({
     backgroundColor: "#222",
     borderRadius: 10,
     padding: 10,
-    marginBottom: 10,
+    marginBottom: 10
   },
   infoContainer: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    flex: 1
   },
   communityImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    marginRight: 10,
+    width: 50,
+    height: 50,
+    borderRadius: 15,
+    marginRight: 10
   },
   textContainer: {
     flex: 1,
+    justifyContent: "center"
   },
   communityName: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 5,
+    marginBottom: 4,
     flexWrap: "wrap",
-    flexShrink: 1,
+    flexShrink: 1
   },
-  communityDesc: {
+  secondLine: {
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  secondLineText: {
     color: "#ccc",
-    fontSize: 14,
-    flexWrap: "wrap",
-    flexShrink: 1,
+    fontSize: 14
   },
+
+  // Modal styles
   modalOverlay: {
-    // Ensures overlay fully covers the screen
     position: "absolute",
     top: 0,
     right: 0,
@@ -242,7 +263,7 @@ const styles = StyleSheet.create({
     left: 0,
     backgroundColor: "rgba(0,0,0,0.7)",
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "center"
   },
   modalContainer: {
     backgroundColor: "#000",
@@ -250,23 +271,23 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: "80%",
     alignItems: "center",
-    position: "relative",
+    position: "relative"
   },
   modalCloseButton: {
     position: "absolute",
     top: 10,
-    left: 10,
+    left: 10
   },
   modalTitle: {
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 10
   },
   modalText: {
     color: "#fff",
     marginBottom: 5,
-    alignSelf: "flex-start",
+    alignSelf: "flex-start"
   },
   modalInput: {
     backgroundColor: "#fff",
@@ -274,16 +295,13 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginBottom: 15,
-    color: "#000",
+    color: "#000"
   },
   modalButtonRow: {
     flexDirection: "row",
     justifyContent: "center",
     width: "100%",
-    marginTop: 10,
-  },
-  modalButton: {
-    width: "45%",
+    marginTop: 10
   },
   addButton: {
     position: "absolute",
@@ -295,6 +313,6 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
-    elevation: 5,
-  },
+    elevation: 5
+  }
 });
