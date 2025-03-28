@@ -1,5 +1,14 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  Platform,
+  StatusBar,
+  ScrollView,
+} from "react-native";
 import { useHamburger } from "./Hamburger"; 
 import { Ionicons } from "@expo/vector-icons";
 
@@ -20,22 +29,35 @@ const Sidebar = () => {
       )}
 
       <Animated.View style={[styles.sidebar, { transform: [{ translateX }] }]}>
-        <TouchableOpacity onPress={closeSidebar} style={styles.closeButton}>
-          <Ionicons name="close" size={32} color="white" />
-        </TouchableOpacity>
+        <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+          <View style={styles.headerRow}>
+            <Text style={styles.title}>My Organizations</Text>
 
-        <Text style={styles.title}>My Organizations</Text>
+            <TouchableOpacity onPress={closeSidebar} style={styles.closeButton}>
+              <View style={styles.closeHitbox}>
+                <Ionicons name="close" size={28} color="white" />
+              </View>
+            </TouchableOpacity>
+          </View>
 
-        {/* Figma Organizations. Need to update to pull from backend */}
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={styles.menuText}>Alachua County Library</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={styles.menuText}>Gainesville Ministry</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={styles.menuText}>SCORE North Florida</Text>
-        </TouchableOpacity>
+          {/* Organizations */}
+          <TouchableOpacity style={styles.menuItem}>
+            <Text style={styles.menuText}>Alachua County Library</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem}>
+            <Text style={styles.menuText}>Gainesville Ministry</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem}>
+            <Text style={styles.menuText}>SCORE North Florida</Text>
+          </TouchableOpacity>
+
+          {/* test scrolling */}
+          {Array.from({ length: 20 }).map((_, i) => (
+            <TouchableOpacity key={i} style={styles.menuItem}>
+              <Text style={styles.menuText}>Extra Org {i + 1}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </Animated.View>
     </>
   );
@@ -52,23 +74,40 @@ const styles = StyleSheet.create({
   sidebar: {
     position: "absolute",
     left: 0,
-    top: 0,
+    top: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    bottom: 60, 
     width: 280,
-    height: "100%",
     backgroundColor: "black",
-    padding: 20,
     zIndex: 2,
   },
-  closeButton: {
-    position: "absolute",
-    right: 10,
-    top: 10,
+  scrollContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+    marginTop: Platform.OS === "android"
+  ? (StatusBar.currentHeight || 0) + (70 - (StatusBar.currentHeight || 0))
+  : 70,
+
   },
   title: {
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 20,
+  },
+  closeButton: {
+    marginRight: 0,
+  },
+  closeHitbox: {
+    width: 44,
+    height: 44,
+    justifyContent: "center",
+    alignItems: "center",
   },
   menuItem: {
     paddingVertical: 10,

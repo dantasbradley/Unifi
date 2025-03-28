@@ -1,54 +1,94 @@
-import React from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Image, View } from "react-native";
-import HomeScreen from "../tabs/HomeScreen";
-import ExploreScreen from "../tabs/ExploreScreen";
-import CalendarScreen from "../tabs/CalendarScreen";
-import ProfileScreen from "../tabs/ProfileScreen";
+import { Tabs } from "expo-router";
+import { Image, TouchableOpacity, View, StyleSheet } from "react-native";
+import Sidebar from "../components/Sidebar";
+import { useHamburger } from "../components/Hamburger";
 
 const homeIcon = require("../../assets/images/home.png");
 const exploreIcon = require("../../assets/images/compass.png");
 const calendarIcon = require("../../assets/images/calendar.png");
 const profileIcon = require("../../assets/images/profile.png");
+const extraIcon = require("../../assets/images/profile.png"); 
+const menuIcon = require("../../assets/images/hamburger.png");
+const fallbackIcon = require("../../assets/images/profile.png"); 
 
-const Tab = createBottomTabNavigator();
+export default function TabLayout() {
+  const { toggleSidebar } = useHamburger();
 
-const BottomTabNavigator = () => {
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false, 
-        tabBarStyle: { backgroundColor: "black", height: 60 },
-        tabBarShowLabel: false, 
-        tabBarIcon: ({ focused }) => {
-          let iconSource;
+    <View style={styles.container}>
+      <Sidebar />
 
-          if (route.name === "Home") iconSource = homeIcon;
-          else if (route.name === "Explore") iconSource = exploreIcon;
-          else if (route.name === "Calendar") iconSource = calendarIcon;
-          else if (route.name === "Profile") iconSource = profileIcon;
+      <Tabs
+        screenOptions={({ route }) => ({
+          headerShown: true,
+          headerTitle: "",
+          headerStyle: { backgroundColor: "black" },
+          headerTitleStyle: { color: "white" },
 
-          return (
-            <View style={{ alignItems: "center" }}>
-              <Image
-                source={iconSource}
-                style={{
-                  width: 24,
-                  height: 24,
-                  tintColor: focused ? "white" : "gray",
-                }}
-              />
-            </View>
-          );
-        },
-      })}
-    >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Explore" component={ExploreScreen} />
-      <Tab.Screen name="Calendar" component={CalendarScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
-    </Tab.Navigator>
+          tabBarStyle: {
+            backgroundColor: "black",
+            height: 95,
+            paddingBottom: 15,
+            borderTopWidth: 0,
+          },
+          tabBarItemStyle: {
+            height: 95,
+          },
+          tabBarShowLabel: false,
+
+          tabBarIcon: ({ focused }) => {
+            const icons: Record<string, any> = {
+              HomeScreen: homeIcon,
+              ExploreScreen: exploreIcon,
+              CalendarScreen: calendarIcon,
+              ProfileScreen: profileIcon,
+              ExtraScreen: extraIcon,
+            };
+
+            const iconSource = icons[route.name] || fallbackIcon;
+
+            return (
+              <View style={styles.iconContainer}>
+                <Image
+                  source={iconSource}
+                  style={{
+                    width: 34,
+                    height: 34,
+                    tintColor: focused ? "white" : "gray",
+                  }}
+                />
+              </View>
+            );
+          },
+
+          headerLeft: () => (
+            <TouchableOpacity onPress={toggleSidebar} style={styles.hamburger}>
+              <Image source={menuIcon} style={{ width: 24, height: 24 }} />
+            </TouchableOpacity>
+          ),
+        })}
+      >
+        <Tabs.Screen name="HomeScreen" />
+        <Tabs.Screen name="ExploreScreen" />
+        <Tabs.Screen name="CalendarScreen" />
+        <Tabs.Screen name="ProfileScreen" />
+        <Tabs.Screen name="ExtraScreen" />
+      </Tabs>
+    </View>
   );
-};
+}
 
-export default BottomTabNavigator;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "black",
+  },
+  iconContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  hamburger: {
+    marginLeft: 15,
+  },
+});
