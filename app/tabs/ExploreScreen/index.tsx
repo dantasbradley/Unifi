@@ -7,13 +7,6 @@ import CreateCommunityModal from "../../components/ExploreComponents/CreateCommu
 import CustomButton from '../components/CustomButton';
 
 
-// const dummyCommunities = [
-//   { id: '1', name: 'Coding Club' },
-//   { id: '2', name: 'Baking Society' },
-//   { id: '3', name: 'Art Enthusiasts' },
-//   { id: '4', name: 'Book Readers' },
-//   { id: '5', name: 'Entrepreneurs Network' },
-// ];
 
 // const dummyCommunities: Community[] = [
 //   {
@@ -22,28 +15,7 @@ import CustomButton from '../components/CustomButton';
 //     description: "We are a group that loves to read, meet up, and share ideas!",
 //     membersCount: "5.0k",
 //     location: "Gainesville, FL",
-//   },
-//   {
-//     id: "2",
-//     name: "Coding Club",
-//     description: "We tutor and create coding solutions for underprivileged communities.",
-//     membersCount: "2.3k",
-//     location: "Online",
-//   },
-//   {
-//     id: "3",
-//     name: "Baking Society",
-//     description: "Insert description",
-//     membersCount: "900",
-//     location: "Ocala, Florida",
-//   },
-//   {
-//     id: "4",
-//     name: "Art Enthusiasts",
-//     description: "Insert description",
-//     membersCount: "1.2k",
-//     location: "Sarasota, Florida",
-//   },
+//   }
 // ];
 
 export default function ExploreScreen() {
@@ -89,14 +61,6 @@ export default function ExploreScreen() {
 
   // const addCommunity = () => {
   //   const newId = (communities.length + 1).toString();
-  //   const newCommunity = { id: newId, name: newCommunityName || `New Community ${newId}` };
-  //   setCommunities([...communities, newCommunity]);
-  //   setNewCommunityName('');
-  //   setModalVisible(false);
-  // };
-
-  // const addCommunity = () => {
-  //   const newId = (communities.length + 1).toString();
   //   const newCommunity: Community = {
   //     id: newId,
   //     name: newCommunityName || `New Community ${newId}`,
@@ -104,12 +68,6 @@ export default function ExploreScreen() {
   //     membersCount: "0",
   //     location: newCommunityLocation.trim() || "Unknown",
   //   };
-
-  //   setCommunities([...communities, newCommunity]);
-  //   setNewCommunityName("");
-  //   setNewCommunityLocation("");
-  //   setModalVisible(false);
-  // };
 
   const addCommunity = async () => {
     if (!newCommunityName.trim()) {
@@ -146,7 +104,7 @@ export default function ExploreScreen() {
   
       // setCommunities([...communities, { id: result.club_id, name: newCommunityName }]);
       setCommunities([...communities, { 
-        id: result.club_id, 
+        id: result.id, 
         name: newCommunityName, 
         location: newCommunityLocation,
         membersCount: "0",
