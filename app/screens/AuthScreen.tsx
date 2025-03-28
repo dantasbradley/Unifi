@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
-import CustomButton from "../components/CustomButton"
+import CustomButton from "../components/ExploreComponents/CustomButton"
 import { Link } from "expo-router";
 const AuthScreen = ({ navigation }: any) => {
   return (
