@@ -477,9 +477,13 @@ app.get('/api/db-test', (req, res) => {
 });
 
 app.post('/api/add-club', (req, res) => {
+    console.log('=== /api/add-club');
     const { name } = req.body;
 
+    console.log('name: ', name);
+
     if (!name) {
+        console.log('name is required');
         return res.status(400).json({ message: 'Club name is required.' });
     }
 
