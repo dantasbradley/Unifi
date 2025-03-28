@@ -476,6 +476,25 @@ app.get('/api/db-test', (req, res) => {
     });
 });
 
+app.post('/api/add-club', (req, res) => {
+    const { name } = req.body;
+
+    if (!name) {
+        return res.status(400).json({ message: 'Club name is required.' });
+    }
+
+    const query = 'INSERT INTO test.clubs (name) VALUES (?)';
+
+    pool.query(query, [name], (error, results) => {
+        if (error) {
+            console.error('Error inserting club:', error);
+            return res.status(500).json({ message: 'Database error', error });
+        }
+        res.status(201).json({ message: 'Club added successfully', club_id: results.insertId });
+    });
+});
+
+
 // Simple hello route
 app.get('/', (req, res) => {
     res.send('Hello, World from AWS EC2!');
