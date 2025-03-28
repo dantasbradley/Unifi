@@ -8,8 +8,8 @@ interface CreateCommunityModalProps {
   onClose: () => void;
   newCommunityName: string;
   onChangeName: (value: string) => void;
-  newCommunityDescription: string;
-  onChangeDescription: (value: string) => void;
+  newCommunityLocation: string;
+  onChangeLocation: (value: string) => void;
   onCreate: () => void;
 }
 
@@ -18,8 +18,8 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
   onClose,
   newCommunityName,
   onChangeName,
-  newCommunityDescription,
-  onChangeDescription,
+  newCommunityLocation,
+  onChangeLocation,
   onCreate,
 }) => {
   if (!visible) return null;
@@ -41,13 +41,13 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
           onChangeText={onChangeName}
         />
 
-        <Text style={styles.modalText}>Description:</Text>
+        <Text style={styles.modalText}>Location:</Text>
         <TextInput
           style={styles.modalInput}
-          placeholder="Enter community description"
+          placeholder="Enter community location"
           placeholderTextColor="#aaa"
-          value={newCommunityDescription}
-          onChangeText={onChangeDescription}
+          value={newCommunityLocation}
+          onChangeText={onChangeLocation}
         />
 
         <View style={styles.modalButtonRow}>

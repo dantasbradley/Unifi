@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, ImageSourcePropType} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
 import EventCard, { Event } from "../../components/ExploreComponents/EventCard";
 import PostCard, { Post } from "../../components/ExploreComponents/PostCard";
 import AddEventModal from "../../components/ExploreComponents/AddEventModal";
 import AddPostModal from "../../components/ExploreComponents/AddPostModal";
+import EditToggleButton from "../../components/ExploreComponents/EditToggleButton";
 
 const placeholderImage = require("../../../assets/images/placeholder.png");
 
@@ -37,6 +39,14 @@ export default function CommunityDetailsScreen() {
   const { id, name } = useLocalSearchParams();
 
   const [activeTab, setActiveTab] = useState<"Bio" | "Events" | "Community">("Bio");
+
+  // State for Bio editing
+  const [editMode, setEditMode] = useState(false);
+  const [bioDescription, setBioDescription] = useState("We are a group that loves to read, meet up, etc.");
+  const [email, setEmail] = useState("example@gmail.com");
+  const [insta, setInsta] = useState("@insertHandle");
+ 
+  const [profileImage, setProfileImage] = useState<ImageSourcePropType>(placeholderImage);
 
   // Events state
   const [events, setEvents] = useState(initialEvents);
@@ -91,17 +101,49 @@ export default function CommunityDetailsScreen() {
     setPostModalVisible(false);
   };
 
+  // Return white color if tab is active, else gray
   const getTabColor = (tabName: string) => (activeTab === tabName ? "#fff" : "#999");
+
+  // Toggle edit mode and save changes when toggling off
+  const toggleEditMode = () => {
+    // TODO: Add saving logic here before exiting edit mode
+    setEditMode((prev) => !prev);
+  };
+
+  const handleChangeImage = async () => {
+    if (!editMode) return;
+    // Request permission to access media library
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permission Denied", "We need permission to access your media library to change the image.");
+      return;
+    }
+    // Open the image picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1, 
+    });
+    // If the user didn't cancel, update the profile image state
+    if (!result.canceled && result.assets.length > 0) {
+      setProfileImage({ uri: result.assets[0].uri });
+    }
+  };
 
   return (
     <View style={styles.container}>
+      {/* Header Section */}
       <View style={styles.header}>
+        {/* Back Arrow */}
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
 
+        {/* Community Name in Header */}
         <Text style={styles.headerTitle}>{name}</Text>
 
+        {/* Tabs Row (Bio, Events, Community) */}
         <View style={styles.tabsRow}>
           <TouchableOpacity onPress={() => setActiveTab("Bio")} style={styles.tabButton}>
             <Text style={[styles.tabText, { color: getTabColor("Bio") }]}>Bio</Text>
@@ -115,17 +157,63 @@ export default function CommunityDetailsScreen() {
         </View>
       </View>
 
+      {/* Main Content */}
       <View style={styles.contentArea}>
         {activeTab === "Bio" && (
           <View>
-            <Image source={placeholderImage} style={styles.largeImage} />
+            {/* Bio Header with Edit Button */}
+            <View style={styles.bioHeader}>
+              <EditToggleButton 
+                editMode={editMode}
+                onPress={toggleEditMode}
+                style={styles.editButton}
+              />
+            </View>
+
+            {/* Profile Image */}
+            <TouchableOpacity onPress={handleChangeImage}>
+              <Image source={profileImage} style={styles.largeImage} />
+              {editMode && <Text style={styles.changeImageText}>Change Image</Text>}
+            </TouchableOpacity>
+
+            {/* Description */}
             <Text style={styles.sectionTitle}>Description</Text>
-            <Text style={styles.sectionText}>
-              We are a group that loves to read, meet up, etc.
-            </Text>
+            {editMode ? (
+              <TextInput
+                style={[styles.sectionText, styles.input]}
+                value={bioDescription}
+                onChangeText={setBioDescription}
+                multiline
+              />
+            ) : (
+              <Text style={styles.sectionText}>{bioDescription}</Text>
+            )}
+
+            {/* Contact Information */}
             <Text style={styles.sectionTitle}>Contact Information</Text>
-            <Text style={styles.sectionText}>Email: example@gmail.com</Text>
-            <Text style={styles.sectionText}>Insta: @insertHandle</Text>
+            {editMode ? (
+              <>
+                <TextInput
+                  style={[styles.sectionText, styles.input]}
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="Email"
+                  placeholderTextColor="#aaa"
+                />
+                <TextInput
+                  style={[styles.sectionText, styles.input]}
+                  value={insta}
+                  onChangeText={setInsta}
+                  placeholder="Instagram"
+                  placeholderTextColor="#aaa"
+                />
+              </>
+            ) : (
+              <>
+                <Text style={styles.sectionText}>Email: {email}</Text>
+                <Text style={styles.sectionText}>Insta: {insta}</Text>
+              </>
+            )}
           </View>
         )}
 
@@ -155,6 +243,7 @@ export default function CommunityDetailsScreen() {
               onCreate={handleCreateEvent}
             />
 
+            {/* Plus button to add event */}
             <TouchableOpacity style={styles.addButton} onPress={() => setEventModalVisible(true)}>
               <Ionicons name="add" size={32} color="black" />
             </TouchableOpacity>
@@ -180,6 +269,7 @@ export default function CommunityDetailsScreen() {
               onCreate={handleCreatePost}
             />
 
+            {/* Plus button to add post */}
             <TouchableOpacity style={styles.addButton} onPress={() => setPostModalVisible(true)}>
               <Ionicons name="add" size={32} color="black" />
             </TouchableOpacity>
@@ -222,6 +312,14 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  bioHeader: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+  editButton: {
+    alignSelf: "flex-end",
+    marginBottom: 10,
+  },
   largeImage: {
     width: "100%",
     height: 200,
@@ -238,6 +336,18 @@ const styles = StyleSheet.create({
   sectionText: {
     color: "#fff",
     marginBottom: 15,
+  },
+  input: {
+    backgroundColor: "#fff",
+    color: "#000",
+    borderRadius: 5,
+    padding: 8,
+    marginBottom: 10,
+  },
+  changeImageText: {
+    color: "#fff",
+    textAlign: "center",
+    marginTop: 5,
   },
   addButton: {
     position: "absolute",

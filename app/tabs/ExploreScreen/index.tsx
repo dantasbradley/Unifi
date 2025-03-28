@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; 
 import { View, TextInput, FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -44,9 +44,9 @@ export default function ExploreScreen() {
   const [communities, setCommunities] = useState<Community[]>(dummyCommunities);
 
   // Modal state for creating new community
-  const [modalVisible, setModalVisible] = useState(false);
   const [newCommunityName, setNewCommunityName] = useState("");
-  const [newCommunityDescription, setNewCommunityDescription] = useState("");
+  const [newCommunityLocation, setNewCommunityLocation] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
 
   const toggleJoinCommunity = (id: string) => {
     setJoinedCommunities((prev) => {
@@ -61,16 +61,14 @@ export default function ExploreScreen() {
     const newCommunity: Community = {
       id: newId,
       name: newCommunityName || `New Community ${newId}`,
-      description:
-        newCommunityDescription.trim() ||
-        "We are a new group looking for more members!",
+      description: "We are a new group looking for more members!",
       membersCount: "0",
-      location: "Unknown",
+      location: newCommunityLocation.trim() || "Unknown",
     };
 
     setCommunities([...communities, newCommunity]);
     setNewCommunityName("");
-    setNewCommunityDescription("");
+    setNewCommunityLocation("");
     setModalVisible(false);
   };
 
@@ -114,8 +112,8 @@ export default function ExploreScreen() {
         onClose={() => setModalVisible(false)}
         newCommunityName={newCommunityName}
         onChangeName={setNewCommunityName}
-        newCommunityDescription={newCommunityDescription}
-        onChangeDescription={setNewCommunityDescription}
+        newCommunityLocation={newCommunityLocation}
+        onChangeLocation={setNewCommunityLocation}
         onCreate={addCommunity}
       />
 
