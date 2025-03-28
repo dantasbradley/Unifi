@@ -9,7 +9,7 @@ export default function Index() {
   useEffect(() => {
     // Use a short timeout to ensure Expo Router has mounted
     const timeout = setTimeout(() => {
-      router.replace("/tabs/HomeScreen");
+      router.replace("/screens/AuthScreen");
     }, 100); // Delay of 100ms to allow Expo Router to initialize
 
     return () => clearTimeout(timeout); // Cleanup timeout on unmount
