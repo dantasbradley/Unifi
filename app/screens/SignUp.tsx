@@ -97,6 +97,15 @@ const SignUp = () => {
                 <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" value={email} onChangeText={setEmail} />
                 
                 <Text style={styles.label}>Password</Text>
+                
+                <View style={styles.passwordRequirements}>
+                    <Text style={[styles.requirement, minLength ? styles.met : null]}>• At least 8 characters</Text>
+                    <Text style={[styles.requirement, hasUpper ? styles.met : null]}>• Includes an uppercase letter</Text>
+                    <Text style={[styles.requirement, hasLower ? styles.met : null]}>• Includes a lowercase letter</Text>
+                    <Text style={[styles.requirement, hasNumber ? styles.met : null]}>• Includes a number</Text>
+                    <Text style={[styles.requirement, hasSpecial ? styles.met : null]}>• Includes a special character</Text>
+                </View>
+                
                 <TextInput
                     style={styles.input}
                     placeholder="Password"
@@ -107,13 +116,6 @@ const SignUp = () => {
                         updatePasswordRequirements(text);
                     }}
                 />
-                <View style={styles.passwordRequirements}>
-                    <Text style={[styles.requirement, minLength ? styles.met : null]}>• At least 8 characters</Text>
-                    <Text style={[styles.requirement, hasUpper ? styles.met : null]}>• Includes an uppercase letter</Text>
-                    <Text style={[styles.requirement, hasLower ? styles.met : null]}>• Includes a lowercase letter</Text>
-                    <Text style={[styles.requirement, hasNumber ? styles.met : null]}>• Includes a number</Text>
-                    <Text style={[styles.requirement, hasSpecial ? styles.met : null]}>• Includes a special character</Text>
-                </View>
 
                 <Text style={styles.label}>Confirm Password</Text>
                 <TextInput style={styles.input} placeholder="Confirm Password" secureTextEntry value={passwordConf} onChangeText={setPasswordConf} />
