@@ -5,6 +5,11 @@ import Toast, { ToastConfig, ToastConfigParams } from "react-native-toast-messag
 
 const SignUp = () => {
     const router = useRouter();
+    const [minLength, setMinLength] = useState(false);
+    const [hasUpper, setHasUpper] = useState(false);
+    const [hasLower, setHasLower] = useState(false);
+    const [hasNumber, setHasNumber] = useState(false);
+    const [hasSpecial, setHasSpecial] = useState(false);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -26,6 +31,14 @@ const SignUp = () => {
             text1Style: { fontSize: 24, fontWeight: "bold" },
             text2Style: { fontSize: 20 },
         });
+    };
+
+    const updatePasswordRequirements = (password: string) => {
+        setMinLength(password.length >= 8);
+        setHasUpper(/[A-Z]/.test(password));
+        setHasLower(/[a-z]/.test(password));
+        setHasNumber(/\d/.test(password));
+        setHasSpecial(/[@$!%*?&#]/.test(password));
     };
 
     const handleSignUp = async () => {
@@ -82,9 +95,25 @@ const SignUp = () => {
 
                 <Text style={styles.label}>Email</Text>
                 <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" value={email} onChangeText={setEmail} />
-
+                
                 <Text style={styles.label}>Password</Text>
-                <TextInput style={styles.input} placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    secureTextEntry
+                    value={password}
+                    onChangeText={(text) => {
+                        setPassword(text);
+                        updatePasswordRequirements(text);
+                    }}
+                />
+                <View style={styles.passwordRequirements}>
+                    <Text style={[styles.requirement, minLength ? styles.met : null]}>• At least 8 characters</Text>
+                    <Text style={[styles.requirement, hasUpper ? styles.met : null]}>• Includes an uppercase letter</Text>
+                    <Text style={[styles.requirement, hasLower ? styles.met : null]}>• Includes a lowercase letter</Text>
+                    <Text style={[styles.requirement, hasNumber ? styles.met : null]}>• Includes a number</Text>
+                    <Text style={[styles.requirement, hasSpecial ? styles.met : null]}>• Includes a special character</Text>
+                </View>
 
                 <Text style={styles.label}>Confirm Password</Text>
                 <TextInput style={styles.input} placeholder="Confirm Password" secureTextEntry value={passwordConf} onChangeText={setPasswordConf} />
@@ -93,32 +122,8 @@ const SignUp = () => {
                     {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.signupText}>Sign Up</Text>}
                 </TouchableOpacity>
             </View>
-
-            <Toast config={toastConfig} />
         </View>
     );
-};
-
-// ✅ Fix: Ensure correct TypeScript typing for toastConfig
-const toastConfig: ToastConfig = {
-    success: ({ text1, text2 }: ToastConfigParams<any>) => (
-        <View style={[styles.toastContainer, { backgroundColor: "green" }]}>
-            <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{text1}</Text>
-            <Text style={[styles.toastText, { fontSize: 20 }]}>{text2}</Text>
-        </View>
-    ),
-    error: ({ text1, text2 }: ToastConfigParams<any>) => (
-        <View style={[styles.toastContainer, { backgroundColor: "red" }]}>
-            <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{text1}</Text>
-            <Text style={[styles.toastText, { fontSize: 20 }]}>{text2}</Text>
-        </View>
-    ),
-    info: ({ text1, text2 }: ToastConfigParams<any>) => (
-        <View style={[styles.toastContainer, { backgroundColor: "blue" }]}>
-            <Text style={[styles.toastText, { fontSize: 24, fontWeight: "bold" }]}>{text1}</Text>
-            <Text style={[styles.toastText, { fontSize: 20 }]}>{text2}</Text>
-        </View>
-    ),
 };
 
 const styles = StyleSheet.create({
@@ -141,6 +146,15 @@ const styles = StyleSheet.create({
         color: "#fff",
         textAlign: "center",
     },
+    passwordRequirements: { marginBottom: 15 }, // Ensure alignment
+    requirement: {
+        fontSize: 14,
+        marginBottom: 4,
+        color: 'black', // Default color
+    },
+    met: {
+        color: 'green' // Styling for the password requirements text
+    }
 });
 
 export default SignUp;
