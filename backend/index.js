@@ -50,16 +50,16 @@ const pool = mysql.createPool({
 });
 
 // Configure multer-s3 to use the AWS SDK v3 S3 client
-const upload = multer({
-    storage: multerS3({
-        s3: s3Client,
-        bucket: process.env.S3_BUCKET_NAME || 'bucket-unify',
-        key: function (req, file, cb) {
-            const fullPath = `user_profile_pics/${file.originalname}`;
-            cb(null, fullPath);
-        }
-    })
-});
+// const upload = multer({
+//     storage: multerS3({
+//         s3: s3Client,
+//         bucket: process.env.S3_BUCKET_NAME || 'bucket-unify',
+//         key: function (req, file, cb) {
+//             const fullPath = `user_profile_pics/${file.originalname}`;
+//             cb(null, fullPath);
+//         }
+//     })
+// });
 
 // app.post('/upload', upload.single('image'), (req, res) => {
 //     console.log('/upload');
@@ -71,45 +71,70 @@ const upload = multer({
 //     res.json({ message: 'File uploaded successfully!', fileUrl: req.file.location });
 // });
 
-app.post('/upload', (req, res) => {
-    console.log('/upload');
-    console.log('Request Body:', req.body);
-    const { image, filename } = req.body; // Assume the image is sent as a Base64 string
+// app.post('/upload', (req, res) => {
+//     console.log('/upload');
+//     console.log('Request Body:', req.body);
+//     const { image, filename } = req.body; // Assume the image is sent as a Base64 string
 
-    if (!image) {
-        console.log('No image data provided');
-        return res.status(400).json({ message: 'No image data provided.' });
-    }
+//     if (!image) {
+//         console.log('No image data provided');
+//         return res.status(400).json({ message: 'No image data provided.' });
+//     }
 
-    // Decode the Base64 string to binary data
-    const buffer = Buffer.from(image, 'base64');
+//     // Decode the Base64 string to binary data
+//     const buffer = Buffer.from(image, 'base64');
 
-    // Specify the S3 Bucket and Key
-    const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
-    const key = `user_profile_pics/${filename}`;
+//     // Specify the S3 Bucket and Key
+//     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
+//     const key = `user_profile_pics/${filename}`;
 
-    // Upload to S3
-    const params = {
-        Bucket: bucketName,
+//     // Upload to S3
+//     const params = {
+//         Bucket: bucketName,
+//         Key: key,
+//         Body: buffer,
+//         ContentType: 'image/png', // You might want to dynamically determine the content type
+//         ACL: 'public-read' // Depending on your S3 bucket policy
+//     };
+
+//     s3Client.upload(params, function(s3Err, data) {
+//         if (s3Err) {
+//             console.error('Error uploading to S3:', s3Err);
+//             return res.status(500).json({ message: 'Failed to upload image.', error: s3Err });
+//         }
+//         console.log('Upload successful:', data);
+//         res.json({ message: 'File uploaded successfully!', fileUrl: data.Location });
+//     });
+// });
+
+// Function to generate PUT signed URL
+async function generateUploadSignedUrl(key, bucket) {
+    const command = new PutObjectCommand({
+        Bucket: bucket,
         Key: key,
-        Body: buffer,
-        ContentType: 'image/png', // You might want to dynamically determine the content type
-        ACL: 'public-read' // Depending on your S3 bucket policy
-    };
-
-    s3Client.upload(params, function(s3Err, data) {
-        if (s3Err) {
-            console.error('Error uploading to S3:', s3Err);
-            return res.status(500).json({ message: 'Failed to upload image.', error: s3Err });
-        }
-        console.log('Upload successful:', data);
-        res.json({ message: 'File uploaded successfully!', fileUrl: data.Location });
+        ContentType: 'image/jpeg',  // Adjust as needed
     });
+
+    return await getSignedUrlAws(s3, command, { expiresIn: 300 }); // 5 mins expiry
+}
+
+app.get('/generate-presigned-url', async (req, res) => {
+    const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
+    // const key = `user_profile_pics/amakam`;
+    const key = req.query.key;
+    console.log('key: ', key);
+
+    try {
+        const signedUrl = await generateUploadSignedUrl(key, bucketName);
+        res.json({ url: signedUrl, key });
+    } catch (err) {
+        console.error("Error creating signed URL:", err);
+        res.status(500).json({ error: 'Error creating signed URL' });
+    }
 });
 
-
 async function generateSignedUrl(key, bucket, res) {
-    console.log('generateSignedUrl called');
+    // console.log('generateSignedUrl called');
     const command = new GetObjectCommand({
         Bucket: bucket,
         Key: key
@@ -125,35 +150,11 @@ async function generateSignedUrl(key, bucket, res) {
     }
 }
 
-// Function to generate PUT signed URL
-async function generateUploadSignedUrl(key, bucket) {
-    const command = new PutObjectCommand({
-        Bucket: bucket,
-        Key: key,
-        ContentType: 'image/jpeg',  // Adjust as needed
-    });
-
-    return await getSignedUrlAws(s3, command, { expiresIn: 300 }); // 5 mins expiry
-}
-
-app.get('/generate-presigned-url', async (req, res) => {
-    const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
-    const key = `user_profile_pics/amakam`;
-
-    try {
-        const signedUrl = await generateUploadSignedUrl(key, bucketName);
-        res.json({ url: signedUrl, key });
-    } catch (err) {
-        console.error("Error creating signed URL:", err);
-        res.status(500).json({ error: 'Error creating signed URL' });
-    }
-});
-
 app.get('/get-user-image', async (req, res) => {
     console.log('/get-user-image');
-    const fileName = req.query.filename;
+    // const fileName = req.query.filename;
     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
-    const filePath = `user_profile_pics/${fileName}`;
+    const filePath = req.query.filepath;
     const defaultPath = `user_profile_pics/default`;
     console.log('bucketName: ', bucketName);
     console.log('filepath: ', filePath);
