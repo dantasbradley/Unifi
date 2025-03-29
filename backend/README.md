@@ -7,6 +7,8 @@ To install the backend
    npm install express
    npm install cors
    npm install react-native-toast-message
+   npm install jwt-decode
+   npm audit fix
    
    ```
 

@@ -1,50 +1,34 @@
-import React, { useState } from "react"; 
+import React, { useState, useEffect } from "react"; 
 import { View, TextInput, FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import CommunityCard, { Community } from "../../components/ExploreComponents/CommunityCard";
 import CreateCommunityModal from "../../components/ExploreComponents/CreateCommunityModal";
+import CustomButton from '../components/CustomButton';
 
-const dummyCommunities: Community[] = [
-  {
-    id: "1",
-    name: "Alachua County Library District",
-    description: "We are a group that loves to read, meet up, and share ideas!",
-    membersCount: "5.0k",
-    location: "Gainesville, FL",
-  },
-  {
-    id: "2",
-    name: "Coding Club",
-    description: "We tutor and create coding solutions for underprivileged communities.",
-    membersCount: "2.3k",
-    location: "Online",
-  },
-  {
-    id: "3",
-    name: "Baking Society",
-    description: "Insert description",
-    membersCount: "900",
-    location: "Ocala, Florida",
-  },
-  {
-    id: "4",
-    name: "Art Enthusiasts",
-    description: "Insert description",
-    membersCount: "1.2k",
-    location: "Sarasota, Florida",
-  },
-];
+
+
+// const dummyCommunities: Community[] = [
+//   {
+//     id: "1",
+//     name: "Alachua County Library District",
+//     description: "We are a group that loves to read, meet up, and share ideas!",
+//     membersCount: "5.0k",
+//     location: "Gainesville, FL",
+//   }
+// ];
 
 export default function ExploreScreen() {
   const router = useRouter();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [joinedCommunities, setJoinedCommunities] = useState(new Set<string>());
-  const [communities, setCommunities] = useState<Community[]>(dummyCommunities);
+  // const [communities, setCommunities] = useState<Community[]>(dummyCommunities);
+  const [communities, setCommunities] = useState([]);
 
   // Modal state for creating new community
   const [newCommunityName, setNewCommunityName] = useState("");
+  // const [newCommunityName, setNewCommunityName] = useState('');
   const [newCommunityLocation, setNewCommunityLocation] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -56,20 +40,82 @@ export default function ExploreScreen() {
     });
   };
 
-  const addCommunity = () => {
-    const newId = (communities.length + 1).toString();
-    const newCommunity: Community = {
-      id: newId,
-      name: newCommunityName || `New Community ${newId}`,
-      description: "We are a new group looking for more members!",
-      membersCount: "0",
-      location: newCommunityLocation.trim() || "Unknown",
+  // Fetch clubs from the database
+  useEffect(() => {
+    const fetchClubs = async () => {
+      try {
+        const response = await fetch("http://3.85.25.255:3000/api/clubs");
+        if (!response.ok) {
+          throw new Error("Failed to fetch clubs");
+        }
+        const data = await response.json();
+        console.log("Fetched clubs:", data);
+        setCommunities(data || []);
+      } catch (error) {
+        console.error("Error fetching clubs:", error);
+      }
     };
+    fetchClubs();
+  }, []);
 
-    setCommunities([...communities, newCommunity]);
-    setNewCommunityName("");
-    setNewCommunityLocation("");
-    setModalVisible(false);
+
+  // const addCommunity = () => {
+  //   const newId = (communities.length + 1).toString();
+  //   const newCommunity: Community = {
+  //     id: newId,
+  //     name: newCommunityName || `New Community ${newId}`,
+  //     description: "We are a new group looking for more members!",
+  //     membersCount: "0",
+  //     location: newCommunityLocation.trim() || "Unknown",
+  //   };
+
+  const addCommunity = async () => {
+    if (!newCommunityName.trim()) {
+      alert("Community name cannot be empty");
+      return;
+    }
+    if (!newCommunityLocation.trim()) {
+      alert("Community location cannot be empty");
+      return;
+    }
+  
+    try {
+      console.log("newCommunityName: ", newCommunityName);
+      console.log("newCommunityLocation: ", newCommunityLocation);
+      const response = await fetch("http://3.85.25.255:3000/api/add-club", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          name: newCommunityName, 
+          location: newCommunityLocation 
+        }),
+      });
+
+      // if (!response.ok) {
+      //   throw new Error("Failed to add community");
+      // }
+  
+      const result = await response.json();
+      if (result.error) {
+        throw new Error(result.message || "Unknown error");
+      }
+  
+      // setCommunities([...communities, { id: result.club_id, name: newCommunityName }]);
+      setCommunities([...communities, { 
+        id: result.id, 
+        name: newCommunityName, 
+        location: newCommunityLocation,
+        membersCount: "0",
+      }]);
+      setNewCommunityName("");
+      setNewCommunityLocation("");
+      setModalVisible(false);
+    } catch (error) {
+      console.error("Error adding community:", error);
+      alert(error.message || "Error adding community. Please try again.");
+    }
   };
 
   const goToCommunityDetails = (community: Community) => {
