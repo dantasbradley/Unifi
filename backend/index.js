@@ -18,11 +18,6 @@ const cognito = new AWS.CognitoIdentityServiceProvider({
     region: process.env.COGNITO_REGION || 'us-east-1',
 });
 
-// const { CognitoIdentityServiceProvider } = require('@aws-sdk/client-cognito-identity-provider');
-// const cognito = new CognitoIdentityServiceProvider({ region: process.env.COGNITO_REGION || 'us-east-1' });
-
-
-
 require('dotenv').config();
 
 const app = express();
@@ -48,64 +43,6 @@ const pool = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
-
-// Configure multer-s3 to use the AWS SDK v3 S3 client
-// const upload = multer({
-//     storage: multerS3({
-//         s3: s3Client,
-//         bucket: process.env.S3_BUCKET_NAME || 'bucket-unify',
-//         key: function (req, file, cb) {
-//             const fullPath = `user_profile_pics/${file.originalname}`;
-//             cb(null, fullPath);
-//         }
-//     })
-// });
-
-// app.post('/upload', upload.single('image'), (req, res) => {
-//     console.log('/upload');
-//     if (!req.file) {
-//         console.log('No file uploaded');
-//         return res.status(400).json({ message: 'No file uploaded.' });
-//     }
-//     console.log('upload success');
-//     res.json({ message: 'File uploaded successfully!', fileUrl: req.file.location });
-// });
-
-// app.post('/upload', (req, res) => {
-//     console.log('/upload');
-//     console.log('Request Body:', req.body);
-//     const { image, filename } = req.body; // Assume the image is sent as a Base64 string
-
-//     if (!image) {
-//         console.log('No image data provided');
-//         return res.status(400).json({ message: 'No image data provided.' });
-//     }
-
-//     // Decode the Base64 string to binary data
-//     const buffer = Buffer.from(image, 'base64');
-
-//     // Specify the S3 Bucket and Key
-//     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
-//     const key = `user_profile_pics/${filename}`;
-
-//     // Upload to S3
-//     const params = {
-//         Bucket: bucketName,
-//         Key: key,
-//         Body: buffer,
-//         ContentType: 'image/png', // You might want to dynamically determine the content type
-//         ACL: 'public-read' // Depending on your S3 bucket policy
-//     };
-
-//     s3Client.upload(params, function(s3Err, data) {
-//         if (s3Err) {
-//             console.error('Error uploading to S3:', s3Err);
-//             return res.status(500).json({ message: 'Failed to upload image.', error: s3Err });
-//         }
-//         console.log('Upload successful:', data);
-//         res.json({ message: 'File uploaded successfully!', fileUrl: data.Location });
-//     });
-// });
 
 // Function to generate PUT signed URL
 async function generateUploadSignedUrl(key, bucket) {
@@ -180,20 +117,6 @@ app.get('/get-user-image', async (req, res) => {
         }
     }
 });
-
-
-// Test route to check S3 bucket connectivity
-// app.get('/test-s3', (req, res) => {
-//     s3.listObjects({ Bucket: 'bucket-unify' }, function(err, data) {
-//       if (err) {
-//         console.log(err, err.stack); // an error occurred
-//         res.status(500).send('Error accessing S3: ' + err.message);
-//       } else {
-//         console.log(data); // successful response
-//         res.send('S3 Bucket Contents: ' + JSON.stringify(data));
-//       }
-//     });
-//   });
 
 // ✅ LOGIN Route with AWS Cognito
 app.post('/login', (req, res) => {
@@ -317,6 +240,43 @@ app.post('/get-email', async (req, res) => {
 
         console.log('Email found:', email);
         res.json({ email });
+
+    } catch (error) {
+        console.error("❌ Error retrieving user:", error);
+        res.status(500).json({ message: "Failed to retrieve user details." });
+    }
+});
+
+app.post('/get-clubs-following', async (req, res) => {
+	console.log('calling function: /get-clubs-following');
+    const { sub } = req.body;
+	console.log('cognito sub1:', sub);
+
+    if (!sub) {
+        return res.status(400).json({ message: "Cognito sub is required." });
+    }
+
+    try {
+        // List users in the user pool and filter by sub
+        const params = {
+            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+            Filter: `sub = "${sub}"`,
+            Limit: 1
+        };
+
+        const data = await cognito.listUsers(params).promise();
+	// console.log('data: ', data);
+        if (!data.Users || data.Users.length === 0) {
+		console.log('no users found with that sub');
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        // Extract name from attributes
+        const clubsAttribute = data.Users[0].Attributes.find(attr => attr.Name === "clubs_following");
+        const clubs = clubsAttribute ? clubsAttribute.Value : "No Clubs";
+
+        console.log('Clubs found:', clubs);
+        res.json({ clubs });
 
     } catch (error) {
         console.error("❌ Error retrieving user:", error);
