@@ -476,6 +476,43 @@ app.post('/api/add-club', (req, res) => {
 });
 
 
+// Function to retrieve a specific attribute of a club by club ID
+app.get('/api/club-attribute', (req, res) => {
+    console.log('=== /api/club-attribute');
+    
+    const { club_id, attribute } = req.query;
+
+    // Check if both club_id and attribute are provided
+    if (!club_id || !attribute) {
+        return res.status(400).json({ message: 'Both club_id and attribute are required.' });
+    }
+
+    // Ensure the attribute is a valid column in the clubs table
+    // const validAttributes = ['name', 'location', 'description']; // List of valid attributes
+    // if (!validAttributes.includes(attribute)) {
+    //     return res.status(400).json({ message: 'Invalid attribute specified.' });
+    // }
+
+    // Construct the SQL query to fetch the specific attribute for the given club_id
+    const query = `SELECT ${attribute} FROM clubs WHERE id = ?`;
+
+    pool.query(query, [club_id], (err, results) => {
+        if (err) {
+            console.error('Error fetching club attribute:', err);
+            return res.status(500).json({ message: 'Failed to retrieve club attribute' });
+        }
+
+        // Check if any result was found
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'No club found with the provided ID' });
+        }
+
+        // Return the requested attribute from the result
+        res.json({ [attribute]: results[0][attribute] }); 
+    });
+});
+
+
 // Simple hello route
 app.get('/', (req, res) => {
     res.send('Hello, World from AWS EC2!');
