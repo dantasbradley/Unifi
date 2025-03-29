@@ -9,7 +9,7 @@ import {
   StatusBar,
   ScrollView,
 } from "react-native";
-import { useHamburger } from "./Hamburger"; 
+import { useHamburger } from "./Hamburger";
 import { Ionicons } from "@expo/vector-icons";
 
 const Sidebar = () => {
@@ -29,18 +29,22 @@ const Sidebar = () => {
       )}
 
       <Animated.View style={[styles.sidebar, { transform: [{ translateX }] }]}>
-        <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-          <View style={styles.headerRow}>
-            <Text style={styles.title}>My Organizations</Text>
+        {/* Header */}
+        <View style={styles.headerRow}>
+          <Text style={styles.title}>My Organizations</Text>
 
-            <TouchableOpacity onPress={closeSidebar} style={styles.closeButton}>
-              <View style={styles.closeHitbox}>
-                <Ionicons name="close" size={28} color="white" />
-              </View>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity onPress={closeSidebar} style={styles.closeButton}>
+            <View style={styles.closeHitbox}>
+              <Ionicons name="close" size={28} color="white" />
+            </View>
+          </TouchableOpacity>
+        </View>
 
-          {/* Organizations */}
+        {/* Orgs */}
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+        >
           <TouchableOpacity style={styles.menuItem}>
             <Text style={styles.menuText}>Alachua County Library</Text>
           </TouchableOpacity>
@@ -51,7 +55,7 @@ const Sidebar = () => {
             <Text style={styles.menuText}>SCORE North Florida</Text>
           </TouchableOpacity>
 
-          {/* test scrolling */}
+          {/* tests for scrolling */}
           {Array.from({ length: 20 }).map((_, i) => (
             <TouchableOpacity key={i} style={styles.menuItem}>
               <Text style={styles.menuText}>Extra Org {i + 1}</Text>
@@ -80,20 +84,13 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     zIndex: 2,
   },
-  scrollContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 40,
-  },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    marginTop: 70,
+    paddingHorizontal: 20,
     marginBottom: 20,
-    marginTop: Platform.OS === "android"
-  ? (StatusBar.currentHeight || 0) + (70 - (StatusBar.currentHeight || 0))
-  : 70,
-
   },
   title: {
     color: "white",
@@ -108,6 +105,10 @@ const styles = StyleSheet.create({
     height: 44,
     justifyContent: "center",
     alignItems: "center",
+  },
+  scrollContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
   },
   menuItem: {
     paddingVertical: 10,
