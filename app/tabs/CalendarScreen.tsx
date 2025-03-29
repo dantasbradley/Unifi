@@ -29,6 +29,11 @@ const CalendarScreen = () => {
       setMarkedDate(marked);
       setSelectedDate(new XDate(date.dateString));
     }}
+    onMonthChange={(date) => {
+      let marked = {};
+      setMarkedDate(marked);
+      setSelectedDate(null);
+    }}
     markedDates={markedDate}
     />
     <View style={styles.event}>
@@ -56,6 +61,7 @@ const styles = StyleSheet.create({
   },
   event: {
     flex: 1,
+    flexGrow: 1,
     alignItems: "center",
     backgroundColor: "#000",
   }

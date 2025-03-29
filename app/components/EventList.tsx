@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Text, StyleSheet, View, Pressable, FlatList } from "react-native";
+import XDate from "xdate";
 
 interface EventListProps {
     date: string,
@@ -22,19 +23,27 @@ const EventList: React.FC<EventListProps> = ({ date, profile }) => {
     //Fetch the events from the backend
     const getEvents = async () => {
         try {
-            const url = `http://3.84.91.69:3000/${profile}/${date}`;
-            const res = await fetch(url, {method: 'GET'});
-            const json = await res.json();
-            setEvents(json.events);
+            // This is just for testing purposes
+            if (date === XDate.today().toDateString()) {
+                const testEvents: Event[] = [{title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort booksdflasdugfhkajlsdhfalkshdfaklsjdfhaslkdfhalskdfhjaslkdfhjalksdfjhalskd", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}]
+                setEvents(testEvents);
+            }
+            else {
+                // const url = `http://3.84.91.69:3000/${profile}/${date}`;
+                // const res = await fetch(url, {method: 'GET'});
+                // const json = await res.json();
+                // setEvents(json.events); 
+                setEvents(null);
+            }
         }
         catch (err) {
             console.error(err);
-            const testEvents: Event[] = [{title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort booksdflasdugfhkajlsdhfalkshdfaklsjdfhaslkdfhalskdfhjaslkdfhjalksdfjhalskd", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}]
-            setEvents(testEvents);
+            //const testEvents: Event[] = [{title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort booksdflasdugfhkajlsdhfalkshdfaklsjdfhaslkdfhalskdfhjaslkdfhjalksdfjhalskd", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}]
+            //setEvents(testEvents);
         }
     }
 
-    useEffect(() => {getEvents()}, []);
+    useEffect(() => {getEvents()}, [date]);
 
     //Rendered when there are no events scheduled on a particular day
     const emptyList: React.JSX.Element = (
@@ -44,7 +53,7 @@ const EventList: React.FC<EventListProps> = ({ date, profile }) => {
     );
 
     const fullList = (
-        <FlatList scrollEnabled={true} data={events} renderItem={({item}) => {
+        <FlatList scrollEnabled={true} showsVerticalScrollIndicator={false} data={events} renderItem={({item}) => {
             return (
                 <View style={styles.event}>
                     <Text style={styles.header}>{item.title}</Text>
@@ -66,7 +75,8 @@ const EventList: React.FC<EventListProps> = ({ date, profile }) => {
 
 const styles = StyleSheet.create({
     container: {
-        borderRadius: 5
+        borderRadius: 5,
+        flex: 1
     },
     event: {
         borderRadius: 5,
