@@ -56,14 +56,13 @@ async function generateUploadSignedUrl(key, bucket) {
 }
 
 app.get('/generate-presigned-url', async (req, res) => {
-    console.log('=== /generate-presigned-url');
+    const { filePath } = req.query;
+    console.log('=== /generate-presigned-url =input= filePath: ', filePath);
     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
-    // const key = `user_profile_pics/amakam`;
-    const key = req.query.key;
-    console.log('key: ', key);
 
     try {
         const signedUrl = await generateUploadSignedUrl(key, bucketName);
+        console.log('=== /generate-presigned-url =output= success');
         res.json({ url: signedUrl, key });
     } catch (err) {
         console.error("Error creating signed URL:", err);
@@ -72,15 +71,13 @@ app.get('/generate-presigned-url', async (req, res) => {
 });
 
 async function generateSignedUrl(key, bucket, res) {
-    // console.log('generateSignedUrl called');
     const command = new GetObjectCommand({
         Bucket: bucket,
         Key: key
     });
-
     try {
         const signedUrl = await getSignedUrlAws(s3, command, { expiresIn: 60 });
-        console.log('Generated signed URL');
+        console.log('=== /get-user-image =output= success');
         res.json({ url: signedUrl });
     } catch (err) {
         console.error('Error generating signed URL: ', err);
@@ -89,14 +86,11 @@ async function generateSignedUrl(key, bucket, res) {
 }
 
 app.get('/get-user-image', async (req, res) => {
-    console.log('/get-user-image');
-    // const fileName = req.query.filename;
+    const { filePath, defaultPath } = req.query;
+    console.log('=== /get-user-image =input= filePath: ', filePath, ', defaultPath: ', defaultPath);
     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
-    const filePath = req.query.filepath;
-    const defaultPath = `user_profile_pics/default`;
-    console.log('bucketName: ', bucketName);
-    console.log('filepath: ', filePath);
-    console.log('defaultPath: ', defaultPath);
+    // const filePath = req.query.filepath;
+    // const defaultPath = `user_profile_pics/default`;
 
     try {
         const headParams = {
