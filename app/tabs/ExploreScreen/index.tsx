@@ -44,9 +44,16 @@ export default function ExploreScreen() {
         if (!response.ok) {
           throw new Error('Failed to fetch followed clubs');
         }
-        const clubsList = data.clubs.split(',');
+    
+        // Check if the clubs data is "No Clubs" and handle accordingly
+        let clubsList = data.clubs === "No Clubs" ? [] : data.clubs.split(',');
+        
         setJoinedCommunities(new Set(clubsList));
-        console.log('User is following these clubs:', clubsList.join(', ')); // Log the clubs the user is following
+        if (clubsList.length > 0) {
+          console.log('User is following these clubs:', clubsList.join(', '));
+        } else {
+          console.log('User is not following any clubs.');
+        }
       } catch (error) {
         console.error("Error fetching followed clubs:", error);
       }

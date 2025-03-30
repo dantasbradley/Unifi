@@ -284,6 +284,56 @@ app.post('/get-clubs-following', async (req, res) => {
     }
 });
 
+app.post('/modify-following-clubs', async (req, res) => {
+    console.log('calling function: /modify-following-clubs');
+    const { sub, clubs } = req.body;
+
+    if (!sub) {
+        return res.status(400).json({ message: "Cognito sub is required." });
+    }
+    if (clubs === undefined) {
+        return res.status(400).json({ message: "Clubs data is required." });
+    }
+
+    try {
+        // List users in the user pool and filter by sub to get the Username
+        const params = {
+            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+            Filter: `sub = "${sub}"`,
+            Limit: 1
+        };
+
+        const data = await cognito.listUsers(params).promise();
+        if (!data.Users || data.Users.length === 0) {
+            console.log('No users found with that sub');
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        // Get the username from the user list result
+        const username = data.Users[0].Username;
+
+        // Prepare parameters to update user attributes in Cognito
+        const updateParams = {
+            UserPoolId: process.env.USER_POOL_ID,
+            Username: username,
+            UserAttributes: [
+                {
+                    Name: 'custom:clubs_following',  // Ensure this is the correct custom attribute name
+                    Value: clubs
+                }
+            ]
+        };
+
+        // Perform the update operation
+        await cognito.adminUpdateUserAttributes(updateParams).promise();
+        res.json({ message: "Clubs updated successfully." });
+    } catch (error) {
+        console.error("❌ Error updating clubs in Cognito:", error);
+        res.status(500).json({ message: "Failed to update clubs.", details: error });
+    }
+});
+
+
 app.post('/change-user-name', async (req, res) => {
 	console.log('calling function: /change-user-name');
     const { sub, newName } = req.body;
