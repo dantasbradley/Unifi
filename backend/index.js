@@ -86,7 +86,7 @@ async function generateSignedUrl(key, bucket, res) {
 }
 
 app.get('/get-user-image', async (req, res) => {
-    const { filePath, defaultPath } = req.body;
+    const { filePath, defaultPath } = req.query;
     console.log('=== /get-user-image =input= filePath: ', filePath, ', defaultPath: ', defaultPath);
     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
     // const filePath = req.query.filepath;
@@ -507,7 +507,7 @@ app.get('/api/clubs', (req, res) => {
             console.error('Error fetching clubs:', err);
             return res.status(500).json({ message: 'Failed to retrieve clubs' });
         }
-        console.log('=== /api/clubs === success');
+        console.log('=== /api/clubs =output= success');
         res.json(results); // Send the retrieved clubs as a JSON response
     });
 });
@@ -539,7 +539,7 @@ app.post('/api/add-club', (req, res) => {
 
 // Function to retrieve a specific attribute of a club by club ID
 app.get('/api/club-attribute', (req, res) => {
-    const { club_id, attribute } = req.body;
+    const { club_id, attribute } = req.query;
     console.log('=== /api/club-attribute =input= club_id: ', club_id, ', attribute: ', attribute);
 
     // Check if both club_id and attribute are provided
