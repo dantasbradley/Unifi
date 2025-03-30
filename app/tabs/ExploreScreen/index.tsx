@@ -36,57 +36,63 @@ export default function ExploreScreen() {
       });
       console.log("Clubs updated successfully.");
     };
-
-    if (joinedCommunities.size > 0) {
-      updateFollowedClubs();
-    } else {
-      console.log("No clubs to update.");
-    }
+  
+    updateFollowedClubs();
   }, [joinedCommunities]);
+  
 
   const fetchCommunities = async () => {
     try {
-      console.log("Fetching communities from the server...");
       const response = await fetch("http://3.85.25.255:3000/api/clubs");
       const data = await response.json();
-      setCommunities(data || []);
-      console.log("Communities fetched successfully:", data);
+      // Ensure IDs are strings if they're stored as strings in joinedCommunities
+      const formattedData = data.map(community => ({
+          ...community,
+          id: String(community.id) // Convert to string if necessary
+      }));
+      setCommunities(formattedData);
+      console.log("Communities fetched successfully:", formattedData);
     } catch (error) {
       console.error("Error fetching clubs:", error);
     }
-  };
+};
+
 
   const fetchFollowedClubs = async () => {
     try {
-      console.log("Fetching followed clubs for the user...");
-      const sub = await AsyncStorage.getItem('cognitoSub');
-      const response = await fetch("http://3.85.25.255:3000/get-clubs-following", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sub })
-      });
-      const data = await response.json();
-      let clubsList = data.clubs === "No Clubs" ? [] : data.clubs.split(',');
-      setJoinedCommunities(new Set(clubsList));
-      console.log("Followed clubs retrieved:", clubsList);
+        const sub = await AsyncStorage.getItem('cognitoSub');
+        const response = await fetch("http://3.85.25.255:3000/get-clubs-following", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sub })
+        });
+        const data = await response.json();
+        let clubsList = data.clubs === "No Clubs" ? [] : data.clubs.split(',').map(club => club.trim());
+        const uniqueClubs = new Set(clubsList); // Assuming IDs are strings
+        setJoinedCommunities(uniqueClubs);
+        console.log("Followed clubs retrieved and deduplicated:", Array.from(uniqueClubs));
     } catch (error) {
-      console.error("Error fetching followed clubs:", error);
+        console.error("Error fetching followed clubs:", error);
     }
-  };
+};
 
-  const toggleJoinCommunity = (id) => {
-    setJoinedCommunities(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-        console.log(`User has left the community with ID: ${id}`);
-      } else {
-        newSet.add(id);
-        console.log(`User has joined the community with ID: ${id}`);
-      }
-      return newSet;
-    });
-  };
+
+
+
+const toggleJoinCommunity = (id) => {
+  setJoinedCommunities(prev => {
+    const newSet = new Set(prev);
+    if (newSet.has(id)) {
+      newSet.delete(id);
+      console.log(`User has left the community with ID: ${id}`);
+    } else {
+      newSet.add(id);
+      console.log(`User has joined the community with ID: ${id}`);
+    }
+    return newSet;
+  });
+};
+
 
   const addCommunity = async () => {
     if (!newCommunityName.trim() || !newCommunityLocation.trim()) {
