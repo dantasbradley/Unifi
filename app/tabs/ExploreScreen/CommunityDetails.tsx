@@ -229,7 +229,7 @@ export default function CommunityDetailsScreen() {
             method: 'PUT',
             body: blob,
         });
-        fetchImage(`club_profile_pics/${id}_${name}`, `club_profile_pics/default`);
+        fetchImage(`club_profile_pics/${id}_${name}`, `user_profile_pics/default`);
     } catch (error) {
         console.error('Failed to upload image:', error);
         alert('Upload failed!');
