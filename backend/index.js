@@ -314,7 +314,7 @@ app.post('/modify-following-clubs', async (req, res) => {
 
         // Prepare parameters to update user attributes in Cognito
         const updateParams = {
-            UserPoolId: process.env.USER_POOL_ID,
+            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
             Username: username,
             UserAttributes: [
                 {
