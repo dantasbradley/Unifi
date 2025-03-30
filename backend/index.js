@@ -506,9 +506,8 @@ app.get('/api/club-attribute', (req, res) => {
 
 // Function to update a specific attribute of a club by club ID
 app.post('/api/update-club-attribute', (req, res) => {
-    console.log('=== /api/update-club-attribute');
-
     const { club_id, attribute, value } = req.body;
+    console.log('=== /api/update-club-attribute =input= club_id: ', club_id, ', attribute: ', attribute, ', value: ', value);
 
     // Validate that all required fields are provided
     if (!club_id || !attribute || value === undefined) {
@@ -534,7 +533,7 @@ app.post('/api/update-club-attribute', (req, res) => {
         if (results.affectedRows === 0) {
             return res.status(404).json({ message: 'No club found with the provided ID' });
         }
-        console.log('=== /api/update-club-attribute === attribute: ', attribute, ', value: ', value);
+        console.log('=== /api/update-club-attribute =output= attribute: ', attribute, ', value: ', value);
         res.json({ message: 'Club attribute updated successfully' });
     });
 });
