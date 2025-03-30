@@ -251,7 +251,7 @@ app.post('/get-clubs-following', async (req, res) => {
 
     try {
         const params = {
-            UserPoolId: process.env.USER_POOL_ID,
+            UserPoolId: process.env.USER_POOL_ID ||'us-east-1_UeljCiAIL',
             Filter: `sub = "${sub}"`,
             Limit: 1
         };
@@ -286,7 +286,7 @@ app.post('/modify-following-clubs', async (req, res) => {
 
     try {
         const params = {
-            UserPoolId: process.env.USER_POOL_ID,
+            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
             Filter: `sub = "${sub}"`,
             Limit: 1
         };
@@ -299,7 +299,7 @@ app.post('/modify-following-clubs', async (req, res) => {
 
         const username = data.Users[0].Username;
         const updateParams = {
-            UserPoolId: process.env.USER_POOL_ID,
+            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
             Username: username,
             UserAttributes: [
                 {
