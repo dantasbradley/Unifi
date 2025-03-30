@@ -444,7 +444,7 @@ app.get('/api/clubs', (req, res) => {
             console.error('Error fetching clubs:', err);
             return res.status(500).json({ message: 'Failed to retrieve clubs' });
         }
-        console.log('Clubs fetched successfully');
+        console.log('=== /api/clubs === success');
         res.json(results); // Send the retrieved clubs as a JSON response
     });
 });
@@ -452,9 +452,6 @@ app.get('/api/clubs', (req, res) => {
 app.post('/api/add-club', (req, res) => {
     console.log('=== /api/add-club');
     const { name, location } = req.body;
-
-    console.log('name: ', name);
-    console.log('location:', location);
 
     if (!name || !location) {
         console.log('Both name and location are required');
@@ -468,6 +465,7 @@ app.post('/api/add-club', (req, res) => {
             console.error('Error inserting club:', error);
             return res.status(500).json({ message: 'Database error', error });
         }
+        console.log('=== /api/add-club === name: ', name, ', location: ', location);
         res.status(201).json({ 
             message: 'Club added successfully', 
             id: results.insertId 
@@ -487,12 +485,6 @@ app.get('/api/club-attribute', (req, res) => {
         return res.status(400).json({ message: 'Both club_id and attribute are required.' });
     }
 
-    // Ensure the attribute is a valid column in the clubs table
-    // const validAttributes = ['name', 'location', 'description']; // List of valid attributes
-    // if (!validAttributes.includes(attribute)) {
-    //     return res.status(400).json({ message: 'Invalid attribute specified.' });
-    // }
-
     // Construct the SQL query to fetch the specific attribute for the given club_id
     const query = `SELECT ${attribute} FROM clubs WHERE id = ?`;
 
@@ -506,7 +498,7 @@ app.get('/api/club-attribute', (req, res) => {
         if (results.length === 0) {
             return res.status(404).json({ message: 'No club found with the provided ID' });
         }
-
+        console.log('=== /api/club-attribute === attribute: ', attribute, ', value: ', results[0][attribute]);
         // Return the requested attribute from the result
         res.json({ [attribute]: results[0][attribute] }); 
     });
@@ -542,7 +534,7 @@ app.post('/api/update-club-attribute', (req, res) => {
         if (results.affectedRows === 0) {
             return res.status(404).json({ message: 'No club found with the provided ID' });
         }
-
+        console.log('=== /api/update-club-attribute === attribute: ', attribute, ', value: ', value);
         res.json({ message: 'Club attribute updated successfully' });
     });
 });
