@@ -514,12 +514,6 @@ app.post('/api/update-club-attribute', (req, res) => {
         return res.status(400).json({ message: 'club_id, attribute, and value are required.' });
     }
 
-    // Ensure the attribute is a valid column in the clubs table
-    const validAttributes = ['name', 'location', 'description']; // Define valid attributes
-    if (!validAttributes.includes(attribute)) {
-        return res.status(400).json({ message: 'Invalid attribute specified.' });
-    }
-
     // Construct the SQL query to update the specific attribute for the given club_id
     const query = `UPDATE clubs SET ${attribute} = ? WHERE id = ?`;
 
