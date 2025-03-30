@@ -242,41 +242,36 @@ app.post('/get-email', async (req, res) => {
 });
 
 app.post('/get-clubs-following', async (req, res) => {
-	console.log('calling function: /get-clubs-following');
+    console.log('calling function: /get-clubs-following');
     const { sub } = req.body;
-	console.log('cognito sub1:', sub);
 
     if (!sub) {
         return res.status(400).json({ message: "Cognito sub is required." });
     }
 
     try {
-        // List users in the user pool and filter by sub
         const params = {
-            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+            UserPoolId: process.env.USER_POOL_ID ||'us-east-1_UeljCiAIL',
             Filter: `sub = "${sub}"`,
             Limit: 1
         };
 
         const data = await cognito.listUsers(params).promise();
-	// console.log('data: ', data);
         if (!data.Users || data.Users.length === 0) {
-		console.log('no users found with that sub');
+            console.log('no users found with that sub');
             return res.status(404).json({ message: "User not found." });
         }
 
-        // Extract name from attributes
-        const clubsAttribute = data.Users[0].Attributes.find(attr => attr.Name === "clubs_following");
+        const clubsAttribute = data.Users[0].Attributes.find(attr => attr.Name === "custom:clubs_following");
         const clubs = clubsAttribute ? clubsAttribute.Value : "No Clubs";
-
         console.log('Clubs found:', clubs);
         res.json({ clubs });
-
     } catch (error) {
-        console.error("❌ Error retrieving user:", error);
+        console.error("Error retrieving user:", error);
         res.status(500).json({ message: "Failed to retrieve user details." });
     }
 });
+
 
 app.post('/modify-following-clubs', async (req, res) => {
     console.log('calling function: /modify-following-clubs');
@@ -290,7 +285,6 @@ app.post('/modify-following-clubs', async (req, res) => {
     }
 
     try {
-        // List users in the user pool and filter by sub to get the Username
         const params = {
             UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
             Filter: `sub = "${sub}"`,
@@ -303,29 +297,27 @@ app.post('/modify-following-clubs', async (req, res) => {
             return res.status(404).json({ message: "User not found." });
         }
 
-        // Get the username from the user list result
         const username = data.Users[0].Username;
-
-        // Prepare parameters to update user attributes in Cognito
         const updateParams = {
-            UserPoolId: process.env.USER_POOL_ID,
+            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
             Username: username,
             UserAttributes: [
                 {
-                    Name: 'custom:clubs_following',  // Ensure this is the correct custom attribute name
+                    Name: 'custom:clubs_following',
                     Value: clubs
                 }
             ]
         };
 
-        // Perform the update operation
-        await cognito.adminUpdateUserAttributes(updateParams).promise();
+        const updateResult = await cognito.adminUpdateUserAttributes(updateParams).promise();
+        console.log('Update result:', updateResult);
         res.json({ message: "Clubs updated successfully." });
     } catch (error) {
-        console.error("❌ Error updating clubs in Cognito:", error);
+        console.error("Error updating clubs in Cognito:", error);
         res.status(500).json({ message: "Failed to update clubs.", details: error });
     }
 });
+
 
 
 app.post('/change-user-name', async (req, res) => {
