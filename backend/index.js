@@ -63,7 +63,7 @@ app.get('/generate-presigned-url', async (req, res) => {
     try {
         const signedUrl = await generateUploadSignedUrl(filePath, bucketName);
         console.log('=== /generate-presigned-url =output= signedUrl: ', signedUrl);
-        res.json({ url: signedUrl, key });
+        res.json({ url: signedUrl});
     } catch (err) {
         console.error("Error creating signed URL:", err);
         res.status(500).json({ error: 'Error creating signed URL' });
