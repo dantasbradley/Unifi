@@ -61,7 +61,7 @@ app.get('/generate-presigned-url', async (req, res) => {
     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
 
     try {
-        const signedUrl = await generateUploadSignedUrl(key, bucketName);
+        const signedUrl = await generateUploadSignedUrl(filePath, bucketName);
         console.log('=== /generate-presigned-url =output= success');
         res.json({ url: signedUrl, key });
     } catch (err) {
