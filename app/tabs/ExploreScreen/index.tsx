@@ -18,6 +18,18 @@ export default function ExploreScreen() {
   const [newCommunityLocation, setNewCommunityLocation] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
 
+  const toggleJoinCommunity = (id: string) => {
+    setJoinedCommunities((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
   useEffect(() => {
     const fetchCommunities = async () => {
       try {
@@ -63,18 +75,6 @@ export default function ExploreScreen() {
     fetchFollowedClubs();
   }, []);
 
-  const toggleJoinCommunity = (id: string) => {
-    setJoinedCommunities((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
-  };
-
   const addCommunity = async () => {
     if (!newCommunityName.trim() || !newCommunityLocation.trim()) {
       Alert.alert("Error", "Community name and location cannot be empty");
@@ -92,7 +92,12 @@ export default function ExploreScreen() {
       if (result.error) {
         throw new Error(result.message || "Unknown error");
       }
-      setCommunities([...communities, { id: result.id, name: newCommunityName, location: newCommunityLocation }]);
+      setCommunities([...communities, { 
+        id: result.id, 
+        name: newCommunityName, 
+        location: newCommunityLocation,
+        membersCount: "0",
+      }]);
       setNewCommunityName("");
       setNewCommunityLocation("");
       setModalVisible(false);
