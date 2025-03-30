@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, ImageSourcePropType} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -42,11 +42,15 @@ export default function CommunityDetailsScreen() {
 
   // State for Bio editing
   const [editMode, setEditMode] = useState(false);
+  const [originalBioDescription, setOriginalBioDescription] = useState(""); // Store the original value
   const [bioDescription, setBioDescription] = useState("We are a group that loves to read, meet up, etc.");
-  const [email, setEmail] = useState("example@gmail.com");
+  const [originalEmail, setOriginalEmail] = useState(""); // Store the original value
+  const [email, setEmail] = useState("example@gmail.com");  
+  const [originalInsta, setOriginalInsta] = useState(""); // Store the original value
   const [insta, setInsta] = useState("@insertHandle");
  
-  const [profileImage, setProfileImage] = useState<ImageSourcePropType>(placeholderImage);
+  // const [profileImage, setProfileImage] = useState<ImageSourcePropType>(placeholderImage);
+  const [imageUrl, setImageUrl] = useState("");
 
   // Events state
   const [events, setEvents] = useState(initialEvents);
@@ -104,10 +108,118 @@ export default function CommunityDetailsScreen() {
   // Return white color if tab is active, else gray
   const getTabColor = (tabName: string) => (activeTab === tabName ? "#fff" : "#999");
 
+  const updateClubAttribute = async (clubId: any, attribute: string, newValue: string) => {
+    try {
+        const response = await fetch(`http://3.85.25.255:3000/api/update-club-attribute`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ club_id: clubId, attribute, value: newValue }),
+        });
+
+        if (response.ok) console.log(`${attribute} updated successfully!`);
+        else console.error(`Failed to update ${attribute}`);
+    } catch (error) {
+        console.error(`Error updating ${attribute}:`, error);
+    }
+  };
+
   // Toggle edit mode and save changes when toggling off
   const toggleEditMode = () => {
     // TODO: Add saving logic here before exiting edit mode
+    
+    if (editMode) {
+      console.log("Saving changes...");
+      if (bioDescription !== originalBioDescription) {
+        console.log(`New bio: ${bioDescription}`);
+        updateClubAttribute(id, "description", bioDescription);
+        setOriginalBioDescription(bioDescription); // Update the original value
+      } else {
+        console.log("No changes detected in bio description.");
+      }
+      if (email !== originalEmail) {
+        console.log(`New email: ${email}`);
+        updateClubAttribute(id, "email", email);
+        setOriginalEmail(email); // Update the original value
+      } else {
+        console.log("No changes detected in email.");
+      }
+      if (insta !== originalInsta) {
+        console.log(`New insta: ${insta}`);
+        updateClubAttribute(id, "instagram", insta);
+        setOriginalInsta(insta); // Update the original value
+      }
+    }
     setEditMode((prev) => !prev);
+
+  };
+
+
+
+  useEffect(() => {
+    fetchImage();
+    fetchClubAttribute(id, "description").then((description) => {
+      if (description) {
+        setBioDescription(description);
+        setOriginalBioDescription(description); // Save the original value
+      }
+    });
+    fetchClubAttribute(id, "email").then((email) => {
+      if (email) {
+        setEmail(email);
+        setOriginalEmail(email); // Save the original value
+      }
+    });
+    fetchClubAttribute(id, "instagram").then((instagram) => {
+      if (instagram) {
+        setInsta(instagram);
+        setOriginalInsta(instagram); // Save the original value
+      }
+    });
+  }, []);
+
+  // const [bioDescription, setBioDescription] = useState("We are a group that loves to read, meet up, etc.");
+  // const [email, setEmail] = useState("example@gmail.com");
+  // const [insta, setInsta] = useState("@insertHandle");
+
+  const fetchClubAttribute = async (clubId : any, attribute : any) => {
+    if (!clubId || !attribute) {
+        console.error("Both clubId and attribute are required.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://3.85.25.255:3000/api/club-attribute?club_id=${clubId}&attribute=${attribute}`);
+        
+        if (!response.ok) {
+            const data = await response.json();
+            console.error("Error fetching club attribute:", data.message);
+            return;
+        }
+
+        const data = await response.json();
+        
+        // Assuming you're working with state or something else to store the result
+        console.log(`${attribute} for club ${clubId}:`, data[attribute]);
+        return data[attribute];  // You can handle this further depending on what you want to do with the data
+
+    } catch (error) {
+        console.error("Error fetching club attribute:", error);
+    }
+  };
+
+  const fetchImage = async () => {
+    try {
+        const club_name = name;
+        const filePath = `club_profile_pics/${club_name}`;
+        console.log("filePath: ", filePath);
+        // const key = 'club_profile_pics/hawk';
+        const response = await fetch(`http://3.85.25.255:3000/get-user-image?filepath=${filePath}`);
+        const data = await response.json();
+        // console.log("Signed URL: ", data.url);
+        setImageUrl(data.url);
+    } catch (error) {
+        console.error('Failed to fetch image:', error);
+    }
   };
 
   const handleChangeImage = async () => {
@@ -118,18 +230,52 @@ export default function CommunityDetailsScreen() {
       Alert.alert("Permission Denied", "We need permission to access your media library to change the image.");
       return;
     }
+    // const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    // if (permissionResult.granted === false) {
+    //     alert("You've refused to allow this app to access your photos!");
+    //     return;
+    // }
     // Open the image picker
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1, 
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,  // Consider whether you need the base64 encoding now
     });
-    // If the user didn't cancel, update the profile image state
-    if (!result.canceled && result.assets.length > 0) {
-      setProfileImage({ uri: result.assets[0].uri });
+
+    if (!result.canceled) {
+        // console.log('Image URI:', result.assets[0].uri);
+
+        const club_name = name;
+        const key = `club_profile_pics/${club_name}`;
+        // const key = 'club_profile_pics/hawk';
+        const imageUri = result.assets[0].uri;
+        const response = await fetch(`http://3.85.25.255:3000/generate-presigned-url?key=${key}`);
+        const { url } = await response.json();
+      
+        // Fetch the blob from the local file URI
+        const blob = await (await fetch(imageUri)).blob();
+      
+        // Use the pre-signed URL to upload the blob
+        const uploadResponse = await fetch(url, {
+            method: 'PUT',
+            body: blob,
+        });
+      
+        if (uploadResponse.ok) {
+            console.log('Image successfully uploaded to cloud storage');
+            // alert('Upload successful!');
+            // Optionally update the state or UI to reflect the upload success
+        } else {
+            console.error('Failed to upload image', await uploadResponse.text());
+            alert('Upload failed!');
+        }
+        console.log("Fetch.");
+        fetchImage();
+        console.log("Fetch done.");
     }
-  };
+
+};
 
   return (
     <View style={styles.container}>
@@ -172,7 +318,14 @@ export default function CommunityDetailsScreen() {
 
             {/* Profile Image */}
             <TouchableOpacity onPress={handleChangeImage}>
-              <Image source={profileImage} style={styles.largeImage} />
+              {/* <Image source={profileImage} style={styles.largeImage} /> */}
+              {imageUrl ? (
+                  <Image source={{ uri: imageUrl }} style={styles.largeImage} />
+              ) : (
+                  <Text>Loading image...</Text>
+              )}
+              {/* <Image source={{ uri: imageUrl }} style={{ width: 200, height: 200 }} /> */}
+
               {editMode && <Text style={styles.changeImageText}>Change Image</Text>}
             </TouchableOpacity>
 
