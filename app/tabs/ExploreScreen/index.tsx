@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import { View, TextInput, FlatList, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -13,60 +13,80 @@ export default function ExploreScreen() {
   const [joinedCommunities, setJoinedCommunities] = useState(new Set<string>());
   const [communities, setCommunities] = useState([]);
 
-  // Modal state for creating new community
   const [newCommunityName, setNewCommunityName] = useState("");
   const [newCommunityLocation, setNewCommunityLocation] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
 
-  const toggleJoinCommunity = (id: string) => {
-    setJoinedCommunities((prev) => {
+  useEffect(() => {
+    console.log("Component mounted, fetching initial data...");
+    fetchCommunities();
+    fetchFollowedClubs();
+  }, []);
+
+  useEffect(() => {
+    const updateFollowedClubs = async () => {
+      console.log("Updating followed clubs on the server...");
+      const sub = await AsyncStorage.getItem('cognitoSub');
+      const clubs = Array.from(joinedCommunities).join(',');
+      console.log(`Updating clubs for sub: ${sub} with clubs: ${clubs}`);
+      await fetch("http://3.85.25.255:3000/modify-following-clubs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sub, clubs })
+      });
+      console.log("Clubs updated successfully.");
+    };
+
+    if (joinedCommunities.size > 0) {
+      updateFollowedClubs();
+    } else {
+      console.log("No clubs to update.");
+    }
+  }, [joinedCommunities]);
+
+  const fetchCommunities = async () => {
+    try {
+      console.log("Fetching communities from the server...");
+      const response = await fetch("http://3.85.25.255:3000/api/clubs");
+      const data = await response.json();
+      setCommunities(data || []);
+      console.log("Communities fetched successfully:", data);
+    } catch (error) {
+      console.error("Error fetching clubs:", error);
+    }
+  };
+
+  const fetchFollowedClubs = async () => {
+    try {
+      console.log("Fetching followed clubs for the user...");
+      const sub = await AsyncStorage.getItem('cognitoSub');
+      const response = await fetch("http://3.85.25.255:3000/get-clubs-following", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sub })
+      });
+      const data = await response.json();
+      let clubsList = data.clubs === "No Clubs" ? [] : data.clubs.split(',');
+      setJoinedCommunities(new Set(clubsList));
+      console.log("Followed clubs retrieved:", clubsList);
+    } catch (error) {
+      console.error("Error fetching followed clubs:", error);
+    }
+  };
+
+  const toggleJoinCommunity = (id) => {
+    setJoinedCommunities(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
         newSet.delete(id);
+        console.log(`User has left the community with ID: ${id}`);
       } else {
         newSet.add(id);
+        console.log(`User has joined the community with ID: ${id}`);
       }
       return newSet;
     });
   };
-
-  useEffect(() => {
-    const fetchCommunities = async () => {
-      try {
-        const response = await fetch("http://3.85.25.255:3000/api/clubs");
-        if (!response.ok) {
-          throw new Error("Failed to fetch clubs");
-        }
-        const data = await response.json();
-        setCommunities(data || []);
-      } catch (error) {
-        console.error("Error fetching clubs:", error);
-      }
-    };
-
-    const fetchFollowedClubs = async () => {
-      try {
-        const sub = await AsyncStorage.getItem('cognitoSub');
-        const response = await fetch("http://3.85.25.255:3000/get-clubs-following", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sub }),
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error('Failed to fetch followed clubs');
-        }
-        const clubsList = data.clubs.split(',');
-        setJoinedCommunities(new Set(clubsList));
-        console.log('User is following these clubs:', clubsList.join(', ')); // Log the clubs the user is following
-      } catch (error) {
-        console.error("Error fetching followed clubs:", error);
-      }
-    };
-
-    fetchCommunities();
-    fetchFollowedClubs();
-  }, []);
 
   const addCommunity = async () => {
     if (!newCommunityName.trim() || !newCommunityLocation.trim()) {
@@ -74,6 +94,7 @@ export default function ExploreScreen() {
       return;
     }
     try {
+      console.log("Adding new community...");
       const response = await fetch("http://3.85.25.255:3000/api/add-club", {
         method: "POST",
         headers: {
@@ -85,16 +106,14 @@ export default function ExploreScreen() {
       if (result.error) {
         throw new Error(result.message || "Unknown error");
       }
-      setCommunities([...communities, { 
-        id: result.id, 
-        name: newCommunityName, 
-        location: newCommunityLocation,
-        membersCount: "0",
-      }]);
+      setCommunities([...communities, { id: result.id, name: newCommunityName, location: newCommunityLocation }]);
+      toggleJoinCommunity(result.id.toString());
+      console.log("New community added successfully:", result);
       setNewCommunityName("");
       setNewCommunityLocation("");
       setModalVisible(false);
     } catch (error) {
+      console.error("Error adding community:", error);
       Alert.alert("Error", error.message || "Error adding community. Please try again.");
     }
   };
@@ -108,10 +127,9 @@ export default function ExploreScreen() {
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
-
       <FlatList
-        data={communities.filter((c) => c.name.toLowerCase().includes(searchQuery.toLowerCase()))}
-        keyExtractor={(item) => item.id.toString()}
+        data={communities.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))}
+        keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
           <CommunityCard
             community={item}
@@ -124,7 +142,6 @@ export default function ExploreScreen() {
           />
         )}
       />
-
       <CreateCommunityModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
@@ -134,7 +151,6 @@ export default function ExploreScreen() {
         onChangeLocation={setNewCommunityLocation}
         onCreate={addCommunity}
       />
-
       <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
         <Ionicons name="add" size={32} color="black" />
       </TouchableOpacity>
