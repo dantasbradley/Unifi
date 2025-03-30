@@ -130,23 +130,22 @@ export default function CommunityDetailsScreen() {
     if (editMode) {
       console.log("Saving changes...");
       if (bioDescription !== originalBioDescription) {
-        console.log(`New bio: ${bioDescription}`);
         updateClubAttribute(id, "description", bioDescription);
         setOriginalBioDescription(bioDescription); // Update the original value
       } else {
         console.log("No changes detected in bio description.");
       }
       if (email !== originalEmail) {
-        console.log(`New email: ${email}`);
         updateClubAttribute(id, "email", email);
         setOriginalEmail(email); // Update the original value
       } else {
         console.log("No changes detected in email.");
       }
       if (insta !== originalInsta) {
-        console.log(`New insta: ${insta}`);
         updateClubAttribute(id, "instagram", insta);
         setOriginalInsta(insta); // Update the original value
+      } else {
+        console.log("No changes detected in insta.");
       }
     }
     setEditMode((prev) => !prev);
@@ -156,7 +155,7 @@ export default function CommunityDetailsScreen() {
 
 
   useEffect(() => {
-    fetchImage();
+    fetchImage(`club_profile_pics/${id}_${name}`, `user_profile_pics/default`);
     fetchClubAttribute(id, "description").then((description) => {
       if (description) {
         setBioDescription(description);
@@ -199,7 +198,7 @@ export default function CommunityDetailsScreen() {
         const data = await response.json();
         
         // Assuming you're working with state or something else to store the result
-        console.log(`${attribute} for club ${clubId}:`, data[attribute]);
+        // console.log(`${attribute} for club ${clubId}:`, data[attribute]);
         return data[attribute];  // You can handle this further depending on what you want to do with the data
 
     } catch (error) {
@@ -207,18 +206,33 @@ export default function CommunityDetailsScreen() {
     }
   };
 
-  const fetchImage = async () => {
+  const fetchImage = async (filePath : any, defaultPath : any) => {
     try {
-        const club_name = name;
-        const filePath = `club_profile_pics/${club_name}`;
         console.log("filePath: ", filePath);
-        // const key = 'club_profile_pics/hawk';
-        const response = await fetch(`http://3.85.25.255:3000/get-user-image?filepath=${filePath}`);
+        const response = await fetch(`http://3.85.25.255:3000/get-user-image?filePath=${encodeURIComponent(filePath)}&defaultPath=${encodeURIComponent(defaultPath)}`);
         const data = await response.json();
         // console.log("Signed URL: ", data.url);
         setImageUrl(data.url);
     } catch (error) {
         console.error('Failed to fetch image:', error);
+    }
+  };
+
+  const uploadImage = async (filePath : any, imageUri : any) => {
+    try {
+        console.log("filePath: ", filePath);
+        const response = await fetch(`http://3.85.25.255:3000/generate-presigned-url?filePath=${encodeURIComponent(filePath)}`);
+        const { url } = await response.json();
+        const blob = await (await fetch(imageUri)).blob();
+        // Use the pre-signed URL to upload the blob
+        const uploadResponse = await fetch(url, {
+            method: 'PUT',
+            body: blob,
+        });
+        fetchImage(`club_profile_pics/${id}_${name}`, `club_profile_pics/default`);
+    } catch (error) {
+        console.error('Failed to upload image:', error);
+        alert('Upload failed!');
     }
   };
 
@@ -244,35 +258,7 @@ export default function CommunityDetailsScreen() {
     });
 
     if (!result.canceled) {
-        // console.log('Image URI:', result.assets[0].uri);
-
-        const club_name = name;
-        const key = `club_profile_pics/${club_name}`;
-        // const key = 'club_profile_pics/hawk';
-        const imageUri = result.assets[0].uri;
-        const response = await fetch(`http://3.85.25.255:3000/generate-presigned-url?key=${key}`);
-        const { url } = await response.json();
-      
-        // Fetch the blob from the local file URI
-        const blob = await (await fetch(imageUri)).blob();
-      
-        // Use the pre-signed URL to upload the blob
-        const uploadResponse = await fetch(url, {
-            method: 'PUT',
-            body: blob,
-        });
-      
-        if (uploadResponse.ok) {
-            console.log('Image successfully uploaded to cloud storage');
-            // alert('Upload successful!');
-            // Optionally update the state or UI to reflect the upload success
-        } else {
-            console.error('Failed to upload image', await uploadResponse.text());
-            alert('Upload failed!');
-        }
-        console.log("Fetch.");
-        fetchImage();
-        console.log("Fetch done.");
+        uploadImage(`club_profile_pics/${id}_${name}`, result.assets[0].uri);
     }
 
 };
