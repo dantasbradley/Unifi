@@ -86,7 +86,7 @@ async function generateSignedUrl(key, bucket, res) {
 }
 
 app.get('/get-user-image', async (req, res) => {
-    const { filePath, defaultPath } = req.query;
+    const { filePath, defaultPath } = req.body;
     console.log('=== /get-user-image =input= filePath: ', filePath, ', defaultPath: ', defaultPath);
     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
     // const filePath = req.query.filepath;
@@ -480,9 +480,36 @@ app.get('/api/db-test', (req, res) => {
     });
 });
 
+// Simple hello route
+app.get('/', (req, res) => {
+    res.send('Hello, World from AWS EC2!');
+});
+
+// Sample data route
+app.get('/api/data', (req, res) => {
+    console.log('Frontend has successfully connected to the backend.');
+    res.json({ message: 'This is sample data from AWS EC2' });
+});
+
+// Shutdown route
+app.get('/shutdown', (req, res) => {
+    res.send('Shutting down server...');
+    if (server) {
+        server.close(() => {
+            console.log('Server has been shut down via /shutdown endpoint.');
+            process.exit(0);
+        });
+    } else {
+        console.log('No active server to shut down.');
+        process.exit(1);
+    }
+});
+
+
+//DATABASE FUNCTIONS
 // Function to retrieve all clubs
 app.get('/api/clubs', (req, res) => {
-    console.log('=== /api/clubs');
+    console.log('=== /api/clubs =input=');
     pool.query('SELECT * FROM clubs', (err, results) => {
         if (err) {
             console.error('Error fetching clubs:', err);
@@ -494,8 +521,8 @@ app.get('/api/clubs', (req, res) => {
 });
 
 app.post('/api/add-club', (req, res) => {
-    console.log('=== /api/add-club');
     const { name, location } = req.body;
+    console.log('=== /api/club-club =input= name: ', name, ', location: ', location);
 
     if (!name || !location) {
         console.log('Both name and location are required');
@@ -509,7 +536,7 @@ app.post('/api/add-club', (req, res) => {
             console.error('Error inserting club:', error);
             return res.status(500).json({ message: 'Database error', error });
         }
-        console.log('=== /api/add-club === name: ', name, ', location: ', location);
+        console.log('=== /api/add-club =output= name: ', name, ', location: ', location);
         res.status(201).json({ 
             message: 'Club added successfully', 
             id: results.insertId 
@@ -520,9 +547,8 @@ app.post('/api/add-club', (req, res) => {
 
 // Function to retrieve a specific attribute of a club by club ID
 app.get('/api/club-attribute', (req, res) => {
-    console.log('=== /api/club-attribute');
-    
-    const { club_id, attribute } = req.query;
+    const { club_id, attribute } = req.body;
+    console.log('=== /api/club-attribute =input= club_id: ', club_id, ', attribute: ', attribute);
 
     // Check if both club_id and attribute are provided
     if (!club_id || !attribute) {
@@ -542,7 +568,7 @@ app.get('/api/club-attribute', (req, res) => {
         if (results.length === 0) {
             return res.status(404).json({ message: 'No club found with the provided ID' });
         }
-        console.log('=== /api/club-attribute === attribute: ', attribute, ', value: ', results[0][attribute]);
+        console.log('=== /api/club-attribute =output= attribute: ', attribute, ', value: ', results[0][attribute]);
         // Return the requested attribute from the result
         res.json({ [attribute]: results[0][attribute] }); 
     });
@@ -576,32 +602,6 @@ app.post('/api/update-club-attribute', (req, res) => {
     });
 });
 
-
-
-// Simple hello route
-app.get('/', (req, res) => {
-    res.send('Hello, World from AWS EC2!');
-});
-
-// Sample data route
-app.get('/api/data', (req, res) => {
-    console.log('Frontend has successfully connected to the backend.');
-    res.json({ message: 'This is sample data from AWS EC2' });
-});
-
-// Shutdown route
-app.get('/shutdown', (req, res) => {
-    res.send('Shutting down server...');
-    if (server) {
-        server.close(() => {
-            console.log('Server has been shut down via /shutdown endpoint.');
-            process.exit(0);
-        });
-    } else {
-        console.log('No active server to shut down.');
-        process.exit(1);
-    }
-});
 
 // Start the server
 server = app.listen(port, '0.0.0.0', () => {
