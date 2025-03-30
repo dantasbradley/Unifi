@@ -512,6 +512,42 @@ app.get('/api/club-attribute', (req, res) => {
     });
 });
 
+// Function to update a specific attribute of a club by club ID
+app.post('/api/update-club-attribute', (req, res) => {
+    console.log('=== /api/update-club-attribute');
+
+    const { club_id, attribute, value } = req.body;
+
+    // Validate that all required fields are provided
+    if (!club_id || !attribute || value === undefined) {
+        return res.status(400).json({ message: 'club_id, attribute, and value are required.' });
+    }
+
+    // Ensure the attribute is a valid column in the clubs table
+    const validAttributes = ['name', 'location', 'description']; // Define valid attributes
+    if (!validAttributes.includes(attribute)) {
+        return res.status(400).json({ message: 'Invalid attribute specified.' });
+    }
+
+    // Construct the SQL query to update the specific attribute for the given club_id
+    const query = `UPDATE clubs SET ${attribute} = ? WHERE id = ?`;
+
+    pool.query(query, [value, club_id], (err, results) => {
+        if (err) {
+            console.error('Error updating club attribute:', err);
+            return res.status(500).json({ message: 'Failed to update club attribute' });
+        }
+
+        // Check if any rows were affected (i.e., update was successful)
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: 'No club found with the provided ID' });
+        }
+
+        res.json({ message: 'Club attribute updated successfully' });
+    });
+});
+
+
 
 // Simple hello route
 app.get('/', (req, res) => {
