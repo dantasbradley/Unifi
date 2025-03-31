@@ -191,12 +191,12 @@ async function generateUploadSignedUrl(key, bucket) {
 // Function to generate PUT signed URL
 app.get('/S3/get/upload-signed-url', async (req, res) => {
     const { filePath } = req.query;
-    console.log('=== /generate-presigned-url =input= filePath: ', filePath);
+    console.log('=== /S3/get/upload-signed-url =input= filePath: ', filePath);
     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
 
     try {
         const signedUrl = await generateUploadSignedUrl(filePath, bucketName);
-        console.log('=== /generate-presigned-url =output= signedUrl: ...');
+        console.log('=== /S3/get/upload-signed-url =output= signedUrl: ...');
         res.json({ url: signedUrl});
     } catch (err) {
         console.error("Error creating signed URL:", err);
@@ -210,7 +210,7 @@ async function generateSignedUrl(key, bucket, res) {
     });
     try {
         const signedUrl = await getSignedUrlAws(s3, command, { expiresIn: 60 });
-        console.log('=== /get-user-image =output= success');
+        console.log('=== /S3/get/image =output= success');
         res.json({ url: signedUrl });
     } catch (err) {
         console.error('Error generating signed URL: ', err);
@@ -220,7 +220,7 @@ async function generateSignedUrl(key, bucket, res) {
 // Function to generate GET signed URL
 app.get('/S3/get/image', async (req, res) => {
     const { filePath, defaultPath } = req.query;
-    console.log('=== /get-user-image =input= filePath: ', filePath, ', defaultPath: ', defaultPath);
+    console.log('=== /S3/get/image =input= filePath: ', filePath, ', defaultPath: ', defaultPath);
     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
     // const filePath = req.query.filepath;
     // const defaultPath = `user_profile_pics/default`;
@@ -231,12 +231,12 @@ app.get('/S3/get/image', async (req, res) => {
             Key: filePath
         };
         await s3.send(new HeadObjectCommand(headParams));
-        console.log('File found in S3, generating URL...');
+        console.log(filePath, 'found in S3, generating URL...');
         generateSignedUrl(filePath, bucketName, res);
     } catch (headErr) {
-        console.error('Catch Error checking object: ', headErr);
+        // console.error('Catch Error checking object: ', headErr);
         if (headErr.name === 'NotFound') {
-            console.log('File not found, using default path...');
+            console.log(filePath, 'not found in S3, using default path: ', defaultPath);
             generateSignedUrl(defaultPath, bucketName, res);
         } else {
             console.log('Error accessing S3');
@@ -447,6 +447,87 @@ app.post('/change-user-name', async (req, res) => {
         res.status(500).json({ message: "Failed to update user name." });
     }
 });
+
+
+
+// Helper function to get user details by sub
+async function getUserBySub(sub) {
+    const params = {
+        UserPoolId: USER_POOL_ID,
+        Filter: `sub = "${sub}"`,
+        Limit: 1
+    };
+
+    const data = await cognito.listUsers(params).promise();
+    if (!data.Users || data.Users.length === 0) {
+        throw new Error("User not found.");
+    }
+
+    return data.Users[0];  // Return user object
+}
+// Helper function to update user attribute
+async function updateUserAttribute(username, attributeName, value) {
+    const updateParams = {
+        UserPoolId: USER_POOL_ID,
+        Username: username,
+        UserAttributes: [
+            {
+                Name: attributeName,
+                Value: value
+            }
+        ]
+    };
+
+    await cognito.adminUpdateUserAttributes(updateParams).promise();
+}
+// Function to get a specific user attribute
+app.post('/cognito/get/attribute', async (req, res) => {
+    const { sub, attributeName } = req.body;
+    console.log('=== /cognito/get/attribute =input= sub: ', sub, ', attributeName: ', attributeName, ', value: ', value);
+
+    if (!sub || !attributeName) {
+        return res.status(400).json({ message: "Cognito sub and attribute name are required." });
+    }
+
+    try {
+        const user = await getUserBySub(sub);
+        const attribute = user.Attributes.find(attr => attr.Name === attributeName);
+        const value = attribute ? attribute.Value : "Attribute not found";
+
+        console.log(`${attributeName} found:`, value);
+        console.log('=== /cognito/get/attribute =output= sub: ', sub, ', attributeName: ', attributeName, ', value: ', value);
+        res.json({ [attributeName]: value });
+
+    } catch (error) {
+        console.error("Error retrieving user attribute:", error);
+        res.status(500).json({ message: "Failed to retrieve user attribute." });
+    }
+});
+
+// Function to update a specific user attribute
+app.post('/cognito/update/attribute', async (req, res) => {
+    const { sub, attributeName, value } = req.body;
+    console.log('=== /cognito/update/attribute =input= sub: ', sub, ', attributeName: ', attributeName, ', value: ', value);
+
+    if (!sub || !attributeName || value === undefined) {
+        return res.status(400).json({ message: "Cognito sub, attribute name, and value are required." });
+    }
+
+    try {
+        const user = await getUserBySub(sub);
+        await updateUserAttribute(user.Username, attributeName, value);
+
+        console.log(`Updated ${attributeName} successfully`);
+        console.log('=== /cognito/update/attribute =output= success');
+        res.json({ message: `${attributeName} updated successfully.` });
+
+    } catch (error) {
+        console.error("Error updating user attribute:", error);
+        res.status(500).json({ message: "Failed to update user attribute." });
+    }
+});
+
+
 
 
 
