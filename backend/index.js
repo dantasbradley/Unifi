@@ -33,16 +33,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 const COGNITO_CLIENT_ID = process.env.COGNITO_CLIENT_ID || 'eoesr0bfd0n7i9l8t0vttgjff';
 
-// MySQL RDS connection setup
-const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'database-1.cgvequuca8td.us-east-1.rds.amazonaws.com',
-    user: process.env.DB_USER || 'admin',
-    password: process.env.DB_PASS || 'UnifiMaster21',
-    database: process.env.DB_NAME || 'test',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
+
 
 // Function to generate PUT signed URL
 async function generateUploadSignedUrl(key, bucket) {
@@ -498,9 +489,19 @@ app.get('/shutdown', (req, res) => {
 });
 
 
+// MySQL RDS connection setup
+const pool = mysql.createPool({
+    host: process.env.DB_HOST || 'database-1.cgvequuca8td.us-east-1.rds.amazonaws.com',
+    user: process.env.DB_USER || 'admin',
+    password: process.env.DB_PASS || 'UnifiMaster21',
+    database: process.env.DB_NAME || 'test',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
 //DATABASE FUNCTIONS
-// Function to retrieve all clubs
-app.get('/api/clubs', (req, res) => {
+// Function to get all clubs
+app.get('/DB/clubs/get', (req, res) => {
     console.log('=== /api/clubs =input=');
     pool.query('SELECT * FROM clubs', (err, results) => {
         if (err) {
@@ -511,34 +512,8 @@ app.get('/api/clubs', (req, res) => {
         res.json(results); // Send the retrieved clubs as a JSON response
     });
 });
-
-app.post('/api/add-club', (req, res) => {
-    const { name, location } = req.body;
-    console.log('=== /api/club-club =input= name: ', name, ', location: ', location);
-
-    if (!name || !location) {
-        console.log('Both name and location are required');
-        return res.status(400).json({ message: 'Club name and location are required.' });
-    }
-
-    const query = 'INSERT INTO test.clubs (name, location) VALUES (?, ?)';
-
-    pool.query(query, [name, location], (error, results) => {
-        if (error) {
-            console.error('Error inserting club:', error);
-            return res.status(500).json({ message: 'Database error', error });
-        }
-        console.log('=== /api/add-club =output= name: ', name, ', location: ', location);
-        res.status(201).json({ 
-            message: 'Club added successfully', 
-            id: results.insertId 
-        });
-    });
-});
-
-
-// Function to retrieve a specific attribute of a club by club ID
-app.get('/api/club-attribute', (req, res) => {
+// Function to get a specific attribute of a club, given club ID
+app.get('/DB/clubs/get/attribute', (req, res) => {
     const { club_id, attribute } = req.query;
     console.log('=== /api/club-attribute =input= club_id: ', club_id, ', attribute: ', attribute);
 
@@ -565,9 +540,32 @@ app.get('/api/club-attribute', (req, res) => {
         res.json({ [attribute]: results[0][attribute] }); 
     });
 });
+// Function to add a club
+app.post('/DB/clubs/add', (req, res) => {
+    const { name, location } = req.body;
+    console.log('=== /api/club-club =input= name: ', name, ', location: ', location);
 
-// Function to update a specific attribute of a club by club ID
-app.post('/api/update-club-attribute', (req, res) => {
+    if (!name || !location) {
+        console.log('Both name and location are required');
+        return res.status(400).json({ message: 'Club name and location are required.' });
+    }
+
+    const query = 'INSERT INTO test.clubs (name, location) VALUES (?, ?)';
+
+    pool.query(query, [name, location], (error, results) => {
+        if (error) {
+            console.error('Error inserting club:', error);
+            return res.status(500).json({ message: 'Database error', error });
+        }
+        console.log('=== /api/add-club =output= name: ', name, ', location: ', location);
+        res.status(201).json({ 
+            message: 'Club added successfully', 
+            id: results.insertId 
+        });
+    });
+});
+// Function to update a specific attribute of a club, given club ID
+app.post('/DB/clubs/update/attribute', (req, res) => {
     const { club_id, attribute, value } = req.body;
     console.log('=== /api/update-club-attribute =input= club_id: ', club_id, ', attribute: ', attribute, ', value: ', value);
 
