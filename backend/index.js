@@ -33,77 +33,8 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 const COGNITO_CLIENT_ID = process.env.COGNITO_CLIENT_ID || 'eoesr0bfd0n7i9l8t0vttgjff';
 
-
-
-// Function to generate PUT signed URL
-async function generateUploadSignedUrl(key, bucket) {
-    const command = new PutObjectCommand({
-        Bucket: bucket,
-        Key: key,
-        ContentType: 'image/jpeg',  // Adjust as needed
-    });
-
-    return await getSignedUrlAws(s3, command, { expiresIn: 300 }); // 5 mins expiry
-}
-
-app.get('/generate-presigned-url', async (req, res) => {
-    const { filePath } = req.query;
-    console.log('=== /generate-presigned-url =input= filePath: ', filePath);
-    const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
-
-    try {
-        const signedUrl = await generateUploadSignedUrl(filePath, bucketName);
-        console.log('=== /generate-presigned-url =output= signedUrl: ...');
-        res.json({ url: signedUrl});
-    } catch (err) {
-        console.error("Error creating signed URL:", err);
-        res.status(500).json({ error: 'Error creating signed URL' });
-    }
-});
-
-async function generateSignedUrl(key, bucket, res) {
-    const command = new GetObjectCommand({
-        Bucket: bucket,
-        Key: key
-    });
-    try {
-        const signedUrl = await getSignedUrlAws(s3, command, { expiresIn: 60 });
-        console.log('=== /get-user-image =output= success');
-        res.json({ url: signedUrl });
-    } catch (err) {
-        console.error('Error generating signed URL: ', err);
-        res.status(500).json({ error: 'Error generating URL', details: err });
-    }
-}
-
-app.get('/get-user-image', async (req, res) => {
-    const { filePath, defaultPath } = req.query;
-    console.log('=== /get-user-image =input= filePath: ', filePath, ', defaultPath: ', defaultPath);
-    const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
-    // const filePath = req.query.filepath;
-    // const defaultPath = `user_profile_pics/default`;
-
-    try {
-        const headParams = {
-            Bucket: bucketName,
-            Key: filePath
-        };
-        await s3.send(new HeadObjectCommand(headParams));
-        console.log('File found in S3, generating URL...');
-        generateSignedUrl(filePath, bucketName, res);
-    } catch (headErr) {
-        console.error('Catch Error checking object: ', headErr);
-        if (headErr.name === 'NotFound') {
-            console.log('File not found, using default path...');
-            generateSignedUrl(defaultPath, bucketName, res);
-        } else {
-            console.log('Error accessing S3');
-            res.status(500).json({ error: 'Error accessing S3', details: headErr });
-        }
-    }
-});
-
-// ✅ LOGIN Route with AWS Cognito
+//Cognito authentication FUNCTIONS
+// Function to login a user
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
 
@@ -153,7 +84,169 @@ app.post('/login', (req, res) => {
         });
     });
 });
+// Function to signup a user
+app.post('/signup_cognito', async (req, res) => {
+    const { email, password, firstName, lastName } = req.body;
 
+    // ✅ Validate inputs
+    if (!email || !password || !firstName || !lastName) {
+        return res.status(400).json({ message: "All fields are required." });
+    }
+
+    const params = {
+        ClientId: COGNITO_CLIENT_ID,
+        Username: email,
+        Password: password,
+        UserAttributes: [
+            { Name: "email", Value: email },
+            { Name: "name", Value: firstName + " " + lastName },
+        ]
+    };
+
+    try {
+        const response = await cognito.signUp(params).promise();
+        res.json({ message: "Signup successful! Please confirm your email.", userSub: response.UserSub });
+    } catch (error) {
+        console.error("❌ Cognito signup error:", error);
+        res.status(500).json({ message: error.message || "Failed to register user." });
+    }
+});
+// Function to verify a user
+app.post('/verification', async (req, res) => {
+    const { email, verificationCode } = req.body;
+
+    if (!email || !verificationCode) {
+        return res.status(400).json({ message: "Email and verification code are required." });
+    }
+
+    const params = {
+        ClientId: COGNITO_CLIENT_ID,
+        Username: email,
+        ConfirmationCode: verificationCode,
+    };
+
+    try {
+        await cognito.confirmSignUp(params).promise();
+        res.json({ message: "Verification successful! You can now log in." });
+    } catch (error) {
+        console.error("❌ Cognito verification error:", error);
+        res.status(500).json({ message: error.message || "Verification failed." });
+    }
+});
+// Function to verify a user
+app.post('/verify', async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: "Email is required." });
+    }
+
+    const params = {
+        ClientId: COGNITO_CLIENT_ID,
+        Username: email,
+    };
+
+    try {
+        await cognito.forgotPassword(params).promise();
+        res.json({ message: "Verification code sent! Check your email." });
+    } catch (error) {
+        console.error("❌ Cognito forgot password error:", error);
+        res.status(500).json({ message: error.message || "Failed to send verification code." });
+    }
+});
+// Function to reset a user's password
+app.post('/reset_password', async (req, res) => {
+    const { email, verificationCode, newPassword } = req.body;
+
+    if (!email || !verificationCode || !newPassword) {
+        return res.status(400).json({ message: "Email, verification code, and new password are required." });
+    }
+
+    const params = {
+        ClientId: COGNITO_CLIENT_ID,
+        Username: email,
+        ConfirmationCode: verificationCode,
+        Password: newPassword,
+    };
+
+    try {
+        await cognito.confirmForgotPassword(params).promise();
+        res.json({ message: "Password reset successful! You can now log in with your new password." });
+    } catch (error) {
+        console.error("❌ Cognito reset password error:", error);
+        res.status(500).json({ message: error.message || "Failed to reset password." });
+    }
+});
+
+//S3 FUNCTIONS
+async function generateUploadSignedUrl(key, bucket) {
+    const command = new PutObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        ContentType: 'image/jpeg',  // Adjust as needed
+    });
+
+    return await getSignedUrlAws(s3, command, { expiresIn: 300 }); // 5 mins expiry
+}
+// Function to generate PUT signed URL
+app.get('/S3/get/upload-signed-url', async (req, res) => {
+    const { filePath } = req.query;
+    console.log('=== /generate-presigned-url =input= filePath: ', filePath);
+    const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
+
+    try {
+        const signedUrl = await generateUploadSignedUrl(filePath, bucketName);
+        console.log('=== /generate-presigned-url =output= signedUrl: ...');
+        res.json({ url: signedUrl});
+    } catch (err) {
+        console.error("Error creating signed URL:", err);
+        res.status(500).json({ error: 'Error creating signed URL' });
+    }
+});
+async function generateSignedUrl(key, bucket, res) {
+    const command = new GetObjectCommand({
+        Bucket: bucket,
+        Key: key
+    });
+    try {
+        const signedUrl = await getSignedUrlAws(s3, command, { expiresIn: 60 });
+        console.log('=== /get-user-image =output= success');
+        res.json({ url: signedUrl });
+    } catch (err) {
+        console.error('Error generating signed URL: ', err);
+        res.status(500).json({ error: 'Error generating URL', details: err });
+    }
+}
+// Function to generate GET signed URL
+app.get('/S3/get/image', async (req, res) => {
+    const { filePath, defaultPath } = req.query;
+    console.log('=== /get-user-image =input= filePath: ', filePath, ', defaultPath: ', defaultPath);
+    const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
+    // const filePath = req.query.filepath;
+    // const defaultPath = `user_profile_pics/default`;
+
+    try {
+        const headParams = {
+            Bucket: bucketName,
+            Key: filePath
+        };
+        await s3.send(new HeadObjectCommand(headParams));
+        console.log('File found in S3, generating URL...');
+        generateSignedUrl(filePath, bucketName, res);
+    } catch (headErr) {
+        console.error('Catch Error checking object: ', headErr);
+        if (headErr.name === 'NotFound') {
+            console.log('File not found, using default path...');
+            generateSignedUrl(defaultPath, bucketName, res);
+        } else {
+            console.log('Error accessing S3');
+            res.status(500).json({ error: 'Error accessing S3', details: headErr });
+        }
+    }
+});
+
+//Cognito user FUNCTIONS
+// Function to get user name
 app.post('/get-user-name', async (req, res) => {
 	console.log('calling function: /get-user-name');
     const { sub } = req.body;
@@ -192,7 +285,7 @@ app.post('/get-user-name', async (req, res) => {
         res.status(500).json({ message: "Failed to retrieve user details." });
     }
 });
-
+// Function to get user email
 app.post('/get-email', async (req, res) => {
 	console.log('calling function: /get-email');
     const { sub } = req.body;
@@ -231,7 +324,7 @@ app.post('/get-email', async (req, res) => {
         res.status(500).json({ message: "Failed to retrieve user details." });
     }
 });
-
+// Function to get user clubs following list
 app.post('/get-clubs-following', async (req, res) => {
     console.log('calling function: /get-clubs-following');
     const { sub } = req.body;
@@ -262,8 +355,7 @@ app.post('/get-clubs-following', async (req, res) => {
         res.status(500).json({ message: "Failed to retrieve user details." });
     }
 });
-
-
+// Function to update user clubs following list
 app.post('/modify-following-clubs', async (req, res) => {
     console.log('calling function: /modify-following-clubs');
     const { sub, clubs } = req.body;
@@ -308,9 +400,7 @@ app.post('/modify-following-clubs', async (req, res) => {
         res.status(500).json({ message: "Failed to update clubs.", details: error });
     }
 });
-
-
-
+// Function to update user name
 app.post('/change-user-name', async (req, res) => {
 	console.log('calling function: /change-user-name');
     const { sub, newName } = req.body;
@@ -359,135 +449,6 @@ app.post('/change-user-name', async (req, res) => {
 });
 
 
-app.post('/signup_cognito', async (req, res) => {
-    const { email, password, firstName, lastName } = req.body;
-
-    // ✅ Validate inputs
-    if (!email || !password || !firstName || !lastName) {
-        return res.status(400).json({ message: "All fields are required." });
-    }
-
-    const params = {
-        ClientId: COGNITO_CLIENT_ID,
-        Username: email,
-        Password: password,
-        UserAttributes: [
-            { Name: "email", Value: email },
-            { Name: "name", Value: firstName + " " + lastName },
-        ]
-    };
-
-    try {
-        const response = await cognito.signUp(params).promise();
-        res.json({ message: "Signup successful! Please confirm your email.", userSub: response.UserSub });
-    } catch (error) {
-        console.error("❌ Cognito signup error:", error);
-        res.status(500).json({ message: error.message || "Failed to register user." });
-    }
-});
-
-app.post('/verification', async (req, res) => {
-    const { email, verificationCode } = req.body;
-
-    if (!email || !verificationCode) {
-        return res.status(400).json({ message: "Email and verification code are required." });
-    }
-
-    const params = {
-        ClientId: COGNITO_CLIENT_ID,
-        Username: email,
-        ConfirmationCode: verificationCode,
-    };
-
-    try {
-        await cognito.confirmSignUp(params).promise();
-        res.json({ message: "Verification successful! You can now log in." });
-    } catch (error) {
-        console.error("❌ Cognito verification error:", error);
-        res.status(500).json({ message: error.message || "Verification failed." });
-    }
-});
-
-app.post('/verify', async (req, res) => {
-    const { email } = req.body;
-
-    if (!email) {
-        return res.status(400).json({ message: "Email is required." });
-    }
-
-    const params = {
-        ClientId: COGNITO_CLIENT_ID,
-        Username: email,
-    };
-
-    try {
-        await cognito.forgotPassword(params).promise();
-        res.json({ message: "Verification code sent! Check your email." });
-    } catch (error) {
-        console.error("❌ Cognito forgot password error:", error);
-        res.status(500).json({ message: error.message || "Failed to send verification code." });
-    }
-});
-
-app.post('/reset_password', async (req, res) => {
-    const { email, verificationCode, newPassword } = req.body;
-
-    if (!email || !verificationCode || !newPassword) {
-        return res.status(400).json({ message: "Email, verification code, and new password are required." });
-    }
-
-    const params = {
-        ClientId: COGNITO_CLIENT_ID,
-        Username: email,
-        ConfirmationCode: verificationCode,
-        Password: newPassword,
-    };
-
-    try {
-        await cognito.confirmForgotPassword(params).promise();
-        res.json({ message: "Password reset successful! You can now log in with your new password." });
-    } catch (error) {
-        console.error("❌ Cognito reset password error:", error);
-        res.status(500).json({ message: error.message || "Failed to reset password." });
-    }
-});
-
-// Test DB connection route
-app.get('/api/db-test', (req, res) => {
-    pool.query('SELECT NOW() AS currentTime', (err, results) => {
-        if (err) {
-            console.error('Error querying RDS:', err);
-            return res.status(500).json({ error: 'Database connection failed' });
-        }
-        res.json({ message: 'Connected to RDS successfully!', time: results[0].currentTime });
-    });
-});
-
-// Simple hello route
-app.get('/', (req, res) => {
-    res.send('Hello, World from AWS EC2!');
-});
-
-// Sample data route
-app.get('/api/data', (req, res) => {
-    console.log('Frontend has successfully connected to the backend.');
-    res.json({ message: 'This is sample data from AWS EC2' });
-});
-
-// Shutdown route
-app.get('/shutdown', (req, res) => {
-    res.send('Shutting down server...');
-    if (server) {
-        server.close(() => {
-            console.log('Server has been shut down via /shutdown endpoint.');
-            process.exit(0);
-        });
-    } else {
-        console.log('No active server to shut down.');
-        process.exit(1);
-    }
-});
-
 
 // MySQL RDS connection setup
 const pool = mysql.createPool({
@@ -502,20 +463,20 @@ const pool = mysql.createPool({
 //DATABASE FUNCTIONS
 // Function to get all clubs
 app.get('/DB/clubs/get', (req, res) => {
-    console.log('=== /api/clubs =input=');
+    console.log('=== /DB/clubs/get =input=');
     pool.query('SELECT * FROM clubs', (err, results) => {
         if (err) {
             console.error('Error fetching clubs:', err);
             return res.status(500).json({ message: 'Failed to retrieve clubs' });
         }
-        console.log('=== /api/clubs =output= success');
+        console.log('=== /DB/clubs/get =output= success');
         res.json(results); // Send the retrieved clubs as a JSON response
     });
 });
 // Function to get a specific attribute of a club, given club ID
 app.get('/DB/clubs/get/attribute', (req, res) => {
     const { club_id, attribute } = req.query;
-    console.log('=== /api/club-attribute =input= club_id: ', club_id, ', attribute: ', attribute);
+    console.log('=== /DB/clubs/get/attribute =input= club_id: ', club_id, ', attribute: ', attribute);
 
     // Check if both club_id and attribute are provided
     if (!club_id || !attribute) {
@@ -535,7 +496,7 @@ app.get('/DB/clubs/get/attribute', (req, res) => {
         if (results.length === 0) {
             return res.status(404).json({ message: 'No club found with the provided ID' });
         }
-        console.log('=== /api/club-attribute =output= attribute: ', attribute, ', value: ', results[0][attribute]);
+        console.log('=== /DB/clubs/get/attribute =output= attribute: ', attribute, ', value: ', results[0][attribute]);
         // Return the requested attribute from the result
         res.json({ [attribute]: results[0][attribute] }); 
     });
@@ -543,7 +504,7 @@ app.get('/DB/clubs/get/attribute', (req, res) => {
 // Function to add a club
 app.post('/DB/clubs/add', (req, res) => {
     const { name, location } = req.body;
-    console.log('=== /api/club-club =input= name: ', name, ', location: ', location);
+    console.log('=== /DB/clubs/add =input= name: ', name, ', location: ', location);
 
     if (!name || !location) {
         console.log('Both name and location are required');
@@ -557,7 +518,7 @@ app.post('/DB/clubs/add', (req, res) => {
             console.error('Error inserting club:', error);
             return res.status(500).json({ message: 'Database error', error });
         }
-        console.log('=== /api/add-club =output= name: ', name, ', location: ', location);
+        console.log('=== /DB/clubs/add =output= name: ', name, ', location: ', location);
         res.status(201).json({ 
             message: 'Club added successfully', 
             id: results.insertId 
@@ -567,7 +528,7 @@ app.post('/DB/clubs/add', (req, res) => {
 // Function to update a specific attribute of a club, given club ID
 app.post('/DB/clubs/update/attribute', (req, res) => {
     const { club_id, attribute, value } = req.body;
-    console.log('=== /api/update-club-attribute =input= club_id: ', club_id, ', attribute: ', attribute, ', value: ', value);
+    console.log('=== /DB/clubs/update/attribute =input= club_id: ', club_id, ', attribute: ', attribute, ', value: ', value);
 
     // Validate that all required fields are provided
     if (!club_id || !attribute || value === undefined) {
@@ -587,9 +548,47 @@ app.post('/DB/clubs/update/attribute', (req, res) => {
         if (results.affectedRows === 0) {
             return res.status(404).json({ message: 'No club found with the provided ID' });
         }
-        console.log('=== /api/update-club-attribute =output= attribute: ', attribute, ', value: ', value);
+        console.log('=== /DB/clubs/update/attribute =output= attribute: ', attribute, ', value: ', value);
         res.json({ message: 'Club attribute updated successfully' });
     });
+});
+
+
+// // Test DB connection route
+// app.get('/api/db-test', (req, res) => {
+//     pool.query('SELECT NOW() AS currentTime', (err, results) => {
+//         if (err) {
+//             console.error('Error querying RDS:', err);
+//             return res.status(500).json({ error: 'Database connection failed' });
+//         }
+//         res.json({ message: 'Connected to RDS successfully!', time: results[0].currentTime });
+//     });
+// });
+
+// // Simple hello route
+// app.get('/', (req, res) => {
+//     res.send('Hello, World from AWS EC2!');
+// });
+
+// // Sample data route
+// app.get('/api/data', (req, res) => {
+//     console.log('Frontend has successfully connected to the backend.');
+//     res.json({ message: 'This is sample data from AWS EC2' });
+// });
+
+//Other FUNCTIONS
+// Shutdown route
+app.get('/shutdown', (req, res) => {
+    res.send('Shutting down server...');
+    if (server) {
+        server.close(() => {
+            console.log('Server has been shut down via /shutdown endpoint.');
+            process.exit(0);
+        });
+    } else {
+        console.log('No active server to shut down.');
+        process.exit(1);
+    }
 });
 
 
@@ -598,7 +597,7 @@ server = app.listen(port, '0.0.0.0', () => {
     console.log(`Server is running on http://0.0.0.0:${port}`);
 });
 
-// shutdown
+// Shutdown the server
 const shutdownHandler = (signal) => {
     console.log(`Received ${signal}. Closing server...`);
     if (server) {
@@ -611,6 +610,5 @@ const shutdownHandler = (signal) => {
         process.exit(1);
     }
 };
-
 process.on('SIGINT', shutdownHandler);
 process.on('SIGTERM', shutdownHandler);
