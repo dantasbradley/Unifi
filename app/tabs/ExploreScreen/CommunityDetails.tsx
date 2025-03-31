@@ -110,7 +110,7 @@ export default function CommunityDetailsScreen() {
 
   const updateClubAttribute = async (clubId: any, attribute: string, newValue: string) => {
     try {
-        const response = await fetch(`http://3.85.25.255:3000/api/update-club-attribute`, {
+        const response = await fetch(`http://3.85.25.255:3000/DB/clubs/update/attribute`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ club_id: clubId, attribute, value: newValue }),
@@ -187,7 +187,7 @@ export default function CommunityDetailsScreen() {
     }
 
     try {
-        const response = await fetch(`http://3.85.25.255:3000/api/club-attribute?club_id=${clubId}&attribute=${attribute}`);
+        const response = await fetch(`http://3.85.25.255:3000/DB/clubs/get/attribute?club_id=${clubId}&attribute=${attribute}`);
         
         if (!response.ok) {
             const data = await response.json();
@@ -209,7 +209,7 @@ export default function CommunityDetailsScreen() {
   const fetchImage = async (filePath : any, defaultPath : any) => {
     try {
         console.log("filePath: ", filePath);
-        const response = await fetch(`http://3.85.25.255:3000/get-user-image?filePath=${encodeURIComponent(filePath)}&defaultPath=${encodeURIComponent(defaultPath)}`);
+        const response = await fetch(`http://3.85.25.255:3000/S3/get/image?filePath=${encodeURIComponent(filePath)}&defaultPath=${encodeURIComponent(defaultPath)}`);
         const data = await response.json();
         // console.log("Signed URL: ", data.url);
         setImageUrl(data.url);
@@ -221,7 +221,7 @@ export default function CommunityDetailsScreen() {
   const uploadImage = async (filePath : any, imageUri : any) => {
     try {
         console.log("filePath: ", filePath);
-        const response = await fetch(`http://3.85.25.255:3000/generate-presigned-url?filePath=${encodeURIComponent(filePath)}`);
+        const response = await fetch(`http://3.85.25.255:3000/S3/get/upload-signed-url?filePath=${encodeURIComponent(filePath)}`);
         const { url } = await response.json();
         const blob = await (await fetch(imageUri)).blob();
         // Use the pre-signed URL to upload the blob
