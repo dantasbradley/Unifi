@@ -481,8 +481,8 @@ async function updateUserAttribute(username, attributeName, value) {
     await cognito.adminUpdateUserAttributes(updateParams).promise();
 }
 // Function to get a specific user attribute
-app.post('/cognito/get/attribute', async (req, res) => {
-    const { sub, attributeName } = req.body;
+app.get('/cognito/get/attribute', async (req, res) => {
+    const { sub, attributeName } = req.query;
     console.log('=== /cognito/get/attribute =input= sub: ', sub, ', attributeName: ', attributeName);
 
     if (!sub || !attributeName) {
