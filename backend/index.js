@@ -450,6 +450,21 @@ app.get('/DB/:table/get', (req, res) => {
         res.json(results);
     });
 });
+// Function to get records from a given table based on a column identifier and its value
+app.get('/DB/:table/get/:identifier=:value', (req, res) => {
+    const { table, identifier, value } = req.params;
+    console.log(`=== /DB/${table}/get/${identifier}=${value} =input=`);
+
+    const query = `SELECT * FROM ?? WHERE ?? = ?`;
+    pool.query(query, [table, identifier, value], (err, results) => {
+        if (err) {
+            console.error(`Error fetching from ${table} where ${identifier} = ${value}:`, err);
+            return res.status(500).json({ message: `Failed to retrieve data from ${table}` });
+        }
+        console.log(`=== /DB/${table}/get/${identifier}=${value} =output= success`);
+        res.json(results);
+    });
+});
 // Function to get a specific attribute of a record, given ID
 app.get('/DB/:table/get/attribute', (req, res) => {
     const { table } = req.params;
