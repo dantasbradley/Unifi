@@ -400,8 +400,7 @@ app.post('/DB/clubs/add', (req, res) => {
             console.log('=== /DB/clubs/add =output2= Club admin added successfully');
             res.status(201).json({
                 message: 'Club and admin added successfully',
-                club_id: club_id,
-                admin_id: admin_id
+                id: club_id,
             });
         });
     });
