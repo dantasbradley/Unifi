@@ -483,7 +483,7 @@ async function updateUserAttribute(username, attributeName, value) {
 // Function to get a specific user attribute
 app.post('/cognito/get/attribute', async (req, res) => {
     const { sub, attributeName } = req.body;
-    console.log('=== /cognito/get/attribute =input= sub: ', sub, ', attributeName: ', attributeName, ', value: ', value);
+    console.log('=== /cognito/get/attribute =input= sub: ', sub, ', attributeName: ', attributeName);
 
     if (!sub || !attributeName) {
         return res.status(400).json({ message: "Cognito sub and attribute name are required." });
