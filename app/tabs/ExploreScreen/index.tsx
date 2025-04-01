@@ -11,6 +11,7 @@ export default function ExploreScreen() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [joinedCommunities, setJoinedCommunities] = useState(new Set<string>());
+  const [adminCommunities, setAdminCommunities] = useState(new Set<string>());
   const [communities, setCommunities] = useState([]);
 
   const [newCommunityName, setNewCommunityName] = useState("");
@@ -28,6 +29,7 @@ export default function ExploreScreen() {
         console.log("Followed clubs retrieved and deduplicated:", Array.from(uniqueClubs));
       }
     });
+    fetchAdminClubs();
   }, []);
 
   useEffect(() => {
@@ -36,6 +38,29 @@ export default function ExploreScreen() {
 
   }, [joinedCommunities]);
 
+  const fetchAdminClubs = async () => {
+    const cognitoSub = await AsyncStorage.getItem('cognitoSub');
+    try {
+      // Replace with your backend endpoint for checking admin status
+      const response = await fetch(`http://3.85.25.255:3000/DB/club_admins/get/admin_id=${cognitoSub}`);
+      const data = await response.json();
+
+      console.log("Admin clubs fetched successfully:", data);
+  
+      // Check if the user is an admin for any clubs
+      if (data && Array.isArray(data)) {
+        const adminClubIds = data.map(item => String(item.club_id)); // Extracting club_id and converting to string
+        setAdminCommunities(new Set(adminClubIds)); // Store as a set to avoid duplicates
+        console.log(`User is admin for clubs:`, adminClubIds);
+      } else {
+        console.log("User is not an admin for any clubs.");
+        setAdminCommunities(new Set()); // No admin clubs
+      }
+    } catch (error) {
+      console.error("Error fetching admin clubs:", error);
+    }
+  };
+  
   // Function to fetch a user attribute from Cognito
   const fetchUserAttribute = async (attributeName : any) => {
       const cognitoSub = await AsyncStorage.getItem('cognitoSub');
@@ -111,6 +136,7 @@ export default function ExploreScreen() {
       Alert.alert("Error", "Community name and location cannot be empty");
       return;
     }
+    const cognitoSub = await AsyncStorage.getItem('cognitoSub');
     try {
       console.log("Adding new community...");
       const response = await fetch("http://3.85.25.255:3000/DB/clubs/add", {
@@ -118,18 +144,18 @@ export default function ExploreScreen() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: newCommunityName, location: newCommunityLocation }),
+        body: JSON.stringify({ name: newCommunityName, location: newCommunityLocation, admin_id: cognitoSub }),
       });
       const result = await response.json();
       if (result.error) {
         throw new Error(result.message || "Unknown error");
       }
-      setCommunities([...communities, { id: result.id, name: newCommunityName, location: newCommunityLocation }]);
-      toggleJoinCommunity(result.id.toString());
-      console.log("New community added successfully:", result);
+      setAdminCommunities(new Set(adminCommunities).add(result.id.toString()));
+      setCommunities([...communities, { id: result.id, name: newCommunityName, location: newCommunityLocation, membersCount: 0 }]);
       setNewCommunityName("");
       setNewCommunityLocation("");
       setModalVisible(false);
+      // console.log("New community added successfully:", result);
     } catch (error) {
       console.error("Error adding community:", error);
       Alert.alert("Error", error.message || "Error adding community. Please try again.");
@@ -152,6 +178,7 @@ export default function ExploreScreen() {
           <CommunityCard
             community={item}
             isJoined={joinedCommunities.has(item.id)}
+            isAdmin={adminCommunities.has(item.id.toString())}
             onToggleJoin={() => toggleJoinCommunity(item.id)}
             onPress={() => router.push({
               pathname: "/tabs/ExploreScreen/CommunityDetails",

@@ -16,6 +16,7 @@ export interface Community {
 interface CommunityCardProps {
   community: Community;
   isJoined: boolean;
+  isAdmin: boolean;
   onToggleJoin: () => void;
   onPress: () => void;
 }
@@ -25,6 +26,7 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
   isJoined,
   onToggleJoin,
   onPress,
+  isAdmin,
 }) => {
   return (
     <View style={styles.cardContainer}>
@@ -40,7 +42,13 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
           </View>
         </View>
       </TouchableOpacity>
-      <CustomButton title={isJoined ? "Joined" : "Join"} onPress={onToggleJoin} />
+      {/* {isAdmin && <Text style={styles.adminBadge}>Admin</Text>} Show Admin label */}
+      {/* <CustomButton title={isJoined ? "Joined" : "Join"} onPress={onToggleJoin} /> */}
+      {isAdmin ? (
+        <Text style={styles.adminBadge}>Admin</Text>
+      ) : (
+        <CustomButton title={isJoined ? "Joined" : "Join"} onPress={onToggleJoin} />
+      )}
     </View>
   );
 };
@@ -53,6 +61,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
+  },
+  adminBadge: {
+    backgroundColor: "#FFD700",  // Gold color
+    color: "#000",
+    padding: 5,
+    borderRadius: 5,
+    fontWeight: "bold",
+    marginTop: 5,
   },
   infoContainer: {
     flexDirection: "row",
