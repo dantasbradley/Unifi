@@ -345,46 +345,6 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 //DATABASE FUNCTIONS
-// Function to get all clubs
-app.get('/DB/clubs/get', (req, res) => {
-    console.log('=== /DB/clubs/get =input=');
-    pool.query('SELECT * FROM clubs', (err, results) => {
-        if (err) {
-            console.error('Error fetching clubs:', err);
-            return res.status(500).json({ message: 'Failed to retrieve clubs' });
-        }
-        console.log('=== /DB/clubs/get =output= success');
-        res.json(results); // Send the retrieved clubs as a JSON response
-    });
-});
-// Function to get a specific attribute of a club, given club ID
-app.get('/DB/clubs/get/attribute', (req, res) => {
-    const { club_id, attribute } = req.query;
-    console.log('=== /DB/clubs/get/attribute =input= club_id: ', club_id, ', attribute: ', attribute);
-
-    // Check if both club_id and attribute are provided
-    if (!club_id || !attribute) {
-        return res.status(400).json({ message: 'Both club_id and attribute are required.' });
-    }
-
-    // Construct the SQL query to fetch the specific attribute for the given club_id
-    const query = `SELECT ${attribute} FROM clubs WHERE id = ?`;
-
-    pool.query(query, [club_id], (err, results) => {
-        if (err) {
-            console.error('Error fetching club attribute:', err);
-            return res.status(500).json({ message: 'Failed to retrieve club attribute' });
-        }
-
-        // Check if any result was found
-        if (results.length === 0) {
-            return res.status(404).json({ message: 'No club found with the provided ID' });
-        }
-        console.log('=== /DB/clubs/get/attribute =output= attribute: ', attribute, ', value: ', results[0][attribute]);
-        // Return the requested attribute from the result
-        res.json({ [attribute]: results[0][attribute] }); 
-    });
-});
 // Function to add a club
 app.post('/DB/clubs/add', (req, res) => {
     const { name, location } = req.body;
@@ -409,34 +369,205 @@ app.post('/DB/clubs/add', (req, res) => {
         });
     });
 });
-// Function to update a specific attribute of a club, given club ID
-app.post('/DB/clubs/update/attribute', (req, res) => {
-    const { club_id, attribute, value } = req.body;
-    console.log('=== /DB/clubs/update/attribute =input= club_id: ', club_id, ', attribute: ', attribute, ', value: ', value);
+// Function to add an event
+app.post('/DB/events/add', (req, res) => {
+    const { title, date, time, location, description, club_id} = req.body;
+    console.log('=== /DB/clubs/add =input= title: ', title, ', date: ', date, ', time: ', time, ', location: ', location, ', description: ', description, ', club_id: ', club_id);
 
-    // Validate that all required fields are provided
-    if (!club_id || !attribute || value === undefined) {
-        return res.status(400).json({ message: 'club_id, attribute, and value are required.' });
+    if (!title || !date || !time || !location || !description || !club_id) {
+        console.log('All fields are required');
+        return res.status(400).json({ message: 'All fields are required.' });
     }
-
-    // Construct the SQL query to update the specific attribute for the given club_id
-    const query = `UPDATE clubs SET ${attribute} = ? WHERE id = ?`;
-
-    pool.query(query, [value, club_id], (err, results) => {
-        if (err) {
-            console.error('Error updating club attribute:', err);
-            return res.status(500).json({ message: 'Failed to update club attribute' });
+    const query = 'INSERT INTO test.events (title, date, time, location, description, club_id) VALUES (?, ?, ?, ?, ?, ?)';
+    pool.query(query, [title, date, time, location, description, club_id], (error, results) => {
+        if (error) {
+            console.error('Error inserting event:', error);
+            return res.status(500).json({ message: 'Database error', error });
         }
-
-        // Check if any rows were affected (i.e., update was successful)
-        if (results.affectedRows === 0) {
-            return res.status(404).json({ message: 'No club found with the provided ID' });
+        console.log('=== /DB/clubs/add =output= title: ', title, ', date: ', date, ', time: ', time, ', location: ', location, ', description: ', description, ', club_id: ', club_id);
+        res.status(201).json({ 
+            message: 'Event added successfully', 
+            id: results.insertId 
+        });
+    });
+});
+// Function to add a post
+app.post('/DB/posts/add', (req, res) => {
+    const { title, content, filePath, club_id } = req.body;
+    console.log('=== /DB/clubs/add =input= title: ', title, ', content: ', content, ', filePath: ', filePath, ', club_id: ', club_id);
+    if (!title || !content || !filePath || !club_id) {
+        console.log('All fields are required');
+        return res.status(400).json({ message: 'All fields are required.' });
+    }
+    const query = 'INSERT INTO test.posts (title, content, filePath, club_id) VALUES (?, ?, ?, ?)';
+    pool.query(query, [title, content, filePath, club_id], (error, results) => {
+        if (error) {
+            console.error('Error inserting post:', error);
+            return res.status(500).json({ message: 'Database error', error });
         }
-        console.log('=== /DB/clubs/update/attribute =output= attribute: ', attribute, ', value: ', value);
-        res.json({ message: 'Club attribute updated successfully' });
+        console.log('=== /DB/clubs/add =output= title: ', title, ', content: ', content, ', filePath: ', filePath, ', club_id: ', club_id);
+        res.status(201).json({ 
+            message: 'Post added successfully', 
+            id: results.insertId 
+        });
+    });
+});
+// Function to add a club admin
+app.post('/DB/club_admins/add', (req, res) => {
+    const { admin_id, club_id } = req.body;
+    console.log('=== /DB/clubs/add =input= admin_id: ', admin_id, ', club_id: ', club_id);
+    if (!admin_id || !club_id) {
+        console.log('Both admin_id and club_id are required');
+        return res.status(400).json({ message: 'Admin ID and Club ID are required.' });
+    }
+    const query = 'INSERT INTO test.club_admins (admin_id, club_id) VALUES (?, ?)';
+    pool.query(query, [admin_id, club_id], (error, results) => {
+        if (error) {
+            console.error('Error inserting club admin:', error);
+            return res.status(500).json({ message: 'Database error', error });
+        }
+        console.log('=== /DB/clubs/add =output= admin_id: ', admin_id, ', club_id: ', club_id);
+        res.status(201).json({ 
+            message: 'Club admin added successfully', 
+            id: results.insertId 
+        });
     });
 });
 
+
+// // Function to get all clubs
+// app.get('/DB/clubs/get', (req, res) => {
+//     console.log('=== /DB/clubs/get =input=');
+//     pool.query('SELECT * FROM clubs', (err, results) => {
+//         if (err) {
+//             console.error('Error fetching clubs:', err);
+//             return res.status(500).json({ message: 'Failed to retrieve clubs' });
+//         }
+//         console.log('=== /DB/clubs/get =output= success');
+//         res.json(results); // Send the retrieved clubs as a JSON response
+//     });
+// });
+// // Function to get a specific attribute of a club, given club ID
+// app.get('/DB/clubs/get/attribute', (req, res) => {
+//     const { club_id, attribute } = req.query;
+//     console.log('=== /DB/clubs/get/attribute =input= club_id: ', club_id, ', attribute: ', attribute);
+
+//     // Check if both club_id and attribute are provided
+//     if (!club_id || !attribute) {
+//         return res.status(400).json({ message: 'Both club_id and attribute are required.' });
+//     }
+
+//     // Construct the SQL query to fetch the specific attribute for the given club_id
+//     const query = `SELECT ${attribute} FROM clubs WHERE id = ?`;
+
+//     pool.query(query, [club_id], (err, results) => {
+//         if (err) {
+//             console.error('Error fetching club attribute:', err);
+//             return res.status(500).json({ message: 'Failed to retrieve club attribute' });
+//         }
+
+//         // Check if any result was found
+//         if (results.length === 0) {
+//             return res.status(404).json({ message: 'No club found with the provided ID' });
+//         }
+//         console.log('=== /DB/clubs/get/attribute =output= attribute: ', attribute, ', value: ', results[0][attribute]);
+//         // Return the requested attribute from the result
+//         res.json({ [attribute]: results[0][attribute] }); 
+//     });
+// });
+// // Function to update a specific attribute of a club, given club ID
+// app.post('/DB/clubs/update/attribute', (req, res) => {
+//     const { club_id, attribute, value } = req.body;
+//     console.log('=== /DB/clubs/update/attribute =input= club_id: ', club_id, ', attribute: ', attribute, ', value: ', value);
+
+//     // Validate that all required fields are provided
+//     if (!club_id || !attribute || value === undefined) {
+//         return res.status(400).json({ message: 'club_id, attribute, and value are required.' });
+//     }
+
+//     // Construct the SQL query to update the specific attribute for the given club_id
+//     const query = `UPDATE clubs SET ${attribute} = ? WHERE id = ?`;
+
+//     pool.query(query, [value, club_id], (err, results) => {
+//         if (err) {
+//             console.error('Error updating club attribute:', err);
+//             return res.status(500).json({ message: 'Failed to update club attribute' });
+//         }
+
+//         // Check if any rows were affected (i.e., update was successful)
+//         if (results.affectedRows === 0) {
+//             return res.status(404).json({ message: 'No club found with the provided ID' });
+//         }
+//         console.log('=== /DB/clubs/update/attribute =output= attribute: ', attribute, ', value: ', value);
+//         res.json({ message: 'Club attribute updated successfully' });
+//     });
+// });
+
+// Function to get all records from a given table
+app.get('/DB/:table/get', (req, res) => {
+    const { table } = req.params;
+    console.log(`=== /DB/${table}/get =input=`);
+
+    const query = `SELECT * FROM ??`;
+    pool.query(query, [table], (err, results) => {
+        if (err) {
+            console.error(`Error fetching from ${table}:`, err);
+            return res.status(500).json({ message: `Failed to retrieve data from ${table}` });
+        }
+        console.log(`=== /DB/${table}/get =output= success`);
+        res.json(results);
+    });
+});
+// Function to get a specific attribute of a record, given ID
+app.get('/DB/:table/get/attribute', (req, res) => {
+    const { table } = req.params;
+    const { id, attribute } = req.query;
+    console.log(`=== /DB/${table}/get/attribute =input= id: ${id}, attribute: ${attribute}`);
+
+    if (!id || !attribute) {
+        return res.status(400).json({ message: 'Both id and attribute are required.' });
+    }
+
+    const query = `SELECT ?? FROM ?? WHERE id = ?`;
+    pool.query(query, [attribute, table, id], (err, results) => {
+        if (err) {
+            console.error(`Error fetching ${attribute} from ${table}:`, err);
+            return res.status(500).json({ message: `Failed to retrieve ${attribute} from ${table}` });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: `No record found in ${table} with the provided ID` });
+        }
+
+        console.log(`=== /DB/${table}/get/attribute =output= ${attribute}: ${results[0][attribute]}`);
+        res.json({ [attribute]: results[0][attribute] });
+    });
+});
+// Function to update a specific attribute of a record, given ID
+app.post('/DB/:table/update/attribute', (req, res) => {
+    const { table } = req.params;
+    const { id, attribute, value } = req.body;
+    console.log(`=== /DB/${table}/update/attribute =input= id: ${id}, attribute: ${attribute}, value: ${value}`);
+
+    if (!id || !attribute || value === undefined) {
+        return res.status(400).json({ message: 'id, attribute, and value are required.' });
+    }
+
+    const query = `UPDATE ?? SET ?? = ? WHERE id = ?`;
+    pool.query(query, [table, attribute, value, id], (err, results) => {
+        if (err) {
+            console.error(`Error updating ${attribute} in ${table}:`, err);
+            return res.status(500).json({ message: `Failed to update ${attribute} in ${table}` });
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: `No record found in ${table} with the provided ID` });
+        }
+
+        console.log(`=== /DB/${table}/update/attribute =output= ${attribute}: ${value}`);
+        res.json({ message: `${attribute} updated successfully in ${table}` });
+    });
+});
 
 
 
