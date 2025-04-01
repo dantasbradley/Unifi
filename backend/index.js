@@ -395,7 +395,7 @@ app.post('/DB/events/add', (req, res) => {
 app.post('/DB/posts/add', (req, res) => {
     const { title, content, filePath, club_id } = req.body;
     console.log('=== /DB/clubs/add =input= title: ', title, ', content: ', content, ', filePath: ', filePath, ', club_id: ', club_id);
-    if (!title || !content || !filePath || !club_id) {
+    if (!title || !content || !club_id) {
         console.log('All fields are required');
         return res.status(400).json({ message: 'All fields are required.' });
     }
