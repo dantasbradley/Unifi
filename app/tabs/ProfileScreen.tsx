@@ -29,80 +29,33 @@ const ProfileScreen = () => {
     });
 
     useEffect(() => {
-        fetchUserName();
-        fetchEmail(); //fetchImage() is called inside this fetch
+        fetchUserAttribute("name").then((name) => {
+            if (name) {
+                setName(name);
+                setOriginalName(name);
+            }
+        });
+        fetchUserAttribute("email").then((email) => {
+            if (email) {
+                setEmail(email);
+                const emailPrefix = email.split('@')[0];
+                const filePath = `user_profile_pics/${emailPrefix}`;
+                fetchImage(filePath, `user_profile_pics/default`);
+            }
+        });
     }, []);
 
-    const getCognitoSub = async () => {
+    const fetchImage = async (filePath : any, defaultPath : any) => {
         try {
-          const value = await AsyncStorage.getItem('cognitoSub');
-          if (value !== null) {
-            console.log('cognitoSub retrieved successfully:', value);
-            return value;
-          }
-        } catch (e) {
-          console.error('Failed to retrieve cognitoSub', e);
-        }
-        return null;
-    };
-
-    const fetchUserName = async () => {
-        const cognitoSub = await getCognitoSub();
-        if (!cognitoSub) {
-            console.error("Cognito sub not found in localStorage.");
-            return;
-        }
-        const response = await fetch("http://3.85.25.255:3000/get-user-name", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ sub: cognitoSub })
-        });
-        const data = await response.json();
-        if (response.ok) {
-            setName(data.name);
-            setOriginalName(data.name);
-        } else {
-            console.error("Error fetching name:", data.message);
-        }
-    };
-
-    const fetchEmail = async () => {
-        const cognitoSub = await getCognitoSub();
-        if (!cognitoSub) {
-            console.error("Cognito sub not found in localStorage.");
-            return;
-        }
-        const response = await fetch("http://3.85.25.255:3000/get-email", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ sub: cognitoSub })
-        });
-        const data = await response.json();
-        if (response.ok) {
-            setEmail(data.email);
-            fetchImage(data.email); // Call fetchImage directly with the fetched email.
-        } else {
-            console.error("Error fetching email:", data.message);
-        }
-    };
-
-    const fetchImage = async (_email : any) => {
-        try {
-            const emailPrefix = _email.split('@')[0];
-            // const emailPrefix = 'amakam';
-            const filePath = `user_profile_pics/${emailPrefix}`;
-            const response = await fetch(`http://3.85.25.255:3000/get-user-image?filepath=${filePath}`);
+            console.log("filePath: ", filePath);
+            const response = await fetch(`http://3.85.25.255:3000/S3/get/image?filePath=${encodeURIComponent(filePath)}&defaultPath=${encodeURIComponent(defaultPath)}`);
             const data = await response.json();
             // console.log("Signed URL: ", data.url);
             setImageUrl(data.url);
         } catch (error) {
             console.error('Failed to fetch image:', error);
         }
-    };
+      };
 
     const handleImageUpload = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -115,46 +68,35 @@ const ProfileScreen = () => {
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [1, 1],
-            quality: 1,  // Consider whether you need the base64 encoding now
+            quality: 1,
         });
     
         if (!result.canceled) {
             // console.log('Image URI:', result.assets[0].uri);
-
             const emailPrefix = email.split('@')[0];
-            const key = `user_profile_pics/${emailPrefix}`;
-            // const key = 'user_profile_pics/amakam';
-            uploadImage(result.assets[0].uri, key);  // Call the upload function with the URI of the picked image
+            const filePath = `user_profile_pics/${emailPrefix}`;
+            uploadImage(filePath, result.assets[0].uri);
         }
 
     };
     
-
-    const uploadImage = async (imageUri : any, key : any) => {
-        // Fetch the pre-signed URL from your backend
-        const response = await fetch(`http://3.85.25.255:3000/generate-presigned-url?key=${key}`);
-        const { url } = await response.json();
-    
-        // Fetch the blob from the local file URI
-        const blob = await (await fetch(imageUri)).blob();
-    
-        // Use the pre-signed URL to upload the blob
-        const uploadResponse = await fetch(url, {
-            method: 'PUT',
-            body: blob,
-        });
-    
-        if (uploadResponse.ok) {
-            console.log('Image successfully uploaded to cloud storage');
-            alert('Upload successful!');
-            // Optionally update the state or UI to reflect the upload success
-        } else {
-            console.error('Failed to upload image', await uploadResponse.text());
+    const uploadImage = async (filePath : any, imageUri : any) => {
+        try {
+            console.log("filePath: ", filePath);
+            const response = await fetch(`http://3.85.25.255:3000/S3/get/upload-signed-url?filePath=${encodeURIComponent(filePath)}`);
+            const { url } = await response.json();
+            const blob = await (await fetch(imageUri)).blob();
+            // Use the pre-signed URL to upload the blob
+            const uploadResponse = await fetch(url, {
+                method: 'PUT',
+                body: blob,
+            });
+            fetchImage(filePath, `user_profile_pics/default`);
+            // fetchImage(`club_profile_pics/${id}_${name}`, `user_profile_pics/default`);
+        } catch (error) {
+            console.error('Failed to upload image:', error);
             alert('Upload failed!');
         }
-        console.log("Fetch.");
-        fetchImage(email);
-        console.log("Fetch done.");
     };
     
 
@@ -180,26 +122,49 @@ const ProfileScreen = () => {
     };
 
     const handleSave = async () => {
-        const cognitoSub = await getCognitoSub();
-        if (!cognitoSub) {
-            console.error("Cognito sub not found.");
-            return;
-        }
         if (name !== originalName) {
-            const response = await fetch("http://3.85.25.255:3000/change-user-name", {
+            updateUserAttribute("name", name);
+            setOriginalName(name);
+        }
+    };
+
+    // Function to fetch a user attribute from Cognito
+    const fetchUserAttribute = async (attributeName : any) => {
+        const cognitoSub = await AsyncStorage.getItem('cognitoSub');
+        try {
+            const response = await fetch(`http://3.85.25.255:3000/cognito/get/attribute?sub=${cognitoSub}&attributeName=${attributeName}`);    
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.message);
+            console.log(`${attributeName} fetched successfully:`, data[attributeName]);
+            return data[attributeName];
+    
+        } catch (error) {
+            console.error("Network error while fetching attribute:", error);
+            return null;
+        }
+    };
+    
+    // Function to update a user attribute in Cognito
+    const updateUserAttribute = async (attributeName : any, value : any) => {
+        const cognitoSub = await AsyncStorage.getItem('cognitoSub');
+        try {
+            const response = await fetch(`http://3.85.25.255:3000/cognito/update/attribute`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ sub: cognitoSub, newName: name })
+                body: JSON.stringify({ sub: cognitoSub, attributeName, value }),
             });
-            if (response.ok) {
-                console.log("Name updated successfully.");
-                setOriginalName(name);
-            } else {
-                const data = await response.json();
-                console.error("Error updating name:", data.message);
-            }
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.message);
+            console.log(`${attributeName} updated successfully.`);
+            return true;
+
+        } catch (error) {
+            console.error("Network error while updating attribute:", error);
+            return false;
         }
     };
 
