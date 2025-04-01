@@ -346,29 +346,67 @@ const pool = mysql.createPool({
 });
 //DATABASE FUNCTIONS
 // Function to add a club
-app.post('/DB/clubs/add', (req, res) => {
-    const { name, location } = req.body;
-    console.log('=== /DB/clubs/add =input= name: ', name, ', location: ', location);
+// app.post('/DB/clubs/add', (req, res) => {
+//     const { name, location } = req.body;
+//     console.log('=== /DB/clubs/add =input= name: ', name, ', location: ', location);
 
-    if (!name || !location) {
-        console.log('Both name and location are required');
-        return res.status(400).json({ message: 'Club name and location are required.' });
+//     if (!name || !location) {
+//         console.log('Both name and location are required');
+//         return res.status(400).json({ message: 'Club name and location are required.' });
+//     }
+
+//     const query = 'INSERT INTO test.clubs (name, location) VALUES (?, ?)';
+
+//     pool.query(query, [name, location], (error, results) => {
+//         if (error) {
+//             console.error('Error inserting club:', error);
+//             return res.status(500).json({ message: 'Database error', error });
+//         }
+//         console.log('=== /DB/clubs/add =output= name: ', name, ', location: ', location);
+//         res.status(201).json({ 
+//             message: 'Club added successfully', 
+//             id: results.insertId 
+//         });
+//     });
+// });
+// Function to add a club
+app.post('/DB/clubs/add', (req, res) => {
+    const { name, location, admin_id } = req.body;
+    console.log('=== /DB/clubs/add =input= name: ', name, ', location: ', location, ', admin_id: ', admin_id);
+
+    if (!name || !location || !admin_id) {
+        console.log('Club name, location, and admin_id are required');
+        return res.status(400).json({ message: 'Club name, location, and admin ID are required.' });
     }
 
     const query = 'INSERT INTO test.clubs (name, location) VALUES (?, ?)';
-
     pool.query(query, [name, location], (error, results) => {
         if (error) {
             console.error('Error inserting club:', error);
             return res.status(500).json({ message: 'Database error', error });
         }
-        console.log('=== /DB/clubs/add =output= name: ', name, ', location: ', location);
-        res.status(201).json({ 
-            message: 'Club added successfully', 
-            id: results.insertId 
+
+        const club_id = results.insertId; // Get the new club's ID
+        console.log('=== /DB/clubs/add =output1= Club added with ID: ', club_id);
+
+        // Add the admin for the newly created club
+        const adminQuery = 'INSERT INTO test.club_admins (admin_id, club_id) VALUES (?, ?)';
+        pool.query(adminQuery, [admin_id, club_id], (adminError, adminResults) => {
+            if (adminError) {
+                console.error('Error inserting club admin:', adminError);
+                return res.status(500).json({ message: 'Error adding admin to club', error: adminError });
+            }
+            
+            console.log('=== /DB/clubs/add =output2= Club admin added successfully');
+            res.status(201).json({
+                message: 'Club and admin added successfully',
+                club_id: club_id,
+                admin_id: admin_id
+            });
         });
     });
 });
+
 // Function to add an event
 app.post('/DB/events/add', (req, res) => {
     const { title, date, time, location, description, club_id} = req.body;
