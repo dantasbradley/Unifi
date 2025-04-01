@@ -26,7 +26,7 @@ const initialEvents: Event[] = [
 const initialPosts: Post[] = [
   {
     id: "1",
-    name: "Group Reading",
+    title: "Group Reading",
     time: "8h",
     content: "Last Tuesday, we had a huge turnout!",
     likes: 2,
@@ -61,51 +61,196 @@ export default function CommunityDetailsScreen() {
   const [newEventLocation, setNewEventLocation] = useState("");
   const [newEventDescription, setNewEventDescription] = useState("");
 
-  const handleCreateEvent = () => {
-    const newId = (events.length + 1).toString();
-    const newEvent: Event = {
-      id: newId,
-      date: newEventDate || "TBD",
-      time: newEventTime || "TBD",
-      location: newEventLocation || "TBD",
-      title: newEventTitle || "New Event",
-      description: newEventDescription || "No description provided.",
-      attendees: 0,
-    };
+  // const handleCreateEvent = () => {
+  //   const newId = (events.length + 1).toString();
+  //   const newEvent: Event = {
+  //     id: newId,
+  //     date: newEventDate || "TBD",
+  //     time: newEventTime || "TBD",
+  //     location: newEventLocation || "TBD",
+  //     title: newEventTitle || "New Event",
+  //     description: newEventDescription || "No description provided.",
+  //     attendees: 0,
+  //   };
 
-    setEvents([...events, newEvent]);
-    setNewEventTitle("");
-    setNewEventDate("");
-    setNewEventTime("");
-    setNewEventLocation("");
-    setNewEventDescription("");
-    setEventModalVisible(false);
-  };
+  //   setEvents([...events, newEvent]);
+  //   setNewEventTitle("");
+  //   setNewEventDate("");
+  //   setNewEventTime("");
+  //   setNewEventLocation("");
+  //   setNewEventDescription("");
+  //   setEventModalVisible(false);
+  // };
 
   // Community posts state
+  const handleCreateEvent = async () => {
+    if (!newEventTitle || !newEventDate || !newEventTime || !newEventLocation || !newEventDescription) {
+        Alert.alert("Error", "All fields are required to create an event.");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://3.85.25.255:3000/DB/events/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: newEventTitle,
+                date: newEventDate,
+                time: newEventTime,
+                location: newEventLocation,
+                description: newEventDescription,
+                club_id: id, // Assuming 'id' is the club's ID
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            const newEvent: Event = {
+                id: data.id.toString(),
+                date: newEventDate,
+                time: newEventTime,
+                location: newEventLocation,
+                title: newEventTitle,
+                description: newEventDescription,
+                attendees: 0,
+            };
+
+            setEvents([...events, newEvent]);
+            setEventModalVisible(false);
+            setNewEventTitle("");
+            setNewEventDate("");
+            setNewEventTime("");
+            setNewEventLocation("");
+            setNewEventDescription("");
+        } else {
+            Alert.alert("Error", data.message || "Failed to create event.");
+        }
+    } catch (error) {
+        console.error("Error creating event:", error);
+        Alert.alert("Error", "Could not connect to server.");
+    }
+  };
+
+
+
   const [communityPosts, setCommunityPosts] = useState(initialPosts);
   const [postModalVisible, setPostModalVisible] = useState(false);
   const [newPostName, setNewPostName] = useState("");
   const [newPostContent, setNewPostContent] = useState("");
 
-  const handleCreatePost = () => {
-    const newId = (communityPosts.length + 1).toString();
-    const newPost: Post = {
-      id: newId,
-      name: newPostName || "Unnamed Group",
-      time: "0h",
-      content: newPostContent || "No content",
-      likes: 0,
-      comments: 0,
-    };
+  // const handleCreatePost = () => {
+  //   const newId = (communityPosts.length + 1).toString();
+  //   const newPost: Post = {
+  //     id: newId,
+  //     name: newPostName || "Unnamed Group",
+  //     time: "0h",
+  //     content: newPostContent || "No content",
+  //     likes: 0,
+  //     comments: 0,
+  //   };
 
-    setCommunityPosts([...communityPosts, newPost]);
-    setNewPostName("");
-    setNewPostContent("");
-    setPostModalVisible(false);
-  };
+  //   setCommunityPosts([...communityPosts, newPost]);
+  //   setNewPostName("");
+  //   setNewPostContent("");
+  //   setPostModalVisible(false);
+  // };
 
   // Return white color if tab is active, else gray
+  const handleCreatePost = async () => {
+    if (!newPostName || !newPostContent) {
+        Alert.alert("Error", "Title and content are required.");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://3.85.25.255:3000/DB/posts/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: newPostName,
+                content: newPostContent,
+                filePath: "", // You might want to add file upload functionality later
+                club_id: id, // Assuming 'id' is the club's ID
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            const newPost: Post = {
+                id: data.id.toString(),
+                title: newPostName,
+                time: "0h",
+                content: newPostContent,
+                likes: 0,
+                comments: 0,
+            };
+
+            setCommunityPosts([...communityPosts, newPost]);
+            setPostModalVisible(false);
+            setNewPostName("");
+            setNewPostContent("");
+        } else {
+            Alert.alert("Error", data.message || "Failed to create post.");
+        }
+    } catch (error) {
+        console.error("Error creating post:", error);
+        Alert.alert("Error", "Could not connect to server.");
+    }
+  };
+
+  // Function to fetch posts for a specific club based on the club ID
+  const fetchPostsForClub = async (clubId: any) => {
+    if (!clubId) {
+      console.error("Club ID is required");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/posts/get/club_id=${clubId}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setCommunityPosts(data); // Update the state with the fetched posts
+      } else {
+        Alert.alert("Error", "Failed to fetch posts.");
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      Alert.alert("Error", "Could not connect to server.");
+    }
+  };
+
+  const fetchEventsForClub = async (clubId: any) => {
+    if (!clubId) {
+      console.error("Club ID is required");
+      return;
+    }
+  
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/events/get/club_id=${clubId}`);
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Format the date of each event to "YYYY-MM-DD"
+        const formattedEvents = data.map((event: any) => {
+          const date = new Date(event.date);  // assuming 'date' is the key holding the date string
+          event.date = date.toISOString().split('T')[0];  // Format to "YYYY-MM-DD"
+          return event;
+        });
+        setEvents(formattedEvents); // Update the state with the fetched events
+      } else {
+        Alert.alert("Error", "Failed to fetch events.");
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      Alert.alert("Error", "Could not connect to server.");
+    }
+  };
+  
+
+  
   const getTabColor = (tabName: string) => (activeTab === tabName ? "#fff" : "#999");
 
   const updateClubAttribute = async (clubId: any, attribute: string, newValue: string) => {
@@ -175,6 +320,11 @@ export default function CommunityDetailsScreen() {
       }
     });
   }, []);
+
+  useEffect(() => {
+    fetchPostsForClub(id); // Fetch posts for the specific club
+    fetchEventsForClub(id);
+  }, []); // Dependency on 'id' to fetch posts when the club changes
 
   // const [bioDescription, setBioDescription] = useState("We are a group that loves to read, meet up, etc.");
   // const [email, setEmail] = useState("example@gmail.com");

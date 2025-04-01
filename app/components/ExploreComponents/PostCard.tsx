@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 export interface Post {
   id: string;
-  name: string;
+  title: string;
   time: string;
   content: string;
   likes: number;
@@ -19,7 +19,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   return (
     <View style={styles.postContainer}>
       <View style={styles.postHeader}>
-        <Text style={styles.postName}>{post.name}</Text>
+        <Text style={styles.postTitle}>{post.title}</Text>
         <Text style={styles.postTime}>{post.time}</Text>
       </View>
       <Text style={styles.postContent}>{post.content}</Text>
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 5,
   },
-  postName: {
+  postTitle: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,

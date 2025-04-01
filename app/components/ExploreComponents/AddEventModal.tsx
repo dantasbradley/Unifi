@@ -51,7 +51,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         <Text style={styles.modalLabel}>Date:</Text>
         <TextInput
           style={styles.modalInput}
-          placeholder="e.g. 02/28/2025"
+          placeholder="YYYY-MM-DD"
           placeholderTextColor="#aaa"
           value={newEventDate}
           onChangeText={onChangeDate}
@@ -60,7 +60,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         <Text style={styles.modalLabel}>Time:</Text>
         <TextInput
           style={styles.modalInput}
-          placeholder="e.g. 4pm"
+          placeholder="HH:mm:ss"
           placeholderTextColor="#aaa"
           value={newEventTime}
           onChangeText={onChangeTime}
