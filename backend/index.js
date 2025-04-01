@@ -178,6 +178,396 @@ app.post('/reset_password', async (req, res) => {
     }
 });
 
+//Cognito group FUNCTIONS
+// Create a Cognito group
+app.post('/cognito/create/group', async (req, res) => {
+    const { groupName, description } = req.body;
+    const params = {
+        GroupName: groupName,
+        UserPoolId: process.env.COGNITO_USER_POOL_ID,
+        Description: description || "",
+    };
+
+    try {
+        await cognito.createGroup(params).promise();
+        res.json({ message: `Group ${groupName} created successfully.` });
+    } catch (error) {
+        console.error("❌ Cognito create group error:", error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Delete a Cognito group
+app.post('/cognito/delete/group', async (req, res) => {
+    const { groupName } = req.body;
+    const params = {
+        GroupName: groupName,
+        UserPoolId: process.env.COGNITO_USER_POOL_ID,
+    };
+
+    try {
+        await cognito.deleteGroup(params).promise();
+        res.json({ message: `Group ${groupName} deleted successfully.` });
+    } catch (error) {
+        console.error("❌ Cognito delete group error:", error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Assign user to a Cognito group
+app.post('/cognito/assign/user-to-group', async (req, res) => {
+    const { email, groupName } = req.body;
+    const params = {
+        GroupName: groupName,
+        UserPoolId: process.env.COGNITO_USER_POOL_ID,
+        Username: email,
+    };
+
+    try {
+        await cognito.adminAddUserToGroup(params).promise();
+        res.json({ message: `User ${email} added to group ${groupName}.` });
+    } catch (error) {
+        console.error("❌ Cognito add user to group error:", error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Remove user from a Cognito group
+app.post('/cognito/remove/user-from-group', async (req, res) => {
+    const { email, groupName } = req.body;
+    const params = {
+        GroupName: groupName,
+        UserPoolId: process.env.COGNITO_USER_POOL_ID,
+        Username: email,
+    };
+
+    try {
+        await cognito.adminRemoveUserFromGroup(params).promise();
+        res.json({ message: `User ${email} removed from group ${groupName}.` });
+    } catch (error) {
+        console.error("❌ Cognito remove user from group error:", error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// List users in a Cognito group
+app.get('/cognito/list/users-in-group', async (req, res) => {
+    const { groupName } = req.query;
+    const params = {
+        GroupName: groupName,
+        UserPoolId: process.env.COGNITO_USER_POOL_ID,
+    };
+
+    try {
+        const data = await cognito.listUsersInGroup(params).promise();
+        res.json({ users: data.Users });
+    } catch (error) {
+        console.error("❌ Cognito list users in group error:", error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Get groups a user belongs to
+app.get('/cognito/get/user-groups', async (req, res) => {
+    const { email } = req.query;
+    const params = {
+        UserPoolId: process.env.COGNITO_USER_POOL_ID,
+        Username: email,
+    };
+
+    try {
+        const data = await cognito.adminListGroupsForUser(params).promise();
+        res.json({ groups: data.Groups });
+    } catch (error) {
+        console.error("❌ Cognito user groups error:", error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+//Cognito user FUNCTIONS
+// Function to get user name
+// app.post('/get-user-name', async (req, res) => {
+// 	console.log('calling function: /get-user-name');
+//     const { sub } = req.body;
+// 	console.log('cognito sub1:', sub);
+
+//     if (!sub) {
+//         return res.status(400).json({ message: "Cognito sub is required." });
+//     }
+
+//     // console.log('cognito sub2:', sub);
+
+//     try {
+//         // List users in the user pool and filter by sub
+//         const params = {
+//             UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+//             Filter: `sub = "${sub}"`,
+//             Limit: 1
+//         };
+
+//         const data = await cognito.listUsers(params).promise();
+// 	// console.log('data: ', data);
+//         if (!data.Users || data.Users.length === 0) {
+// 		console.log('no users found with that sub');
+//             return res.status(404).json({ message: "User not found." });
+//         }
+
+//         // Extract name from attributes
+//         const nameAttribute = data.Users[0].Attributes.find(attr => attr.Name === "name");
+//         const name = nameAttribute ? nameAttribute.Value : "Unknown Name";
+
+//         console.log('Name found:', name);
+//         res.json({ name });
+
+//     } catch (error) {
+//         console.error("❌ Error retrieving user:", error);
+//         res.status(500).json({ message: "Failed to retrieve user details." });
+//     }
+// });
+// // Function to get user email
+// app.post('/get-email', async (req, res) => {
+// 	console.log('calling function: /get-email');
+//     const { sub } = req.body;
+// 	console.log('cognito sub1:', sub);
+
+//     if (!sub) {
+//         return res.status(400).json({ message: "Cognito sub is required." });
+//     }
+
+//     // console.log('cognito sub2:', sub);
+
+//     try {
+//         // List users in the user pool and filter by sub
+//         const params = {
+//             UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+//             Filter: `sub = "${sub}"`,
+//             Limit: 1
+//         };
+
+//         const data = await cognito.listUsers(params).promise();
+// 	// console.log('data: ', data);
+//         if (!data.Users || data.Users.length === 0) {
+// 		console.log('no users found with that sub');
+//             return res.status(404).json({ message: "User not found." });
+//         }
+
+//         // Extract name from attributes
+//         const emailAttribute = data.Users[0].Attributes.find(attr => attr.Name === "email");
+//         const email = emailAttribute ? emailAttribute.Value : "Unknown Email";
+
+//         console.log('Email found:', email);
+//         res.json({ email });
+
+//     } catch (error) {
+//         console.error("❌ Error retrieving user:", error);
+//         res.status(500).json({ message: "Failed to retrieve user details." });
+//     }
+// });
+// // Function to get user clubs following list
+// app.post('/get-clubs-following', async (req, res) => {
+//     console.log('calling function: /get-clubs-following');
+//     const { sub } = req.body;
+
+//     if (!sub) {
+//         return res.status(400).json({ message: "Cognito sub is required." });
+//     }
+
+//     try {
+//         const params = {
+//             UserPoolId: process.env.USER_POOL_ID ||'us-east-1_UeljCiAIL',
+//             Filter: `sub = "${sub}"`,
+//             Limit: 1
+//         };
+
+//         const data = await cognito.listUsers(params).promise();
+//         if (!data.Users || data.Users.length === 0) {
+//             console.log('no users found with that sub');
+//             return res.status(404).json({ message: "User not found." });
+//         }
+
+//         const clubsAttribute = data.Users[0].Attributes.find(attr => attr.Name === "custom:clubs_following");
+//         const clubs = clubsAttribute ? clubsAttribute.Value : "No Clubs";
+//         console.log('Clubs found:', clubs);
+//         res.json({ clubs });
+//     } catch (error) {
+//         console.error("Error retrieving user:", error);
+//         res.status(500).json({ message: "Failed to retrieve user details." });
+//     }
+// });
+// // Function to update user clubs following list
+// app.post('/modify-following-clubs', async (req, res) => {
+//     console.log('calling function: /modify-following-clubs');
+//     const { sub, clubs } = req.body;
+
+//     if (!sub) {
+//         return res.status(400).json({ message: "Cognito sub is required." });
+//     }
+//     if (clubs === undefined) {
+//         return res.status(400).json({ message: "Clubs data is required." });
+//     }
+
+//     try {
+//         const params = {
+//             UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+//             Filter: `sub = "${sub}"`,
+//             Limit: 1
+//         };
+
+//         const data = await cognito.listUsers(params).promise();
+//         if (!data.Users || data.Users.length === 0) {
+//             console.log('No users found with that sub');
+//             return res.status(404).json({ message: "User not found." });
+//         }
+
+//         const username = data.Users[0].Username;
+//         const updateParams = {
+//             UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+//             Username: username,
+//             UserAttributes: [
+//                 {
+//                     Name: 'custom:clubs_following',
+//                     Value: clubs
+//                 }
+//             ]
+//         };
+
+//         const updateResult = await cognito.adminUpdateUserAttributes(updateParams).promise();
+//         console.log('Update result:', updateResult);
+//         res.json({ message: "Clubs updated successfully." });
+//     } catch (error) {
+//         console.error("Error updating clubs in Cognito:", error);
+//         res.status(500).json({ message: "Failed to update clubs.", details: error });
+//     }
+// });
+// // Function to update user name
+// app.post('/change-user-name', async (req, res) => {
+// 	console.log('calling function: /change-user-name');
+//     const { sub, newName } = req.body;
+//     console.log('cognito sub:', sub);
+
+//     if (!sub || !newName) {
+//         return res.status(400).json({ message: "Cognito sub and new name are required." });
+//     }
+
+//     try {
+//         // List users in the user pool and filter by sub
+//         const params = {
+//             UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+//             Filter: `sub = "${sub}"`,
+//             Limit: 1
+//         };
+
+//         const data = await cognito.listUsers(params).promise();
+//         console.log('data: ', data);
+//         if (!data.Users || data.Users.length === 0) {
+//             console.log('no users found with that sub');
+//             return res.status(404).json({ message: "User not found." });
+//         }
+
+//         // User found, proceed to update name
+//         const user = data.Users[0];
+//         const updateParams = {
+//             UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+//             Username: user.Username,
+//             UserAttributes: [
+//                 {
+//                     Name: 'name',
+//                     Value: newName
+//                 }
+//             ]
+//         };
+
+//         const updateData = await cognito.adminUpdateUserAttributes(updateParams).promise();
+//         console.log('Update success:', updateData);
+//         res.json({ message: "User name updated successfully." });
+
+//     } catch (error) {
+//         console.error("❌ Error updating user name:", error);
+//         res.status(500).json({ message: "Failed to update user name." });
+//     }
+// });
+
+
+
+// Helper function to get user details by sub
+async function getUserBySub(sub) {
+    const params = {
+        UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+        Filter: `sub = "${sub}"`,
+        Limit: 1
+    };
+
+    const data = await cognito.listUsers(params).promise();
+    if (!data.Users || data.Users.length === 0) {
+        throw new Error("User not found.");
+    }
+
+    return data.Users[0];  // Return user object
+}
+// Helper function to update user attribute
+async function updateUserAttribute(username, attributeName, value) {
+    const updateParams = {
+        UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+        Username: username,
+        UserAttributes: [
+            {
+                Name: attributeName,
+                Value: value
+            }
+        ]
+    };
+
+    await cognito.adminUpdateUserAttributes(updateParams).promise();
+}
+// Function to get a specific user attribute
+app.get('/cognito/get/attribute', async (req, res) => {
+    const { sub, attributeName } = req.query;
+    console.log('=== /cognito/get/attribute =input= sub: ', sub, ', attributeName: ', attributeName);
+
+    if (!sub || !attributeName) {
+        return res.status(400).json({ message: "Cognito sub and attribute name are required." });
+    }
+
+    try {
+        const user = await getUserBySub(sub);
+        const attribute = user.Attributes.find(attr => attr.Name === attributeName);
+        const value = attribute ? attribute.Value : "Attribute not found";
+
+        console.log(`${attributeName} found:`, value);
+        console.log('=== /cognito/get/attribute =output= sub: ', sub, ', attributeName: ', attributeName, ', value: ', value);
+        res.json({ [attributeName]: value });
+
+    } catch (error) {
+        console.error("Error retrieving user attribute:", error);
+        res.status(500).json({ message: "Failed to retrieve user attribute." });
+    }
+});
+// Function to update a specific user attribute
+app.post('/cognito/update/attribute', async (req, res) => {
+    const { sub, attributeName, value } = req.body;
+    console.log('=== /cognito/update/attribute =input= sub: ', sub, ', attributeName: ', attributeName, ', value: ', value);
+
+    if (!sub || !attributeName || value === undefined) {
+        return res.status(400).json({ message: "Cognito sub, attribute name, and value are required." });
+    }
+
+    try {
+        const user = await getUserBySub(sub);
+        await updateUserAttribute(user.Username, attributeName, value);
+
+        console.log(`Updated ${attributeName} successfully`);
+        console.log('=== /cognito/update/attribute =output= success');
+        res.json({ message: `${attributeName} updated successfully.` });
+
+    } catch (error) {
+        console.error("Error updating user attribute:", error);
+        res.status(500).json({ message: "Failed to update user attribute." });
+    }
+});
+
+
+
+
 //S3 FUNCTIONS
 async function generateUploadSignedUrl(key, bucket) {
     const command = new PutObjectCommand({
@@ -244,291 +634,6 @@ app.get('/S3/get/image', async (req, res) => {
         }
     }
 });
-
-//Cognito user FUNCTIONS
-// Function to get user name
-app.post('/get-user-name', async (req, res) => {
-	console.log('calling function: /get-user-name');
-    const { sub } = req.body;
-	console.log('cognito sub1:', sub);
-
-    if (!sub) {
-        return res.status(400).json({ message: "Cognito sub is required." });
-    }
-
-    // console.log('cognito sub2:', sub);
-
-    try {
-        // List users in the user pool and filter by sub
-        const params = {
-            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
-            Filter: `sub = "${sub}"`,
-            Limit: 1
-        };
-
-        const data = await cognito.listUsers(params).promise();
-	// console.log('data: ', data);
-        if (!data.Users || data.Users.length === 0) {
-		console.log('no users found with that sub');
-            return res.status(404).json({ message: "User not found." });
-        }
-
-        // Extract name from attributes
-        const nameAttribute = data.Users[0].Attributes.find(attr => attr.Name === "name");
-        const name = nameAttribute ? nameAttribute.Value : "Unknown Name";
-
-        console.log('Name found:', name);
-        res.json({ name });
-
-    } catch (error) {
-        console.error("❌ Error retrieving user:", error);
-        res.status(500).json({ message: "Failed to retrieve user details." });
-    }
-});
-// Function to get user email
-app.post('/get-email', async (req, res) => {
-	console.log('calling function: /get-email');
-    const { sub } = req.body;
-	console.log('cognito sub1:', sub);
-
-    if (!sub) {
-        return res.status(400).json({ message: "Cognito sub is required." });
-    }
-
-    // console.log('cognito sub2:', sub);
-
-    try {
-        // List users in the user pool and filter by sub
-        const params = {
-            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
-            Filter: `sub = "${sub}"`,
-            Limit: 1
-        };
-
-        const data = await cognito.listUsers(params).promise();
-	// console.log('data: ', data);
-        if (!data.Users || data.Users.length === 0) {
-		console.log('no users found with that sub');
-            return res.status(404).json({ message: "User not found." });
-        }
-
-        // Extract name from attributes
-        const emailAttribute = data.Users[0].Attributes.find(attr => attr.Name === "email");
-        const email = emailAttribute ? emailAttribute.Value : "Unknown Email";
-
-        console.log('Email found:', email);
-        res.json({ email });
-
-    } catch (error) {
-        console.error("❌ Error retrieving user:", error);
-        res.status(500).json({ message: "Failed to retrieve user details." });
-    }
-});
-// Function to get user clubs following list
-app.post('/get-clubs-following', async (req, res) => {
-    console.log('calling function: /get-clubs-following');
-    const { sub } = req.body;
-
-    if (!sub) {
-        return res.status(400).json({ message: "Cognito sub is required." });
-    }
-
-    try {
-        const params = {
-            UserPoolId: process.env.USER_POOL_ID ||'us-east-1_UeljCiAIL',
-            Filter: `sub = "${sub}"`,
-            Limit: 1
-        };
-
-        const data = await cognito.listUsers(params).promise();
-        if (!data.Users || data.Users.length === 0) {
-            console.log('no users found with that sub');
-            return res.status(404).json({ message: "User not found." });
-        }
-
-        const clubsAttribute = data.Users[0].Attributes.find(attr => attr.Name === "custom:clubs_following");
-        const clubs = clubsAttribute ? clubsAttribute.Value : "No Clubs";
-        console.log('Clubs found:', clubs);
-        res.json({ clubs });
-    } catch (error) {
-        console.error("Error retrieving user:", error);
-        res.status(500).json({ message: "Failed to retrieve user details." });
-    }
-});
-// Function to update user clubs following list
-app.post('/modify-following-clubs', async (req, res) => {
-    console.log('calling function: /modify-following-clubs');
-    const { sub, clubs } = req.body;
-
-    if (!sub) {
-        return res.status(400).json({ message: "Cognito sub is required." });
-    }
-    if (clubs === undefined) {
-        return res.status(400).json({ message: "Clubs data is required." });
-    }
-
-    try {
-        const params = {
-            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
-            Filter: `sub = "${sub}"`,
-            Limit: 1
-        };
-
-        const data = await cognito.listUsers(params).promise();
-        if (!data.Users || data.Users.length === 0) {
-            console.log('No users found with that sub');
-            return res.status(404).json({ message: "User not found." });
-        }
-
-        const username = data.Users[0].Username;
-        const updateParams = {
-            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
-            Username: username,
-            UserAttributes: [
-                {
-                    Name: 'custom:clubs_following',
-                    Value: clubs
-                }
-            ]
-        };
-
-        const updateResult = await cognito.adminUpdateUserAttributes(updateParams).promise();
-        console.log('Update result:', updateResult);
-        res.json({ message: "Clubs updated successfully." });
-    } catch (error) {
-        console.error("Error updating clubs in Cognito:", error);
-        res.status(500).json({ message: "Failed to update clubs.", details: error });
-    }
-});
-// Function to update user name
-app.post('/change-user-name', async (req, res) => {
-	console.log('calling function: /change-user-name');
-    const { sub, newName } = req.body;
-    console.log('cognito sub:', sub);
-
-    if (!sub || !newName) {
-        return res.status(400).json({ message: "Cognito sub and new name are required." });
-    }
-
-    try {
-        // List users in the user pool and filter by sub
-        const params = {
-            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
-            Filter: `sub = "${sub}"`,
-            Limit: 1
-        };
-
-        const data = await cognito.listUsers(params).promise();
-        console.log('data: ', data);
-        if (!data.Users || data.Users.length === 0) {
-            console.log('no users found with that sub');
-            return res.status(404).json({ message: "User not found." });
-        }
-
-        // User found, proceed to update name
-        const user = data.Users[0];
-        const updateParams = {
-            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
-            Username: user.Username,
-            UserAttributes: [
-                {
-                    Name: 'name',
-                    Value: newName
-                }
-            ]
-        };
-
-        const updateData = await cognito.adminUpdateUserAttributes(updateParams).promise();
-        console.log('Update success:', updateData);
-        res.json({ message: "User name updated successfully." });
-
-    } catch (error) {
-        console.error("❌ Error updating user name:", error);
-        res.status(500).json({ message: "Failed to update user name." });
-    }
-});
-
-
-
-// Helper function to get user details by sub
-async function getUserBySub(sub) {
-    const params = {
-        UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
-        Filter: `sub = "${sub}"`,
-        Limit: 1
-    };
-
-    const data = await cognito.listUsers(params).promise();
-    if (!data.Users || data.Users.length === 0) {
-        throw new Error("User not found.");
-    }
-
-    return data.Users[0];  // Return user object
-}
-// Helper function to update user attribute
-async function updateUserAttribute(username, attributeName, value) {
-    const updateParams = {
-        UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
-        Username: username,
-        UserAttributes: [
-            {
-                Name: attributeName,
-                Value: value
-            }
-        ]
-    };
-
-    await cognito.adminUpdateUserAttributes(updateParams).promise();
-}
-// Function to get a specific user attribute
-app.get('/cognito/get/attribute', async (req, res) => {
-    const { sub, attributeName } = req.query;
-    console.log('=== /cognito/get/attribute =input= sub: ', sub, ', attributeName: ', attributeName);
-
-    if (!sub || !attributeName) {
-        return res.status(400).json({ message: "Cognito sub and attribute name are required." });
-    }
-
-    try {
-        const user = await getUserBySub(sub);
-        const attribute = user.Attributes.find(attr => attr.Name === attributeName);
-        const value = attribute ? attribute.Value : "Attribute not found";
-
-        console.log(`${attributeName} found:`, value);
-        console.log('=== /cognito/get/attribute =output= sub: ', sub, ', attributeName: ', attributeName, ', value: ', value);
-        res.json({ [attributeName]: value });
-
-    } catch (error) {
-        console.error("Error retrieving user attribute:", error);
-        res.status(500).json({ message: "Failed to retrieve user attribute." });
-    }
-});
-
-// Function to update a specific user attribute
-app.post('/cognito/update/attribute', async (req, res) => {
-    const { sub, attributeName, value } = req.body;
-    console.log('=== /cognito/update/attribute =input= sub: ', sub, ', attributeName: ', attributeName, ', value: ', value);
-
-    if (!sub || !attributeName || value === undefined) {
-        return res.status(400).json({ message: "Cognito sub, attribute name, and value are required." });
-    }
-
-    try {
-        const user = await getUserBySub(sub);
-        await updateUserAttribute(user.Username, attributeName, value);
-
-        console.log(`Updated ${attributeName} successfully`);
-        console.log('=== /cognito/update/attribute =output= success');
-        res.json({ message: `${attributeName} updated successfully.` });
-
-    } catch (error) {
-        console.error("Error updating user attribute:", error);
-        res.status(500).json({ message: "Failed to update user attribute." });
-    }
-});
-
-
-
 
 
 // MySQL RDS connection setup
@@ -634,28 +739,6 @@ app.post('/DB/clubs/update/attribute', (req, res) => {
     });
 });
 
-
-// // Test DB connection route
-// app.get('/api/db-test', (req, res) => {
-//     pool.query('SELECT NOW() AS currentTime', (err, results) => {
-//         if (err) {
-//             console.error('Error querying RDS:', err);
-//             return res.status(500).json({ error: 'Database connection failed' });
-//         }
-//         res.json({ message: 'Connected to RDS successfully!', time: results[0].currentTime });
-//     });
-// });
-
-// // Simple hello route
-// app.get('/', (req, res) => {
-//     res.send('Hello, World from AWS EC2!');
-// });
-
-// // Sample data route
-// app.get('/api/data', (req, res) => {
-//     console.log('Frontend has successfully connected to the backend.');
-//     res.json({ message: 'This is sample data from AWS EC2' });
-// });
 
 //Other FUNCTIONS
 // Shutdown route
