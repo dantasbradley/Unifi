@@ -453,7 +453,7 @@ app.post('/change-user-name', async (req, res) => {
 // Helper function to get user details by sub
 async function getUserBySub(sub) {
     const params = {
-        UserPoolId: USER_POOL_ID,
+        UserPoolId: USER_POOL_ID || 'us-east-1_UeljCiAIL',
         Filter: `sub = "${sub}"`,
         Limit: 1
     };
@@ -468,7 +468,7 @@ async function getUserBySub(sub) {
 // Helper function to update user attribute
 async function updateUserAttribute(username, attributeName, value) {
     const updateParams = {
-        UserPoolId: USER_POOL_ID,
+        UserPoolId: USER_POOL_ID || 'us-east-1_UeljCiAIL',
         Username: username,
         UserAttributes: [
             {
