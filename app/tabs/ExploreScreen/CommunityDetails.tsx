@@ -113,7 +113,7 @@ export default function CommunityDetailsScreen() {
         const response = await fetch(`http://3.85.25.255:3000/DB/clubs/update/attribute`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ club_id: clubId, attribute, value: newValue }),
+            body: JSON.stringify({ id: clubId, attribute, value: newValue }),
         });
 
         if (response.ok) console.log(`${attribute} updated successfully!`);
@@ -187,7 +187,7 @@ export default function CommunityDetailsScreen() {
     }
 
     try {
-        const response = await fetch(`http://3.85.25.255:3000/DB/clubs/get/attribute?club_id=${clubId}&attribute=${attribute}`);
+        const response = await fetch(`http://3.85.25.255:3000/DB/clubs/get/attribute?id=${clubId}&attribute=${attribute}`);
         
         if (!response.ok) {
             const data = await response.json();
