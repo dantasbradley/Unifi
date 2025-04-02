@@ -225,7 +225,7 @@ app.get('/cognito/get/attribute', async (req, res) => {
     try {
         const user = await getUserBySub(sub);
         const attribute = user.Attributes.find(attr => attr.Name === attributeName);
-        const value = attribute ? attribute.Value : "Attribute not found";
+        const value = attribute ? attribute.Value : "";
 
         console.log(`${attributeName} found:`, value);
         console.log('=== /cognito/get/attribute =output= sub: ', sub, ', attributeName: ', attributeName, ', value: ', value);
