@@ -22,7 +22,6 @@ export default function ExploreScreen() {
     fetchCommunities();
     fetchUserAttribute("custom:clubs_following").then((clubs) => {
       if (clubs) {
-        console.log("Clubs:", clubs);
         let clubsList = clubs === "No Clubs" ? [] : clubs.split(',').map(club => club.trim());
         const uniqueClubs = new Set(clubsList); // Assuming IDs are strings
         setJoinedCommunities(uniqueClubs);
@@ -32,11 +31,11 @@ export default function ExploreScreen() {
     fetchAdminClubs();
   }, []);
 
-  useEffect(() => {
-    const clubs = Array.from(joinedCommunities).join(',');
-    updateUserAttribute("custom:clubs_following", clubs); 
+  // useEffect(() => {
+  //   const clubs = Array.from(joinedCommunities).join(',');
+  //   updateUserAttribute("custom:clubs_following", clubs);
 
-  }, [joinedCommunities]);
+  // }, [joinedCommunities]);
 
   const fetchAdminClubs = async () => {
     const cognitoSub = await AsyncStorage.getItem('cognitoSub');
@@ -106,13 +105,79 @@ export default function ExploreScreen() {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
         newSet.delete(id);
+        updateMembersCount(id, -1); // Decrease member count
         console.log(`User has left the community with ID: ${id}`);
       } else {
         newSet.add(id);
+        updateMembersCount(id, 1); // Decrease member count
         console.log(`User has joined the community with ID: ${id}`);
       }
+      const clubs = Array.from(newSet).join(',');
+      updateUserAttribute("custom:clubs_following", clubs);
       return newSet;
     });
+    // const clubs = Array.from(joinedCommunities).join(',');
+    // updateUserAttribute("custom:clubs_following", clubs);
+  };
+
+  // Function to fetch a user attribute from Cognito
+  const updateMembersCount = async (id : any, changeInt : number) => {
+    const attributeName = "membersCount";
+    const membersCount = await fetchClubAttribute(id, attributeName);
+    console.log(`Current members count for club ${id}: ${membersCount}`);
+    if (membersCount >= 0) {
+      const newCount = parseInt(membersCount) + changeInt;
+      console.log(`New members count for club ${id}: ${newCount}, attributeName: ${attributeName}`);
+      await updateClubAttribute(id, attributeName, newCount.toString());
+      // Update in the state
+      setCommunities(prevCommunities =>
+        prevCommunities.map(community =>
+          community.id === id ? { ...community, membersCount: newCount } : community
+        )
+      );
+      console.log(`Updated members count for club ${id}: ${newCount}`);
+    } else {
+      console.error(`Failed to fetch members count for club ${id}`);
+    }
+  };
+
+  const fetchClubAttribute = async (clubId : any, attribute : any) => {
+    if (!clubId || !attribute) {
+      console.error("Both clubId and attribute are required.");
+      return;
+    }
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/clubs/get/attribute?id=${clubId}&attribute=${attribute}`);
+      
+      if (!response.ok) {
+        const data = await response.json();
+        console.error("Error fetching club attribute:", data.message);
+        return;
+      }
+
+      const data = await response.json();
+      
+      // Assuming you're working with state or something else to store the result
+      // console.log(`${attribute} for club ${clubId}:`, data[attribute]);
+      return data[attribute];  // You can handle this further depending on what you want to do with the data
+
+    } catch (error) {
+      console.error("Error fetching club attribute:", error);
+    }
+  };
+  const updateClubAttribute = async (clubId: any, attribute: string, newValue: string) => {
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/clubs/update/attribute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: clubId, attribute, value: newValue }),
+      });
+
+      if (response.ok) console.log(`${attribute} updated successfully!`);
+      else console.error(`Failed to update ${attribute}`);
+    } catch (error) {
+      console.error(`Error updating ${attribute}:`, error);
+    }
   };
 
   const fetchCommunities = async () => {
@@ -182,7 +247,7 @@ export default function ExploreScreen() {
             onToggleJoin={() => toggleJoinCommunity(item.id)}
             onPress={() => router.push({
               pathname: "/tabs/ExploreScreen/CommunityDetails",
-              params: { id: item.id, name: item.name },
+              params: { id: item.id, name: item.name, isAdmin: adminCommunities.has(item.id.toString()) },
             })}
           />
         )}

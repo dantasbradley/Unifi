@@ -36,7 +36,7 @@ const initialPosts: Post[] = [
 
 export default function CommunityDetailsScreen() {
   const router = useRouter();
-  const { id, name } = useLocalSearchParams();
+  const { id, name, isAdmin} = useLocalSearchParams();
 
   const [activeTab, setActiveTab] = useState<"Bio" | "Events" | "Community">("Bio");
 
@@ -61,26 +61,6 @@ export default function CommunityDetailsScreen() {
   const [newEventLocation, setNewEventLocation] = useState("");
   const [newEventDescription, setNewEventDescription] = useState("");
 
-  // const handleCreateEvent = () => {
-  //   const newId = (events.length + 1).toString();
-  //   const newEvent: Event = {
-  //     id: newId,
-  //     date: newEventDate || "TBD",
-  //     time: newEventTime || "TBD",
-  //     location: newEventLocation || "TBD",
-  //     title: newEventTitle || "New Event",
-  //     description: newEventDescription || "No description provided.",
-  //     attendees: 0,
-  //   };
-
-  //   setEvents([...events, newEvent]);
-  //   setNewEventTitle("");
-  //   setNewEventDate("");
-  //   setNewEventTime("");
-  //   setNewEventLocation("");
-  //   setNewEventDescription("");
-  //   setEventModalVisible(false);
-  // };
 
   // Community posts state
   const handleCreateEvent = async () => {
@@ -138,23 +118,6 @@ export default function CommunityDetailsScreen() {
   const [postModalVisible, setPostModalVisible] = useState(false);
   const [newPostName, setNewPostName] = useState("");
   const [newPostContent, setNewPostContent] = useState("");
-
-  // const handleCreatePost = () => {
-  //   const newId = (communityPosts.length + 1).toString();
-  //   const newPost: Post = {
-  //     id: newId,
-  //     name: newPostName || "Unnamed Group",
-  //     time: "0h",
-  //     content: newPostContent || "No content",
-  //     likes: 0,
-  //     comments: 0,
-  //   };
-
-  //   setCommunityPosts([...communityPosts, newPost]);
-  //   setNewPostName("");
-  //   setNewPostContent("");
-  //   setPostModalVisible(false);
-  // };
 
   // Return white color if tab is active, else gray
   const handleCreatePost = async () => {
@@ -300,6 +263,7 @@ export default function CommunityDetailsScreen() {
 
 
   useEffect(() => {
+    console.log("isAdmin: ", isAdmin);
     fetchImage(`club_profile_pics/${id}_${name}`, `user_profile_pics/default`);
     fetchClubAttribute(id, "description").then((description) => {
       if (description) {
@@ -416,6 +380,7 @@ export default function CommunityDetailsScreen() {
   return (
     <View style={styles.container}>
       {/* Header Section */}
+      {isAdmin && (
       <View style={styles.header}>
         {/* Back Arrow */}
         <TouchableOpacity onPress={() => router.back()}>
@@ -438,19 +403,29 @@ export default function CommunityDetailsScreen() {
           </TouchableOpacity>
         </View>
       </View>
+      )}
 
       {/* Main Content */}
       <View style={styles.contentArea}>
         {activeTab === "Bio" && (
           <View>
             {/* Bio Header with Edit Button */}
-            <View style={styles.bioHeader}>
+            {isAdmin === "true" && (
+              <View style={styles.bioHeader}>
+                <EditToggleButton 
+                  editMode={editMode}
+                  onPress={toggleEditMode}
+                  style={styles.editButton}
+                />
+              </View>
+            )}
+            {/* <View style={styles.bioHeader}>
               <EditToggleButton 
                 editMode={editMode}
                 onPress={toggleEditMode}
                 style={styles.editButton}
               />
-            </View>
+            </View> */}
 
             {/* Profile Image */}
             <TouchableOpacity onPress={handleChangeImage}>
@@ -533,9 +508,14 @@ export default function CommunityDetailsScreen() {
             />
 
             {/* Plus button to add event */}
-            <TouchableOpacity style={styles.addButton} onPress={() => setEventModalVisible(true)}>
+            {isAdmin === "true" && (
+              <TouchableOpacity style={styles.addButton} onPress={() => setEventModalVisible(true)}>
+                <Ionicons name="add" size={32} color="black" />
+              </TouchableOpacity>
+            )}
+            {/* <TouchableOpacity style={styles.addButton} onPress={() => setEventModalVisible(true)}>
               <Ionicons name="add" size={32} color="black" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         )}
 
@@ -547,7 +527,6 @@ export default function CommunityDetailsScreen() {
               renderItem={({ item }) => <PostCard post={item} />}
               style={{ marginTop: 10 }}
             />
-
             <AddPostModal
               visible={postModalVisible}
               onClose={() => setPostModalVisible(false)}
@@ -559,9 +538,14 @@ export default function CommunityDetailsScreen() {
             />
 
             {/* Plus button to add post */}
-            <TouchableOpacity style={styles.addButton} onPress={() => setPostModalVisible(true)}>
+            {isAdmin === "true" && (
+              <TouchableOpacity style={styles.addButton} onPress={() => setPostModalVisible(true)}>
+                <Ionicons name="add" size={32} color="black" />
+              </TouchableOpacity>
+            )}
+            {/* <TouchableOpacity style={styles.addButton} onPress={() => setPostModalVisible(true)}>
               <Ionicons name="add" size={32} color="black" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         )}
       </View>
