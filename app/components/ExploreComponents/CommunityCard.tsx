@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CustomButton from "./JoinButton"; 
@@ -28,10 +28,31 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
   onPress,
   isAdmin,
 }) => {
+  const [imageUrl, setImageUrl] = useState("");
+  useEffect(() => {
+    fetchImage(`club_profile_pics/${community.id}_${community.name}`, `user_profile_pics/default`);
+  }, []);
+
+  const fetchImage = async (filePath : any, defaultPath : any) => {
+    try {
+        console.log("filePath: ", filePath);
+        const response = await fetch(`http://3.85.25.255:3000/S3/get/image?filePath=${encodeURIComponent(filePath)}&defaultPath=${encodeURIComponent(defaultPath)}`);
+        const data = await response.json();
+        // console.log("Signed URL: ", data.url);
+        setImageUrl(data.url);
+    } catch (error) {
+        console.error('Failed to fetch image:', error);
+    }
+  };
   return (
     <View style={styles.cardContainer}>
       <TouchableOpacity style={styles.infoContainer} onPress={onPress} activeOpacity={0.8}>
-        <Image source={placeholderImage} style={styles.communityImage} />
+        {/* <Image source={placeholderImage} style={styles.communityImage} /> */}
+        {imageUrl ? (
+            <Image source={{ uri: imageUrl }} style={styles.communityImage} />
+        ) : (
+            <Text>Loading image...</Text>
+        )}
         <View style={styles.textContainer}>
           <Text style={styles.communityName}>{community.name}</Text>
           <View style={styles.secondLine}>
