@@ -2,6 +2,7 @@ import { Tabs } from "expo-router";
 import { Image, TouchableOpacity, View, StyleSheet } from "react-native";
 import Sidebar from "../components/Sidebar";
 import { useHamburger } from "../components/Hamburger";
+import { CommunitiesProvider } from "../contexts/CommunitiesContext";
 
 // Icons
 const homeIcon = require("../../assets/images/home.png");
@@ -15,6 +16,7 @@ export default function TabLayout() {
   const { toggleSidebar } = useHamburger();
 
   return (
+    <CommunitiesProvider>
     <View style={styles.container}>
       <Sidebar />
 
@@ -83,6 +85,7 @@ export default function TabLayout() {
         />
       </Tabs>
     </View>
+    </CommunitiesProvider>
   );
 }
 

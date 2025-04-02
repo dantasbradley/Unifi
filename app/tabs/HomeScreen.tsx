@@ -384,7 +384,7 @@ const HomeScreen = () => {
       const response = await fetch("http://3.85.25.255:3000/DB/clubs/get");
       if (!response.ok) throw new Error("Failed to fetch communities");
       const data = await response.json();
-      console.log("Communities fetched:", data);
+      // console.log("Communities fetched:", data);
     } catch (error) {
       console.error("Error fetching clubs:", error);
       Alert.alert("Error", "Failed to fetch community data.");

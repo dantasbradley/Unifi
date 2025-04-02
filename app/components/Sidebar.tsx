@@ -1,26 +1,51 @@
-import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Animated,
-  Platform,
-  StatusBar,
-  ScrollView,
-} from "react-native";
-import { useHamburger } from "./Hamburger"; 
+import React, { useState, useEffect, useContext } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Platform, StatusBar, ScrollView, Image } from "react-native";
+import { useHamburger } from "./Hamburger";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommunitiesContext } from "../contexts/CommunitiesContext";
+import { useMemo } from "react";
+import CommunityItem from "../components/SidebarCommunity";
+import { router } from "expo-router";
 
 const Sidebar = () => {
-  const { isSidebarOpen, closeSidebar } = useHamburger();
-  const translateX = new Animated.Value(isSidebarOpen ? 0 : -300);
 
-  Animated.timing(translateX, {
-    toValue: isSidebarOpen ? 0 : -300,
-    duration: 300,
-    useNativeDriver: true,
-  }).start();
+  const {
+    communities = [],
+    joinedCommunities = new Set(),
+    adminCommunities = new Set()
+  } = useContext(CommunitiesContext) || {};
+
+  const { isSidebarOpen, closeSidebar } = useHamburger();
+  const sidebarWidth = 350;
+  const translateX = new Animated.Value(isSidebarOpen ? 0 : -sidebarWidth);
+  const [filter, setFilter] = useState("admin");
+  const imageUrl = "https://via.placeholder.com/50"; // Placeholder image URL
+
+  useEffect(() => {
+    // Trigger animation when sidebar state changes
+    Animated.timing(translateX, {
+      toValue: isSidebarOpen ? 0 : -sidebarWidth,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [isSidebarOpen]);
+
+  const onPress = () => {
+    console.log("Community pressed");
+  };
+
+  const displayedClubs = useMemo(() => {
+    if (filter === "admin") {
+      return communities.filter(community => adminCommunities.has(community.id));
+    } else {
+      return communities.filter(community => joinedCommunities.has(community.id));
+    }
+  }, [filter, communities, adminCommunities, joinedCommunities]);
+
+  // useEffect(() => {
+  //   console.log("Displayed clubs updated:", displayedClubs);
+  // }, [displayedClubs]);
 
   return (
     <>
@@ -32,7 +57,6 @@ const Sidebar = () => {
         <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
           <View style={styles.headerRow}>
             <Text style={styles.title}>My Organizations</Text>
-
             <TouchableOpacity onPress={closeSidebar} style={styles.closeButton}>
               <View style={styles.closeHitbox}>
                 <Ionicons name="close" size={28} color="white" />
@@ -40,22 +64,34 @@ const Sidebar = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Organizations */}
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuText}>Alachua County Library</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuText}>Gainesville Ministry</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuText}>SCORE North Florida</Text>
-          </TouchableOpacity>
-
-          {/* test scrolling */}
-          {Array.from({ length: 20 }).map((_, i) => (
-            <TouchableOpacity key={i} style={styles.menuItem}>
-              <Text style={styles.menuText}>Extra Org {i + 1}</Text>
+          {/* Filter Buttons */}
+          <View style={styles.filterRow}>
+            <TouchableOpacity
+              onPress={() => setFilter("admin")}
+              style={[styles.filterButton, filter === "admin" && styles.activeFilter]}
+            >
+              <Text style={styles.filterText}>Admin</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setFilter("following")}
+              style={[styles.filterButton, filter === "following" && styles.activeFilter]}
+            >
+              <Text style={styles.filterText}>Following</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Club List */}
+          {displayedClubs.map((community) => (
+            <CommunityItem 
+              key={community.id} 
+              community={community} 
+              onPress={() => {
+                closeSidebar();
+                router.push({
+                pathname: "/tabs/ExploreScreen/CommunityDetails",
+                params: { id: community.id, name: community.name, isAdmin: adminCommunities.has(community.id.toString()) },
+              }); }}
+            />
           ))}
         </ScrollView>
       </Animated.View>
@@ -75,8 +111,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     top: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-    bottom: 60, 
-    width: 280,
+    bottom: 60,
+    width: 350,
     backgroundColor: "black",
     zIndex: 2,
   },
@@ -91,9 +127,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 20,
     marginTop: Platform.OS === "android"
-  ? (StatusBar.currentHeight || 0) + (70 - (StatusBar.currentHeight || 0))
-  : 70,
-
+      ? (StatusBar.currentHeight || 0) + (70 - (StatusBar.currentHeight || 0))
+      : 70,
   },
   title: {
     color: "white",
@@ -109,14 +144,83 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  menuItem: {
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "gray",
+  filterRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
   },
-  menuText: {
+  filterButton: {
+    flex: 1,
+    paddingVertical: 8,
+    marginHorizontal: 5,
+    borderWidth: 1,
+    borderColor: "white",
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  activeFilter: {
+    backgroundColor: "white",
+  },
+  filterText: {
+    color: "white",
+    fontSize: 14,
+  },
+  cardContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#222",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
+  },
+  adminBadge: {
+    backgroundColor: "#FFD700",  // Gold color
+    color: "#000",
+    padding: 5,
+    borderRadius: 5,
+    fontWeight: "bold",
+    marginTop: 5,
+  },
+  joinButton: {
+    backgroundColor: "#3b82f6",
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  joinButtonText: {
     color: "white",
     fontSize: 16,
+  },
+  infoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  communityImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 15,
+    marginRight: 10,
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  communityName: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 4,
+    flexWrap: "wrap",
+    flexShrink: 1,
+  },
+  secondLine: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  secondLineText: {
+    color: "#ccc",
+    fontSize: 14,
   },
 });
 
