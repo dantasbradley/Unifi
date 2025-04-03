@@ -1,10 +1,10 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
 import { Text, StyleSheet, View, Pressable, FlatList } from "react-native";
 import XDate from "xdate";
 
 interface EventListProps {
     date: string,
-    profile: string
 };
 
 type Event = {
@@ -13,28 +13,48 @@ type Event = {
     startTime: string,
     endTime: string,
     location: string,
-    descrition: string
+    description: string
 }
 
-const EventList: React.FC<EventListProps> = ({ date, profile }) => {
+const EventList: React.FC<EventListProps> = ({ date }) => {
 
     const [events, setEvents] = useState<Event[] | null>(null);
 
-    //Fetch the events from the backend
+    // Fetch the events from the backend
+    // Backend function needs to be developed
     const getEvents = async () => {
         try {
             // This is just for testing purposes
-            if (date === XDate.today().toDateString()) {
-                const testEvents: Event[] = [{title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort booksdflasdugfhkajlsdhfalkshdfaklsjdfhaslkdfhalskdfhjaslkdfhjalksdfjhalskd", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}]
-                setEvents(testEvents);
+            // if (date === XDate.today().toDateString()) {
+            //     const testEvents: Event[] = [{title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort booksdflasdugfhkajlsdhfalkshdfaklsjdfhaslkdfhalskdfhjaslkdfhjalksdfjhalskd", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}]
+            //     setEvents(testEvents);
+            // }
+            // else {
+            //     setEvents(null);
+            // }
+            const cognitoSub = await getCognitoSub();
+
+            if (!cognitoSub) {
+                console.error("Cognito sub not found in localStorage.");
+                return;
+            }
+
+            const url = `http://3.84.91.69:3000/date/${date}`;
+            const res = await fetch(url, {
+                method: 'POST', headers: {
+                "Content-Type": "application/json",},
+                body: JSON.stringify({ sub: cognitoSub })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                setEvents(data.events);
             }
             else {
-                // const url = `http://3.84.91.69:3000/${profile}/${date}`;
-                // const res = await fetch(url, {method: 'GET'});
-                // const json = await res.json();
-                // setEvents(json.events); 
-                setEvents(null);
+                console.error("Error fetching events: ", data.message);
             }
+            
         }
         catch (err) {
             console.error(err);
@@ -42,6 +62,19 @@ const EventList: React.FC<EventListProps> = ({ date, profile }) => {
             //setEvents(testEvents);
         }
     }
+
+    const getCognitoSub = async () => {
+        try {
+          const value = await AsyncStorage.getItem('cognitoSub');
+          if (value !== null) {
+            console.log('cognitoSub retrieved successfully:', value);
+            return value;
+          }
+        } catch (e) {
+          console.error('Failed to retrieve cognitoSub', e);
+        }
+        return null;
+    };
 
     useEffect(() => {getEvents()}, [date]);
 
@@ -60,7 +93,7 @@ const EventList: React.FC<EventListProps> = ({ date, profile }) => {
                     <Text style={styles.body}>Organization: {item.organization}</Text>
                     <Text style={styles.body}>Time: {item.startTime} - {item.endTime}</Text>
                     <Text style={styles.body}>Location: {item.location}</Text>
-                    <Text style={styles.body}>Description: {item.descrition}</Text>
+                    <Text style={styles.body}>Description: {item.description}</Text>
                 </View>
             )
         }}/>

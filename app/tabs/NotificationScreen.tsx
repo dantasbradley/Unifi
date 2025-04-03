@@ -1,9 +1,6 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
-
-interface NotificationProps {
-    profile: string
-}
 
 type Notification = {
     org: string,
@@ -12,7 +9,7 @@ type Notification = {
     body: string
 }
 
-const NotificationScreen: React.FC<NotificationProps> = ({profile}) => {
+const NotificationScreen = () => {
     const [notifications, setNotifications] = useState<Notification[] | null>(null);
 
     const min = 60 * 1000;
@@ -28,15 +25,48 @@ const NotificationScreen: React.FC<NotificationProps> = ({profile}) => {
     //Retrieve notifications from the backend
     const getNotifications = async () => {
         try {
-            const url = `http://3.84.91.69:3000/${profile}/notifications`;
-            const res = await fetch(url, {method: 'GET'});
-            const json = await res.json();
-            setNotifications(json.notifcations);
+            const cognitoSub = await getCognitoSub();
+
+            if (!cognitoSub) {
+                console.error("Cognito sub not found in localStorage.");
+                return;
+            }
+
+            const url = `http://3.84.91.69:3000/notifications`;
+            const res = await fetch(url, {
+                method: 'POST', headers: {
+                "Content-Type": "application/json",},
+                body: JSON.stringify({ sub: cognitoSub })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                setNotifications(data.notifcations);
+            }
+            else {
+                console.error("Error retrieving notifications: ", data.message);
+            }
+            
         }
         catch (err) {
             console.error(err);
         }
     }
+
+    const getCognitoSub = async () => {
+        try {
+          const value = await AsyncStorage.getItem('cognitoSub');
+          if (value !== null) {
+            console.log('cognitoSub retrieved successfully:', value);
+            return value;
+          }
+        } catch (e) {
+          console.error('Failed to retrieve cognitoSub', e);
+        }
+        return null;
+    };
+
 
     useEffect(() => {getNotifications()}, []);
 

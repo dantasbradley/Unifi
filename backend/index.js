@@ -246,6 +246,81 @@ app.post('/login', (req, res) => {
     });
 });
 
+// WIP
+app.post('/notifications', async (req, res) => {
+    console.log(`calling function: /date/${req.params.date}`);
+    const { sub } = req.body;
+    console.log('cognito sub1:', sub);
+
+    if (!sub) {
+        return res.status(400).json({ message: "Cognito sub is required." });
+    }
+
+    try {
+        // List users in the user pool and filter by sub
+        const params = {
+            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+            Filter: `sub = "${sub}"`,
+            Limit: 1
+        };
+
+        const data = await cognito.listUsers(params).promise();
+        if (!data.Users || data.Users.length === 0) {
+            console.log('no users found with that sub');
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        /* TODO: Need to 1) Find all organizations that the user is a part of, 2)  */
+    }
+    catch (err) {
+        console.error("❌ Error retrieving notifications:", error);
+        res.status(500).json({ message: "Failed to retrieve notifications." });
+    }
+});
+
+// WIP
+// Retrieve the event information for a particular day and user
+app.post('/date/:date', async (req, res) => {
+    console.log(`calling function: /date/${req.params.date}`);
+    const { sub } = req.body;
+    console.log('cognito sub1:', sub);
+
+    if (!sub) {
+        return res.status(400).json({ message: "Cognito sub is required." });
+    }
+
+    try {
+        // List users in the user pool and filter by sub
+        const params = {
+            UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
+            Filter: `sub = "${sub}"`,
+            Limit: 1
+        };
+
+        const data = await cognito.listUsers(params).promise();
+        if (!data.Users || data.Users.length === 0) {
+            console.log('no users found with that sub');
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        /* TODO: Need to 1) Find all organizations that the user is a part of 2) For each organization, find event information
+        for all events scheduled on :date, 3) Sort the events based on earliest start time, 4) return the list of Events where events
+        take the structure 
+        type Event = {
+            title: string,
+            organization: string,
+            startTime: string,
+            endTime: string,
+            location: string,
+            description: string
+        } */
+    }
+    catch (err) {
+        console.error("❌ Error retrieving events:", error);
+        res.status(500).json({ message: "Failed to retrieve events." });
+    }
+});
+
 app.post('/get-user-name', async (req, res) => {
 	console.log('calling function: /get-user-name');
     const { sub } = req.body;

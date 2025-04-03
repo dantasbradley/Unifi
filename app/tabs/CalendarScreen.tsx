@@ -37,7 +37,7 @@ const CalendarScreen = () => {
     markedDates={markedDate}
     />
     <View style={styles.event}>
-      {selectedDate !== null ? <EventList date={selectedDate.toDateString()} profile=""/> : null}
+      {selectedDate !== null ? <EventList date={selectedDate.toDateString()}/> : null}
     </View>
     
   </View>
