@@ -1,5 +1,7 @@
 import React, { createContext, useState, useEffect, ReactNode } from "react";
+import { formatDistanceToNow } from 'date-fns';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Alert } from "react-native";
 
 interface CommunitiesContextType {
   communities: { id: string; [key: string]: any }[];
@@ -17,6 +19,8 @@ interface CommunitiesContextType {
   fetchClubAttribute: (clubId: string, attribute: string) => Promise<string | undefined>;
   updateClubAttribute: (clubId: string, attribute: string, newValue: string) => Promise<void>;
   addCommunity: (newCommunityName: string, newCommunityLocation: string) => Promise<void>;
+  fetchPostsForClub: (clubId: string) => void;
+  fetchEventsForClub: (clubId: string) => void;
 }
 
 export const CommunitiesContext = createContext<CommunitiesContextType | null>(null);
@@ -26,6 +30,7 @@ interface CommunitiesProviderProps {
 }
 
 export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ children }) => {
+  //communities list
   const [communities, setCommunities] = useState<{ id: string; [key: string]: any }[]>([]);
   const [joinedCommunities, setJoinedCommunities] = useState<Set<string>>(new Set());
   const [adminCommunities, setAdminCommunities] = useState<Set<string>>(new Set());
@@ -46,6 +51,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
 
   const fetchCommunities = async () => {
     try {
+      console.log("fetching communities");
       const response = await fetch("http://3.85.25.255:3000/DB/clubs/get");
       const data = await response.json();
       const formattedData = data.map((community: any) => ({
@@ -191,7 +197,77 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       setCommunities([...communities, { id: result.id.toString(), name: newCommunityName, location: newCommunityLocation, membersCount: 0 }]);
     } catch (error) {
       console.error("Error adding community:", error);
-      Alert.alert("Error", error.message || "Error adding community. Please try again.");
+      Alert.alert("Error adding community. Please try again.");
+    }
+  };
+
+  // Function to fetch posts for a specific club based on the club ID
+  // const fetchPostsForClub = async (clubId: any) => {
+  //   if (!clubId) {
+  //     console.error("Club ID is required");
+  //     return;
+  //   }
+  //   try {
+  //     const response = await fetch(`http://3.85.25.255:3000/DB/posts/get/club_id=${clubId}`);
+  //     const data = await response.json();
+  //     if (response.ok) {
+  //       return data;
+  //     } else {
+  //       Alert.alert("Error", "Failed to fetch posts.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching posts:", error);
+  //     Alert.alert("Error", "Could not connect to server.");
+  //   }
+  // };
+  const fetchPostsForClub = async (clubId : any) => {
+    if (!clubId) {
+      console.error("Club ID is required");
+      return;
+    }
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/posts/get/club_id=${clubId}`);
+      const data = await response.json();
+      if (!response.ok) throw new Error("Failed to fetch posts");
+      console.log("Posts fetched for club:", clubId, data);
+      const formattedPosts = data.map((post: any) => {
+        post.time = formatDistanceToNow(new Date(post.time), { addSuffix: true })
+        return post;
+      });
+      return formattedPosts;
+      // setPosts(prevPosts => [...prevPosts, ...data.map(post => ({
+      //   ...post,
+      //   time: formatDistanceToNow(new Date(post.time), { addSuffix: true })
+      // }))]);
+    } catch (error) {
+      console.error("Error fetching posts for club:", error);
+      Alert.alert("Error", "Failed to fetch posts for the club.");
+    }
+  };
+
+  const fetchEventsForClub = async (clubId: any) => {
+    if (!clubId) {
+      console.error("Club ID is required");
+      return;
+    }
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/events/get/club_id=${clubId}`);
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Format the date of each event to "YYYY-MM-DD"
+        const formattedEvents = data.map((event: any) => {
+          const date = new Date(event.date);  // assuming 'date' is the key holding the date string
+          event.date = date.toISOString().split('T')[0];  // Format to "YYYY-MM-DD"
+          return event;
+        });
+        return formattedEvents;
+      } else {
+        Alert.alert("Error", "Failed to fetch events.");
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      Alert.alert("Error", "Could not connect to server.");
     }
   };
 
@@ -213,6 +289,8 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         fetchClubAttribute,
         updateClubAttribute,
         addCommunity,
+        fetchPostsForClub,
+        fetchEventsForClub,
       }}
     >
       {children}

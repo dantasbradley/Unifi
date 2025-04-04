@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, ImageSourcePropType} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -8,6 +8,7 @@ import PostCard, { Post } from "../../components/ExploreComponents/PostCard";
 import AddEventModal from "../../components/ExploreComponents/AddEventModal";
 import AddPostModal from "../../components/ExploreComponents/AddPostModal";
 import EditToggleButton from "../../components/ExploreComponents/EditToggleButton";
+import { CommunitiesContext } from "../../contexts/CommunitiesContext";
 
 const placeholderImage = require("../../../assets/images/placeholder.png");
 
@@ -38,6 +39,15 @@ export default function CommunityDetailsScreen() {
   const router = useRouter();
   const { id, name, isAdmin} = useLocalSearchParams();
 
+  const {
+    fetchClubAttribute = () => {},
+    updateClubAttribute = () => {},
+    fetchPostsForClub = () => {},
+    fetchEventsForClub = () => {}
+  } = useContext(CommunitiesContext) || {};
+  
+  const communitiesContext = useContext(CommunitiesContext);
+
   const [activeTab, setActiveTab] = useState<"Bio" | "Events" | "Community">("Bio");
 
   // State for Bio editing
@@ -60,6 +70,12 @@ export default function CommunityDetailsScreen() {
   const [newEventTime, setNewEventTime] = useState("");
   const [newEventLocation, setNewEventLocation] = useState("");
   const [newEventDescription, setNewEventDescription] = useState("");
+
+  // Posts
+  const [communityPosts, setCommunityPosts] = useState(initialPosts);
+  const [postModalVisible, setPostModalVisible] = useState(false);
+  const [newPostName, setNewPostName] = useState("");
+  const [newPostContent, setNewPostContent] = useState("");
 
 
   // Community posts state
@@ -112,13 +128,6 @@ export default function CommunityDetailsScreen() {
     }
   };
 
-
-
-  const [communityPosts, setCommunityPosts] = useState(initialPosts);
-  const [postModalVisible, setPostModalVisible] = useState(false);
-  const [newPostName, setNewPostName] = useState("");
-  const [newPostContent, setNewPostContent] = useState("");
-
   // Return white color if tab is active, else gray
   const handleCreatePost = async () => {
     if (!newPostName || !newPostContent) {
@@ -162,102 +171,55 @@ export default function CommunityDetailsScreen() {
         Alert.alert("Error", "Could not connect to server.");
     }
   };
-
-  // Function to fetch posts for a specific club based on the club ID
-  const fetchPostsForClub = async (clubId: any) => {
-    if (!clubId) {
-      console.error("Club ID is required");
-      return;
-    }
-
-    try {
-      const response = await fetch(`http://3.85.25.255:3000/DB/posts/get/club_id=${clubId}`);
-      const data = await response.json();
-
-      if (response.ok) {
-        setCommunityPosts(data); // Update the state with the fetched posts
-      } else {
-        Alert.alert("Error", "Failed to fetch posts.");
-      }
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-      Alert.alert("Error", "Could not connect to server.");
-    }
-  };
-
-  const fetchEventsForClub = async (clubId: any) => {
-    if (!clubId) {
-      console.error("Club ID is required");
-      return;
-    }
-  
-    try {
-      const response = await fetch(`http://3.85.25.255:3000/DB/events/get/club_id=${clubId}`);
-      const data = await response.json();
-  
-      if (response.ok) {
-        // Format the date of each event to "YYYY-MM-DD"
-        const formattedEvents = data.map((event: any) => {
-          const date = new Date(event.date);  // assuming 'date' is the key holding the date string
-          event.date = date.toISOString().split('T')[0];  // Format to "YYYY-MM-DD"
-          return event;
-        });
-        setEvents(formattedEvents); // Update the state with the fetched events
-      } else {
-        Alert.alert("Error", "Failed to fetch events.");
-      }
-    } catch (error) {
-      console.error("Error fetching events:", error);
-      Alert.alert("Error", "Could not connect to server.");
-    }
-  };
-  
-
   
   const getTabColor = (tabName: string) => (activeTab === tabName ? "#fff" : "#999");
 
-  const updateClubAttribute = async (clubId: any, attribute: string, newValue: string) => {
-    try {
-        const response = await fetch(`http://3.85.25.255:3000/DB/clubs/update/attribute`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: clubId, attribute, value: newValue }),
-        });
-
-        if (response.ok) console.log(`${attribute} updated successfully!`);
-        else console.error(`Failed to update ${attribute}`);
-    } catch (error) {
-        console.error(`Error updating ${attribute}:`, error);
-    }
-  };
-
   // Toggle edit mode and save changes when toggling off
   const toggleEditMode = () => {
-    // TODO: Add saving logic here before exiting edit mode
-    
     if (editMode) {
-      console.log("Saving changes...");
-      if (bioDescription !== originalBioDescription) {
-        updateClubAttribute(id, "description", bioDescription);
-        setOriginalBioDescription(bioDescription); // Update the original value
-      } else {
-        console.log("No changes detected in bio description.");
-      }
-      if (email !== originalEmail) {
-        updateClubAttribute(id, "email", email);
-        setOriginalEmail(email); // Update the original value
-      } else {
-        console.log("No changes detected in email.");
-      }
-      if (insta !== originalInsta) {
-        updateClubAttribute(id, "instagram", insta);
-        setOriginalInsta(insta); // Update the original value
-      } else {
-        console.log("No changes detected in insta.");
-      }
+      // console.log("Saving changes...");
+      // if (bioDescription !== originalBioDescription) {
+      //   updateClubAttribute(id, "description", bioDescription);
+      //   setOriginalBioDescription(bioDescription); // Update the original value
+      // } else {
+      //   console.log("No changes detected in bio description.");
+      // }
+      // if (email !== originalEmail) {
+      //   updateClubAttribute(id, "email", email);
+      //   setOriginalEmail(email); // Update the original value
+      // } else {
+      //   console.log("No changes detected in email.");
+      // }
+      // if (insta !== originalInsta) {
+      //   updateClubAttribute(id, "instagram", insta);
+      //   setOriginalInsta(insta); // Update the original value
+      // } else {
+      //   console.log("No changes detected in insta.");
+      // }
+      handleSave();
     }
     setEditMode((prev) => !prev);
+  };
+  const handleSave = () => {
+    console.log("Saving changes...");
+    saveIfChanged(id, "description", bioDescription, originalBioDescription, setOriginalBioDescription);
+    saveIfChanged(id, "email", email, originalEmail, setOriginalEmail);
+    saveIfChanged(id, "instagram", insta, originalInsta, setOriginalInsta);
+  };
 
+  const saveIfChanged = (
+    clubId: string, 
+    field: string, 
+    newValue: string, 
+    originalValue: string, 
+    setOriginalValue: (value: string) => void
+  ) => {
+    if (newValue !== originalValue) {
+      updateClubAttribute(clubId, field, newValue);
+      setOriginalValue(newValue);
+    } else {
+      console.log(`No changes detected in ${field}.`);
+    }
   };
 
 
@@ -265,61 +227,60 @@ export default function CommunityDetailsScreen() {
   useEffect(() => {
     console.log("isAdmin: ", isAdmin);
     fetchImage(`club_profile_pics/${id}_${name}`, `user_profile_pics/default`);
-    fetchClubAttribute(id, "description").then((description) => {
-      if (description) {
-        setBioDescription(description);
-        setOriginalBioDescription(description); // Save the original value
-      }
-    });
-    fetchClubAttribute(id, "email").then((email) => {
-      if (email) {
-        setEmail(email);
-        setOriginalEmail(email); // Save the original value
-      }
-    });
-    fetchClubAttribute(id, "instagram").then((instagram) => {
-      if (instagram) {
-        setInsta(instagram);
-        setOriginalInsta(instagram); // Save the original value
-      }
-    });
+    // fetchClubAttribute(id, "description").then((description) => {
+    //   if (description) {
+    //     setBioDescription(description);
+    //     setOriginalBioDescription(description); // Save the original value
+    //   }
+    // });
+    // fetchClubAttribute(id, "email").then((email) => {
+    //   if (email) {
+    //     setEmail(email);
+    //     setOriginalEmail(email); // Save the original value
+    //   }
+    // });
+    // fetchClubAttribute(id, "instagram").then((instagram) => {
+    //   if (instagram) {
+    //     setInsta(instagram);
+    //     setOriginalInsta(instagram); // Save the original value
+    //   }
+    // });
+    loadClubAttribute(id, "description", setBioDescription, setOriginalBioDescription);
+    loadClubAttribute(id, "email", setEmail, setOriginalEmail);
+    loadClubAttribute(id, "instagram", setInsta, setOriginalInsta);
   }, []);
-
-  useEffect(() => {
-    fetchPostsForClub(id); // Fetch posts for the specific club
-    fetchEventsForClub(id);
-  }, []); // Dependency on 'id' to fetch posts when the club changes
-
-  // const [bioDescription, setBioDescription] = useState("We are a group that loves to read, meet up, etc.");
-  // const [email, setEmail] = useState("example@gmail.com");
-  // const [insta, setInsta] = useState("@insertHandle");
-
-  const fetchClubAttribute = async (clubId : any, attribute : any) => {
-    if (!clubId || !attribute) {
-        console.error("Both clubId and attribute are required.");
-        return;
-    }
-
-    try {
-        const response = await fetch(`http://3.85.25.255:3000/DB/clubs/get/attribute?id=${clubId}&attribute=${attribute}`);
-        
-        if (!response.ok) {
-            const data = await response.json();
-            console.error("Error fetching club attribute:", data.message);
-            return;
-        }
-
-        const data = await response.json();
-        
-        // Assuming you're working with state or something else to store the result
-        // console.log(`${attribute} for club ${clubId}:`, data[attribute]);
-        return data[attribute];  // You can handle this further depending on what you want to do with the data
-
-    } catch (error) {
-        console.error("Error fetching club attribute:", error);
+  
+  const loadClubAttribute = async (
+    clubId: string,
+    field: string,
+    setValue: (value: string) => void,
+    setOriginalValue: (value: string) => void
+  ) => {
+    const attribute = await fetchClubAttribute(clubId, field);
+    if (attribute) {
+      setValue(attribute);
+      setOriginalValue(attribute); // Save the original value
     }
   };
 
+  useEffect(() => {
+    handleFetchPostsForClub(id); // Fetch posts for the specific club
+    handleFetchEventsForClub(id);
+  }, []); // Dependency on 'id' to fetch posts when the club changes
+
+
+  const handleFetchPostsForClub = async (clubId: any) => {
+    const data = await fetchPostsForClub(clubId);
+    setCommunityPosts(data);
+  };
+
+  const handleFetchEventsForClub = async (clubId: any) => {
+    const data = await fetchEventsForClub(clubId);
+    setEvents(data);
+  };
+
+
+  //image functions
   const fetchImage = async (filePath : any, defaultPath : any) => {
     try {
         console.log("filePath: ", filePath);
@@ -331,7 +292,6 @@ export default function CommunityDetailsScreen() {
         console.error('Failed to fetch image:', error);
     }
   };
-
   const uploadImage = async (filePath : any, imageUri : any) => {
     try {
         console.log("filePath: ", filePath);
@@ -349,7 +309,6 @@ export default function CommunityDetailsScreen() {
         alert('Upload failed!');
     }
   };
-
   const handleChangeImage = async () => {
     if (!editMode) return;
     // Request permission to access media library
@@ -358,11 +317,6 @@ export default function CommunityDetailsScreen() {
       Alert.alert("Permission Denied", "We need permission to access your media library to change the image.");
       return;
     }
-    // const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    // if (permissionResult.granted === false) {
-    //     alert("You've refused to allow this app to access your photos!");
-    //     return;
-    // }
     // Open the image picker
     const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -374,7 +328,6 @@ export default function CommunityDetailsScreen() {
     if (!result.canceled) {
         uploadImage(`club_profile_pics/${id}_${name}`, result.assets[0].uri);
     }
-
 };
 
   return (

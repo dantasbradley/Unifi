@@ -1,37 +1,48 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, TextInput, FlatList, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, TextInput, FlatList, StyleSheet, TouchableOpacity, Alert, RefreshControl } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import CommunityCard from "../../components/ExploreComponents/CommunityCard";
 import CreateCommunityModal from "../../components/ExploreComponents/CreateCommunityModal";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommunitiesContext } from "../../contexts/CommunitiesContext";
 
 export default function ExploreScreen() {
   const router = useRouter();
-
   const {
     communities = [],
     joinedCommunities = new Set(),
     adminCommunities = new Set(),
     addCommunity = () => {},
-    toggleJoinCommunity = () => {}
+    toggleJoinCommunity = () => {},
+    fetchCommunities = () => {},
   } = useContext(CommunitiesContext) || {};
-  
-  const communitiesContext = useContext(CommunitiesContext);
-  // console.log(communitiesContext ? "communitiesContext connected" : "communitiesContext not connected");
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [newCommunityName, setNewCommunityName] = useState("");
   const [newCommunityLocation, setNewCommunityLocation] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(Date.now());
+
+  // Function to refresh the community list
+  const handleRefresh = async () => {
+    console.log("refreshing page");
+    setRefreshing(true);
+    try {
+      await fetchCommunities(); // Fetch latest data
+      setRefreshKey(Date.now()); // 👈 Forces FlatList to refresh
+    } catch (error) {
+      console.error("Error refreshing communities:", error);
+    }
+    setRefreshing(false);
+  };
 
   const addNewCommunity = async () => {
     if (!newCommunityName.trim() || !newCommunityLocation.trim()) {
       Alert.alert("Error", "Community name and location cannot be empty");
       return;
     }
-    addCommunity(newCommunityName, newCommunityLocation)
+    addCommunity(newCommunityName, newCommunityLocation);
     setNewCommunityName("");
     setNewCommunityLocation("");
     setModalVisible(false);
@@ -47,6 +58,7 @@ export default function ExploreScreen() {
         onChangeText={setSearchQuery}
       />
       <FlatList
+        key={refreshKey}
         data={communities.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))}
         keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
@@ -61,6 +73,9 @@ export default function ExploreScreen() {
             })}
           />
         )}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
       />
       <CreateCommunityModal
         visible={modalVisible}
@@ -104,3 +119,5 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 });
+
+// export default ExploreScreen;

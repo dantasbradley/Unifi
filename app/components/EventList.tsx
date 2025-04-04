@@ -3,70 +3,68 @@ import { Text, StyleSheet, View, Pressable, FlatList } from "react-native";
 
 interface EventListProps {
     date: string,
-    profile: string
+    events: Event[],
+    refreshing: boolean,
+    onRefresh: () => void
 };
 
 type Event = {
+    date: string,
     title: string,
-    organization: string,
-    startTime: string,
-    endTime: string,
+    description: string,
     location: string,
-    descrition: string
+    time: string
+    // organization: string,
+    // startTime: string,
+    // endTime: string
 }
 
-const EventList: React.FC<EventListProps> = ({ date, profile }) => {
+const EventList: React.FC<EventListProps> = ({ date, events, refreshing, onRefresh }) => {
 
-    const [events, setEvents] = useState<Event[] | null>(null);
+    const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
 
-    //Fetch the events from the backend
-    const getEvents = async () => {
-        try {
-            const url = `http://3.84.91.69:3000/${profile}/${date}`;
-            const res = await fetch(url, {method: 'GET'});
-            const json = await res.json();
-            setEvents(json.events);
-        }
-        catch (err) {
-            console.error(err);
-            const testEvents: Event[] = [{title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort booksdflasdugfhkajlsdhfalkshdfaklsjdfhaslkdfhalskdfhjaslkdfhjalksdfjhalskd", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}, {title: "Book Sorting", organization: "Alachua County Library", startTime: "12:00 a.m.", endTime: "1:00 p.m.", descrition: "Help sort books", location:"Library"}]
-            setEvents(testEvents);
-        }
-    }
+    useEffect(() => {
+        // const filteredEvents = date ? events.filter(event => event.date === date) : [];
+        console.log("----------------");
+        const filtered = date && Array.isArray(events) ? events.filter(event => {
+            console.log("Filtering event:", event);
+            return event.date === date;
+        }) : [];
 
-    useEffect(() => {getEvents()}, []);
-
-    //Rendered when there are no events scheduled on a particular day
-    const emptyList: React.JSX.Element = (
-        <Text style={styles.event}>
-            No events scheduled
-        </Text>
-    );
-
-    const fullList = (
-        <FlatList scrollEnabled={true} data={events} renderItem={({item}) => {
-            return (
-                <View style={styles.event}>
-                    <Text style={styles.header}>{item.title}</Text>
-                    <Text style={styles.body}>Organization: {item.organization}</Text>
-                    <Text style={styles.body}>Time: {item.startTime} - {item.endTime}</Text>
-                    <Text style={styles.body}>Location: {item.location}</Text>
-                    <Text style={styles.body}>Description: {item.descrition}</Text>
-                </View>
-            )
-        }}/>
-    )
+        console.log("=Filtered events:", filtered);
+        setFilteredEvents(filtered);
+    }, [date]);
 
     return(
-        <View style={styles.container}>
-            {events !== null ? fullList : emptyList}
+        <View>
+            <Text> Events for {date}</Text>
+            {filteredEvents.length > 0 ? (
+                <FlatList
+                    data={filteredEvents}
+                    keyExtractor={(item) => item.title}
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    renderItem={({ item }) => (
+                        <View style={styles.event}>
+                            <Text style={styles.header}>{item.title}</Text>
+                            {/* <Text style={styles.body}>Organization: {item.organization}</Text> */}
+                            <Text style={styles.body}>Time: {item.time}</Text>
+                            <Text style={styles.body}>Location: {item.location}</Text>
+                            <Text style={styles.body}>Description: {item.description}</Text>
+                        </View>
+                    )}
+                />
+            ) : (
+                <Text style={styles.event}>No events scheduled</Text>
+            )}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        borderRadius: 5
+        borderRadius: 5,
+        flex: 1
     },
     event: {
         borderRadius: 5,

@@ -35,7 +35,7 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
 
   const fetchImage = async (filePath : any, defaultPath : any) => {
     try {
-        console.log("filePath: ", filePath);
+        // console.log("filePath: ", filePath);
         const response = await fetch(`http://3.85.25.255:3000/S3/get/image?filePath=${encodeURIComponent(filePath)}&defaultPath=${encodeURIComponent(defaultPath)}`);
         const data = await response.json();
         // console.log("Signed URL: ", data.url);
