@@ -87,7 +87,7 @@ const HomeScreen = () => {
   const renderPost = ({ item }) => (
     <View style={styles.postContainer}>
       <View style={styles.postHeader}>
-        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.title}>{item.title} - {item.clubName}</Text> {/* Display club name with title */}
         <Text style={styles.postTime}>{item.time}</Text>
       </View>
       <Text style={styles.postContent}>{item.content}</Text>
@@ -107,6 +107,7 @@ const HomeScreen = () => {
       </View>
     </View>
   );
+  
 
   return (
     <View style={styles.container}>
