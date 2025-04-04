@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 const HomeScreen = () => {
   const [posts, setPosts] = useState([]);
   const [joinedCommunities, setJoinedCommunities] = useState(new Set());
+  const [communities, setCommunities] = useState([]);
 
   const getJoinedCommunities = async () => {
     console.log("Fetching joined communities...");
@@ -27,6 +28,7 @@ const HomeScreen = () => {
       if (!response.ok) throw new Error("Failed to fetch communities");
       const data = await response.json();
       console.log("Communities fetched:", data);
+      setCommunities(data);  // Set the fetched data into the communities state
     } catch (error) {
       console.error("Error fetching clubs:", error);
       Alert.alert("Error", "Failed to fetch community data.");
@@ -52,20 +54,36 @@ const HomeScreen = () => {
       const response = await fetch(`http://3.85.25.255:3000/DB/posts/get/club_id=${clubId}`);
       if (!response.ok) throw new Error("Failed to fetch posts");
       const data = await response.json();
-      console.log("Posts fetched for club:", clubId, data);
-      setPosts(prevPosts => [...prevPosts, ...data.map(post => ({
+      const clubInfo = communities.find(c => c.id === clubId); // Find the community information
+      const postsWithClubName = data.map(post => ({
         ...post,
+        clubName: clubInfo ? clubInfo.name : 'Unknown Club', // Include club name or default if not found
         time: formatDistanceToNow(new Date(post.time), { addSuffix: true })
-      }))]);
+      }));
+      console.log("Posts fetched for club:", clubId, postsWithClubName);
+      setPosts(prevPosts => [...prevPosts, ...postsWithClubName]);
     } catch (error) {
       console.error("Error fetching posts for club:", error);
       Alert.alert("Error", "Failed to fetch posts for the club.");
     }
   };
+  
 
   useEffect(() => {
-    getJoinedCommunities();
+    fetchCommunities().then(() => {
+      // After communities are fetched, then fetch posts for each club
+      const clubs = fetchUserAttribute("custom:clubs_following").then(clubs => {
+        if (clubs) {
+          const clubsList = clubs === "No Clubs" ? [] : clubs.split(',').map(club => club.trim());
+          const uniqueClubs = new Set(clubsList);
+          setJoinedCommunities(uniqueClubs);
+          console.log("Joined clubs:", Array.from(uniqueClubs));
+          uniqueClubs.forEach(fetchPostsForClub);
+        }
+      });
+    });
   }, []);
+  
 
   const handleLike = (postId) => {
     setPosts((currentPosts) =>
@@ -78,7 +96,7 @@ const HomeScreen = () => {
   const renderPost = ({ item }) => (
     <View style={styles.postContainer}>
       <View style={styles.postHeader}>
-        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.title}>{item.title} - {item.clubName}</Text> {/* Display club name with title */}
         <Text style={styles.postTime}>{item.time}</Text>
       </View>
       <Text style={styles.postContent}>{item.content}</Text>
@@ -98,6 +116,7 @@ const HomeScreen = () => {
       </View>
     </View>
   );
+  
 
   return (
     <View style={styles.container}>
