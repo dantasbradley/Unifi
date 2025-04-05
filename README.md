@@ -12,6 +12,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install @react-navigation/stack
    npm install react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated react-native-vector-icons
    npm install date-fns
+   npm install @react-native-community/datetimepicker
    ```
 
 2. Start the app

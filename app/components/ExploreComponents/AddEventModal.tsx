@@ -1,5 +1,7 @@
-import React from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 interface AddEventModalProps {
   visible: boolean;
@@ -32,68 +34,52 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   onChangeDescription,
   onCreate,
 }) => {
+  const initialDate = newEventDate && !isNaN(Date.parse(newEventDate)) ? new Date(newEventDate) : new Date();
+  const [date, setDate] = useState(initialDate);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShowDatePicker(true);
+    setDate(currentDate);
+    onChangeDate(currentDate.toISOString().split('T')[0]);  // Format the date to YYYY-MM-DD
+  };
+
   if (!visible) return null;
 
   return (
     <View style={styles.modalOverlay}>
       <View style={styles.modalContainer}>
+        <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
+          <Ionicons name="close" size={24} color="#fff" />
+        </TouchableOpacity>
         <Text style={styles.modalTitle}>Add New Event</Text>
 
         <Text style={styles.modalLabel}>Title:</Text>
-        <TextInput
-          style={styles.modalInput}
-          placeholder="e.g. Book Drive"
-          placeholderTextColor="#aaa"
-          value={newEventTitle}
-          onChangeText={onChangeTitle}
-        />
+        <Text style={styles.modalText}>{newEventTitle}</Text>
 
         <Text style={styles.modalLabel}>Date:</Text>
-        <TextInput
-          style={styles.modalInput}
-          placeholder="YYYY-MM-DD"
-          placeholderTextColor="#aaa"
-          value={newEventDate}
-          onChangeText={onChangeDate}
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={date}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+          maximumDate={new Date(2300, 12, 31)}
         />
 
         <Text style={styles.modalLabel}>Time:</Text>
-        <TextInput
-          style={styles.modalInput}
-          placeholder="HH:mm:ss"
-          placeholderTextColor="#aaa"
-          value={newEventTime}
-          onChangeText={onChangeTime}
-        />
+        <Text style={styles.modalText}>{newEventTime}</Text>
 
         <Text style={styles.modalLabel}>Location:</Text>
-        <TextInput
-          style={styles.modalInput}
-          placeholder="e.g. Gainesville, FL"
-          placeholderTextColor="#aaa"
-          value={newEventLocation}
-          onChangeText={onChangeLocation}
-        />
+        <Text style={styles.modalText}>{newEventLocation}</Text>
 
         <Text style={styles.modalLabel}>Description:</Text>
-        <TextInput
-          style={styles.modalInput}
-          placeholder="Describe the event..."
-          placeholderTextColor="#aaa"
-          value={newEventDescription}
-          onChangeText={onChangeDescription}
-        />
+        <Text style={styles.modalText}>{newEventDescription}</Text>
 
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.createButton} onPress={onCreate}>
             <Text style={styles.createButtonText}>Create</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.createButton, { backgroundColor: "#444" }]}
-            onPress={onClose}
-          >
-            <Text style={styles.createButtonText}>Cancel</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -111,6 +97,13 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.7)",
     justifyContent: "center",
     alignItems: "center",
+  },
+  modalText: {
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+    color: "#000",
   },
   modalContainer: {
     backgroundColor: "#000",
@@ -136,9 +129,26 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: "#000",
   },
-  buttonRow: {
+  dateInput: {
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
+    color: "#000",
+  },
+  dateText: {
+    color: "#000",
+  },
+  calendarIcon: {
+    color: "#000", // Adjust this color as needed
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   createButton: {
     backgroundColor: "#fff",
@@ -151,6 +161,11 @@ const styles = StyleSheet.create({
     color: "#000",
     fontWeight: "bold",
   },
+  modalCloseButton: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+  }
 });
 
 export default AddEventModal;
