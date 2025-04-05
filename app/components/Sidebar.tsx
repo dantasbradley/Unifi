@@ -70,13 +70,13 @@ const Sidebar = () => {
               onPress={() => setFilter("admin")}
               style={[styles.filterButton, filter === "admin" && styles.activeFilter]}
             >
-              <Text style={styles.filterText}>Admin</Text>
+              <Text style={[styles.filterText, filter === "admin" && styles.activeFilterText]}>Admin</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setFilter("following")}
               style={[styles.filterButton, filter === "following" && styles.activeFilter]}
             >
-              <Text style={styles.filterText}>Following</Text>
+              <Text style={[styles.filterText, filter === "following" && styles.activeFilterText]}>Following</Text>
             </TouchableOpacity>
           </View>
 
@@ -157,6 +157,7 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderRadius: 5,
     alignItems: "center",
+    backgroundColor: "black"  // Ensure default background is black
   },
   activeFilter: {
     backgroundColor: "white",
@@ -164,6 +165,9 @@ const styles = StyleSheet.create({
   filterText: {
     color: "white",
     fontSize: 14,
+  },
+  activeFilterText: {  // New style for active filter text
+    color: "black",
   },
   cardContainer: {
     flexDirection: "row",
