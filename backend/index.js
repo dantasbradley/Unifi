@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const multerS3 = require('multer-s3');
 const multer = require('multer');
 const bodyParser = require('body-parser');
+const axios = require('axios');
 
 // const s3 = new AWS.S3();
 
@@ -327,6 +328,24 @@ app.get('/S3/get/image', async (req, res) => {
             console.log('Error accessing S3');
             res.status(500).json({ error: 'Error accessing S3', details: headErr });
         }
+    }
+});
+
+app.get('/validate-location', async (req, res) => {
+    const input = req.query.location;
+    const apiKey = process.env.GOOGLE_API_KEY || 'AIzaSyDnsDgrS88fP7IKbkbRuvK-sU4G__7mG7k'; // Ensure your API key is stored safely in environment variables
+    const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(input)}&inputtype=textquery&fields=formatted_address&key=${apiKey}`;
+
+    try {
+        const response = await axios.get(url);
+        if (response.data && response.data.candidates && response.data.candidates.length > 0) {
+            res.json({ valid: true, data: response.data.candidates[0] });
+        } else {
+            res.status(404).json({ valid: false, message: "No valid location found" });
+        }
+    } catch (error) {
+        console.error('Error validating location:', error);
+        res.status(500).json({ message: 'Failed to validate location' });
     }
 });
 

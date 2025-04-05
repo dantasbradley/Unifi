@@ -9,6 +9,8 @@ To install the backend
    npm install react-native-toast-message
    npm install jwt-decode
    npm audit fix
+   npm install axios
+
    
    ```
 
