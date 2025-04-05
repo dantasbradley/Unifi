@@ -148,16 +148,8 @@ const handleLike = async (post) => {
       <Text style={styles.postContent}>{item.content}</Text>
       <View style={styles.postActions}>
         <TouchableOpacity style={styles.actionButton} onPress={() => handleLike(item)}>
-          <Ionicons name={item.isLikedByUser ? "heart" : "heart-outline"} size={20} color={item.isLikedByUser ? "red" : "#fff"} />
+          <Ionicons name={item.isLikedByUser ? "heart" : "heart-outline"} size={20} color={item.isLikedByUser ? "white" : "#fff"} />
           <Text style={styles.actionText}>{item.likes}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="chatbubble-outline" size={20} color="#fff" />
-          <Text style={styles.actionText}>{item.comments}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="share-social-outline" size={20} color="#fff" />
-          <Text style={styles.actionText}>Share</Text>
         </TouchableOpacity>
       </View>
     </View>
