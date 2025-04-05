@@ -17,6 +17,7 @@ const initialEvents: Event[] = [
     id: "1",
     date: "02/28/2025",
     time: "4pm",
+    datetime: "02/28/2025 @ 4pm",
     location: "Gainesville, FL",
     title: "Weekly book organizing",
     description: "Sort new books into the correct area",
@@ -171,6 +172,37 @@ export default function CommunityDetailsScreen() {
         Alert.alert("Error", "Could not connect to server.");
     }
   };
+
+  const formatEventDateTime = (dateStr, timeStr) => {
+    const date = new Date(dateStr);
+    let [hours, minutes] = timeStr.split(':').map(Number);
+
+    // Create a new date object combining the date and the time to adjust for time zone
+    const dateTime = new Date(date);
+    dateTime.setHours(hours);
+    dateTime.setMinutes(minutes);
+
+    // Get timezone offset in hours and adjust hours accordingly
+    const timeZoneOffsetInHours = dateTime.getTimezoneOffset() / 60;
+    dateTime.setHours(dateTime.getHours() - timeZoneOffsetInHours);
+
+    // Convert 24-hour time to 12-hour format with AM or PM
+    hours = dateTime.getHours();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = dateTime.getMinutes().toString().padStart(2, '0');
+
+    const formattedDate = `${dateTime.getMonth() + 1}/${dateTime.getDate()}/${dateTime.getFullYear().toString().slice(-2)}`;
+    const formattedTime = `${hours}:${minutes} ${ampm}`;
+
+    return `${formattedDate} @ ${formattedTime}`;
+};
+
+
+
+
+
   
   const getTabColor = (tabName: string) => (activeTab === tabName ? "#fff" : "#999");
 
@@ -439,7 +471,17 @@ export default function CommunityDetailsScreen() {
             <FlatList
               data={events}
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => <EventCard event={item} />}
+              renderItem={({ item }) => (
+                <EventCard event={{
+                  id: item.id,
+                  datetime: formatEventDateTime(item.date, item.time), // Ensure this is calculated before passing
+                  location: item.location,
+                  title: item.title,
+                  description: item.description,
+                  attendees: item.attendees
+                }} />
+                
+            )}
               style={{ marginTop: 10 }}
             />
 

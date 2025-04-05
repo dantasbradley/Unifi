@@ -4,13 +4,15 @@ import { Ionicons } from "@expo/vector-icons";
 
 export interface Event {
   id: string;
-  date: string;
-  time: string;
+  date: string,
+  time: string,
+  datetime: string; // Combined date and time
   location: string;
   title: string;
   description: string;
   attendees: number;
 }
+
 
 interface EventCardProps {
   event: Event;
@@ -28,7 +30,7 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
     <View style={styles.eventContainer}>
       <View style={styles.eventHeader}>
         <Text style={styles.eventDate}>
-          {event.date} @ {event.time}
+          {event.datetime} 
         </Text>
         <View style={styles.eventMeta}>
           <Ionicons name="people-outline" size={16} color="#fff" />
