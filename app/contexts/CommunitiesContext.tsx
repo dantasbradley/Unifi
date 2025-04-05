@@ -21,6 +21,7 @@ interface CommunitiesContextType {
   addCommunity: (newCommunityName: string, newCommunityLocation: string) => Promise<void>;
   fetchPostsForClub: (clubId: string) => void;
   fetchEventsForClub: (clubId: string) => void;
+  fetchNotificationsForClub: (clubId: string) => void;
 }
 
 export const CommunitiesContext = createContext<CommunitiesContextType | null>(null);
@@ -201,25 +202,27 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
     }
   };
 
-  // Function to fetch posts for a specific club based on the club ID
-  // const fetchPostsForClub = async (clubId: any) => {
-  //   if (!clubId) {
-  //     console.error("Club ID is required");
-  //     return;
-  //   }
-  //   try {
-  //     const response = await fetch(`http://3.85.25.255:3000/DB/posts/get/club_id=${clubId}`);
-  //     const data = await response.json();
-  //     if (response.ok) {
-  //       return data;
-  //     } else {
-  //       Alert.alert("Error", "Failed to fetch posts.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching posts:", error);
-  //     Alert.alert("Error", "Could not connect to server.");
-  //   }
-  // };
+  const fetchNotificationsForClub = async (clubId : any) => {
+    if (!clubId) {
+      console.error("Club ID is required");
+      return;
+    }
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/notifications/get/club_id=${clubId}`);
+      const data = await response.json();
+      if (!response.ok) throw new Error("Failed to fetch notifications");
+      console.log("Notifications fetched for club:", clubId, data);
+      const formattedNotifications = data.map((notification: any) => {
+        notification.time = formatDistanceToNow(new Date(notification.time), { addSuffix: true })
+        return notification;
+      });
+      return formattedNotifications;
+    } catch (error) {
+      console.error("Error fetching notifications for club:", error);
+      Alert.alert("Error", "Failed to fetch notifications for the club.");
+    }
+  };
+
   const fetchPostsForClub = async (clubId : any) => {
     if (!clubId) {
       console.error("Club ID is required");
@@ -235,10 +238,6 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         return post;
       });
       return formattedPosts;
-      // setPosts(prevPosts => [...prevPosts, ...data.map(post => ({
-      //   ...post,
-      //   time: formatDistanceToNow(new Date(post.time), { addSuffix: true })
-      // }))]);
     } catch (error) {
       console.error("Error fetching posts for club:", error);
       Alert.alert("Error", "Failed to fetch posts for the club.");
@@ -291,6 +290,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         addCommunity,
         fetchPostsForClub,
         fetchEventsForClub,
+        fetchNotificationsForClub,
       }}
     >
       {children}
