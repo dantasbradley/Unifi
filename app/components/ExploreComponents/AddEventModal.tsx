@@ -37,12 +37,19 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   const initialDate = newEventDate && !isNaN(Date.parse(newEventDate)) ? new Date(newEventDate) : new Date();
   const [date, setDate] = useState(initialDate);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [time, setTime] = useState(new Date());  // Use current time as initial state or parse newEventTime if it's provided.
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setShowDatePicker(true);
     setDate(currentDate);
     onChangeDate(currentDate.toISOString().split('T')[0]);  // Format the date to YYYY-MM-DD
+  };
+
+  const handleTimeChange = (event, selectedTime) => {
+    const currentTime = selectedTime || time;
+    setTime(currentTime);
+    onChangeTime(currentTime.toISOString().split('T')[1].substr(0, 8)); // Format the time to HH:mm:ss
   };
 
   if (!visible) return null;
@@ -56,9 +63,16 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         <Text style={styles.modalTitle}>Add New Event</Text>
 
         <Text style={styles.modalLabel}>Title:</Text>
-        <Text style={styles.modalText}>{newEventTitle}</Text>
+        <TextInput
+          style={styles.modalInput}
+          placeholder="e.g. Book Drive"
+          placeholderTextColor="#aaa"
+          value={newEventTitle}
+          onChangeText={onChangeTitle}
+        />
 
         <Text style={styles.modalLabel}>Date:</Text>
+        <View style={styles.pickerContainer}>
         <DateTimePicker
           testID="dateTimePicker"
           value={date}
@@ -67,15 +81,38 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
           onChange={handleDateChange}
           maximumDate={new Date(2300, 12, 31)}
         />
+        </View>
 
         <Text style={styles.modalLabel}>Time:</Text>
-        <Text style={styles.modalText}>{newEventTime}</Text>
+        <View style={styles.pickerContainer}></View>
+        <View style={styles.pickerContainer}>
+        <DateTimePicker
+          testID="timePicker"
+          value={time}
+          mode="time"
+          display="default"
+          is24Hour={false}  // Optional: change this based on your locale preferences
+          onChange={handleTimeChange}
+        />
+        </View>
 
         <Text style={styles.modalLabel}>Location:</Text>
-        <Text style={styles.modalText}>{newEventLocation}</Text>
+        <TextInput
+          style={styles.modalInput}
+          placeholder="e.g. Gainesville, FL"
+          placeholderTextColor="#aaa"
+          value={newEventLocation}
+          onChangeText={onChangeLocation}
+        />
 
         <Text style={styles.modalLabel}>Description:</Text>
-        <Text style={styles.modalText}>{newEventDescription}</Text>
+        <TextInput
+          style={styles.modalInput}
+          placeholder="Describe the event..."
+          placeholderTextColor="#aaa"
+          value={newEventDescription}
+          onChangeText={onChangeDescription}
+        />
 
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.createButton} onPress={onCreate}>
@@ -97,6 +134,11 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.7)",
     justifyContent: "center",
     alignItems: "center",
+  },
+  pickerContainer: {
+    width: "100%",  // Take full width of the modal container
+    alignItems: "center",  // Center align the date and time pickers
+    marginBottom: 20,
   },
   modalText: {
     backgroundColor: "#fff",
@@ -127,16 +169,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
-    color: "#000",
-  },
-  dateInput: {
-    backgroundColor: "#fff",
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     color: "#000",
   },
   dateText: {
