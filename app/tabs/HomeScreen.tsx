@@ -40,25 +40,76 @@ const HomeScreen = () => {
     joinedCommunities.forEach(handleFetchPostsForClub);
   };
 
-  const handleFetchPostsForClub = async (clubId : any) => {
-    const data = await fetchPostsForClub(clubId);
-    console.log("Fetched posts: ", data);
+  const fetchUserId = async () => {
+    const userId = await AsyncStorage.getItem('userId');
+    return userId;
+  }
+
+  const handleFetchPostsForClub = async (clubId) => {
+    const userId = await fetchUserId();
+    if (!userId) {
+      console.error('User ID is not set');
+      Alert.alert('Error', 'User not logged in.');
+      return;
+    }
+    const postsData = await fetchPostsForClub(clubId); // fetch posts
   
-    // Use Set to filter out duplicates by post id (assuming 'id' is unique for each post)
+    const postsWithLikesPromises = postsData.map(async (post) => {
+      const likesResponse = await fetch(`http://3.85.25.255:3000/likes/count/${post.id}`);
+      const likesData = await likesResponse.json();
+  
+      const userLikesResponse = await fetch(`http://3.85.25.255:3000/likes/user_likes?post_id=${post.id}&user_id=${userId}`);
+      const userLikesData = await userLikesResponse.json();
+  
+      return {
+        ...post,
+        likes: likesData.likesCount,
+        isLikedByUser: userLikesData.isLikedByUser,
+      };
+    });
+  
+    const postsWithLikes = await Promise.all(postsWithLikesPromises);
+  
     setPosts((prevPosts) => {
-      const uniquePosts = new Set(prevPosts.map(post => post.id)); // Set of existing post ids
-      const newPosts = data.filter(post => !uniquePosts.has(post.id)); // Filter out duplicates
-      return [...prevPosts, ...newPosts]; // Concatenate new posts with the existing ones
+      const uniquePosts = new Set(prevPosts.map(post => post.id)); // existing post ids
+      const newPosts = postsWithLikes.filter(post => !uniquePosts.has(post.id));
+      return [...prevPosts, ...newPosts];
     });
   };
+  
 
-  const handleLike = (postId) => {
-    setPosts((currentPosts) =>
-      currentPosts.map((post) =>
-        post.id === postId ? { ...post, likes: post.likes + 1 } : post
-      )
-    );
+  const handleLike = async (post) => {
+    const userId = await AsyncStorage.getItem('userId'); // Assumed stored upon login
+    const url = post.isLikedByUser ? 'http://3.85.25.255:3000/likes/remove' : 'http://3.85.25.255:3000/likes/add';
+    const method = post.isLikedByUser ? 'DELETE' : 'POST';
+  
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ post_id: post.id, user_id: userId })
+      });
+  
+      if (!response.ok) throw new Error('Failed to toggle like');
+  
+      // Optimistically update the UI
+      setPosts((currentPosts) =>
+        currentPosts.map((p) =>
+          p.id === post.id
+            ? {
+                ...p,
+                likes: post.isLikedByUser ? p.likes - 1 : p.likes + 1,
+                isLikedByUser: !post.isLikedByUser,
+              }
+            : p
+        )
+      );
+    } catch (error) {
+      console.error("Error toggling like:", error);
+      Alert.alert("Error", "Failed to toggle like. Please try again.");
+    }
   };
+  
 
   const renderPost = ({ item }) => (
     <View style={styles.postContainer}>
@@ -68,8 +119,8 @@ const HomeScreen = () => {
       </View>
       <Text style={styles.postContent}>{item.content}</Text>
       <View style={styles.postActions}>
-        <TouchableOpacity style={styles.actionButton} onPress={() => handleLike(item.id)}>
-          <Ionicons name="heart-outline" size={20} color="#fff" />
+        <TouchableOpacity style={styles.actionButton} onPress={() => handleLike(item)}>
+          <Ionicons name={item.isLikedByUser ? "heart" : "heart-outline"} size={20} color={item.isLikedByUser ? "red" : "#fff"} />
           <Text style={styles.actionText}>{item.likes}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
@@ -83,6 +134,7 @@ const HomeScreen = () => {
       </View>
     </View>
   );
+  
 
   return (
     <View style={styles.container}>

@@ -634,6 +634,21 @@ app.get('/likes/count/:post_id', (req, res) => {
     });
 });
 
+app.get('/likes/user_likes', (req, res) => {
+    const { post_id, user_id } = req.query;
+    if (!post_id || !user_id) {
+        return res.status(400).json({ message: "post_id and user_id are required" });
+    }
+    const query = 'SELECT EXISTS(SELECT 1 FROM likes WHERE post_id = ? AND user_id = ?) AS liked';
+    pool.query(query, [post_id, user_id], (error, results) => {
+        if (error) {
+            return res.status(500).json({ message: 'Database error', error });
+        }
+        res.json({ isLikedByUser: !!results[0].liked });
+    });
+});
+
+
 app.post('/likes/add', (req, res) => {
     const { post_id, user_id } = req.body;
 
