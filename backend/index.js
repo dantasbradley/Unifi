@@ -621,6 +621,56 @@ app.get('/DB/posts/get', async (req, res) => {
     }
 });
 
+app.get('/likes/count/:post_id', (req, res) => {
+    const post_id = req.params.post_id;
+
+    const query = 'SELECT COUNT(*) AS likesCount FROM likes WHERE post_id = ?';
+    pool.query(query, [post_id], (err, results) => {
+        if (err) {
+            console.error('Error fetching likes:', err);
+            return res.status(500).json({ message: 'Database error', err });
+        }
+        res.json({ postId: post_id, likesCount: results[0].likesCount });
+    });
+});
+
+app.post('/likes/add', (req, res) => {
+    const { post_id, user_id } = req.body;
+
+    if (!post_id || !user_id) {
+        return res.status(400).json({ message: 'Both post_id and user_id are required.' });
+    }
+
+    const query = 'INSERT INTO likes (post_id, user_id) VALUES (?, ?)';
+    pool.query(query, [post_id, user_id], (error, results) => {
+        if (error) {
+            console.error('Error adding like:', error);
+            return res.status(500).json({ message: 'Database error', error });
+        }
+        res.status(201).json({ message: 'Like added successfully', post_id, user_id });
+    });
+});
+
+app.delete('/likes/remove', (req, res) => {
+    const { post_id, user_id } = req.body;
+
+    if (!post_id || !user_id) {
+        return res.status(400).json({ message: 'Both post_id and user_id are required.' });
+    }
+
+    const query = 'DELETE FROM likes WHERE post_id = ? AND user_id = ?';
+    pool.query(query, [post_id, user_id], (error, results) => {
+        if (error) {
+            console.error('Error removing like:', error);
+            return res.status(500).json({ message: 'Database error', error });
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: 'No like found with the given user_id and post_id' });
+        }
+        res.json({ message: 'Like removed successfully', post_id, user_id });
+    });
+});
+
 
 //Other FUNCTIONS
 // Shutdown route
