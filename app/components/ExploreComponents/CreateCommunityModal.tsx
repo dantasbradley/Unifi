@@ -1,8 +1,7 @@
 import React from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CustomButton from "./JoinButton";
-import axios from 'axios';
 
 interface CreateCommunityModalProps {
   visible: boolean;
@@ -24,33 +23,6 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
   onCreate,
 }) => {
   if (!visible) return null;
-
-  const validateAndCreateCommunity = async () => {
-    if (!newCommunityName.trim() || !newCommunityLocation.trim()) {
-      Alert.alert("Error", "Both name and location are required.");
-      return;
-    }
-
-    const validation = await validateLocation(newCommunityLocation);
-    if (validation.valid) {
-      onCreate();
-      setNewCommunityName("");
-      setNewCommunityLocation("");
-      onClose();
-    } else {
-      Alert.alert("Invalid Location", validation.message || "Please enter a valid location.");
-    }
-  };
-
-  const validateLocation = async (location) => {
-    try {
-      const response = await axios.get(`http://localhost:3000/validate-location?location=${encodeURIComponent(location)}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error validating location:', error);
-      return { valid: false, message: error.response?.data?.message || "Network error" };
-    }
-  };
 
   return (
     <View style={styles.modalOverlay}>
@@ -79,7 +51,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
         />
 
         <View style={styles.modalButtonRow}>
-          <CustomButton title="Create" onPress={validateAndCreateCommunity} />
+          <CustomButton title="Create" onPress={onCreate} />
         </View>
       </View>
     </View>
