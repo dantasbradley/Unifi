@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, RefreshControl } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatDistanceToNow } from 'date-fns';
@@ -13,7 +13,22 @@ const HomeScreen = () => {
 
   const [posts, setPosts] = useState([]);
   // const [joinedCommunities, setJoinedCommunities] = useState(new Set());
-  
+
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(Date.now());
+  // Function to refresh the community posts
+  const handleRefresh = async () => {
+    console.log("refreshing home screen");
+    setRefreshing(true);
+    try {
+      setPosts([]);
+      await fetchJoinedCommunitiesPosts(); 
+      setRefreshKey(Date.now()); // 👈 Forces FlatList to refresh
+    } catch (error) {
+      console.error("Error refreshing communities:", error);
+    }
+    setRefreshing(false);
+  };
 
   useEffect(() => {
     setPosts([]);
@@ -24,45 +39,6 @@ const HomeScreen = () => {
     console.log("Joined clubs:", Array.from(joinedCommunities));
     joinedCommunities.forEach(handleFetchPostsForClub);
   };
-
-  // const getJoinedCommunities = async () => {
-  //   console.log("Fetching joined communities...");
-  //   await fetchCommunities();
-  //   const clubs = await fetchUserAttribute("custom:clubs_following");
-  //   if (clubs) {
-  //     const clubsList = clubs === "No Clubs" ? [] : clubs.split(',').map(club => club.trim());
-  //     const uniqueClubs = new Set(clubsList);
-  //     setJoinedCommunities(uniqueClubs);
-  //     console.log("Joined clubs:", Array.from(uniqueClubs));
-  //     uniqueClubs.forEach(fetchPostsForClub);
-  //   }
-  // };
-
-  // const fetchCommunities = async () => {
-  //   try {
-  //     const response = await fetch("http://3.85.25.255:3000/DB/clubs/get");
-  //     if (!response.ok) throw new Error("Failed to fetch communities");
-  //     const data = await response.json();
-  //     // console.log("Communities fetched:", data);
-  //   } catch (error) {
-  //     console.error("Error fetching clubs:", error);
-  //     Alert.alert("Error", "Failed to fetch community data.");
-  //   }
-  // };
-
-  // const fetchUserAttribute = async (attributeName) => {
-  //   try {
-  //     const cognitoSub = await AsyncStorage.getItem('cognitoSub');
-  //     const response = await fetch(`http://3.85.25.255:3000/cognito/get/attribute?sub=${cognitoSub}&attributeName=${attributeName}`);
-  //     if (!response.ok) throw new Error("Failed to fetch user attributes");
-  //     const data = await response.json();
-  //     console.log("User attribute fetched:", attributeName, data[attributeName]);
-  //     return data[attributeName];
-  //   } catch (error) {
-  //     console.error("Network error while fetching attribute:", error);
-  //     return null;
-  //   }
-  // };
 
   const handleFetchPostsForClub = async (clubId : any) => {
     const data = await fetchPostsForClub(clubId);
@@ -87,7 +63,7 @@ const HomeScreen = () => {
   const renderPost = ({ item }) => (
     <View style={styles.postContainer}>
       <View style={styles.postHeader}>
-        <Text style={styles.title}>{item.title} - {item.clubName}</Text> {/* Display club name with title */}
+        <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.postTime}>{item.time}</Text>
       </View>
       <Text style={styles.postContent}>{item.content}</Text>
@@ -107,11 +83,11 @@ const HomeScreen = () => {
       </View>
     </View>
   );
-  
 
   return (
     <View style={styles.container}>
       <FlatList
+        key={refreshKey}
         data={posts}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderPost}
@@ -122,6 +98,9 @@ const HomeScreen = () => {
             </Text>
             <Text style={styles.emptyText}>Go to the explore page to follow some communities.</Text>
           </View>
+        }
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       />
     </View>
