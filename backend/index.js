@@ -489,6 +489,27 @@ app.post('/DB/club_admins/add', (req, res) => {
         });
     });
 });
+// Function to add notifications
+app.post('/DB/notifications/add', (req, res) => {
+    const { title, type, club_id } = req.body;
+    console.log('=== /DB/clubs/add =input= title: ', title, ', type: ', type, ', club_id: ', club_id);
+    if (!title || !type || !club_id) {
+        console.log('All fields are required');
+        return res.status(400).json({ message: 'All fields are required.' });
+    }
+    const query = 'INSERT INTO test.notifications (title, type, club_id) VALUES (?, ?, ?)';
+    pool.query(query, [title, type, club_id], (error, results) => {
+        if (error) {
+            console.error('Error inserting notification:', error);
+            return res.status(500).json({ message: 'Database error', error });
+        }
+        console.log('=== /DB/clubs/add =output= title: ', title, ', type: ', type, ', club_id: ', club_id);
+        res.status(201).json({ 
+            message: 'Notification added successfully', 
+            id: results.insertId 
+        });
+    });
+});
 
 
 // Function to get all records from a given table
