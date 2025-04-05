@@ -79,6 +79,30 @@ export default function CommunityDetailsScreen() {
   const [newPostContent, setNewPostContent] = useState("");
 
 
+  const handleCreateNotification = async (newTitle : any, newType : any) => {
+    if (!newTitle || !newType) {
+      console.log('All fields are required');
+      return res.status(400).json({ message: 'All fields are required.' });
+    }
+    try {
+        const response = await fetch("http://3.85.25.255:3000/DB/notifications/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: newTitle,
+                type: newType,
+                club_id: id,
+            }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error("Failed to create notification");
+        console.log("Notification created: ", data);
+    } catch (error) {
+        console.error("Error creating notification:", error);
+        Alert.alert("Error", "Could not connect to server.");
+    }
+  };
+
   // Community posts state
   const handleCreateEvent = async () => {
     if (!newEventTitle || !newEventDate || !newEventTime || !newEventLocation || !newEventDescription) {
@@ -120,6 +144,7 @@ export default function CommunityDetailsScreen() {
             setNewEventTime("");
             setNewEventLocation("");
             setNewEventDescription("");
+            handleCreateNotification(newEventTitle, "New Event");
         } else {
             Alert.alert("Error", data.message || "Failed to create event.");
         }
@@ -164,6 +189,7 @@ export default function CommunityDetailsScreen() {
             setPostModalVisible(false);
             setNewPostName("");
             setNewPostContent("");
+            handleCreateNotification(newPostName, "New Post");
         } else {
             Alert.alert("Error", data.message || "Failed to create post.");
         }
@@ -209,25 +235,6 @@ export default function CommunityDetailsScreen() {
   // Toggle edit mode and save changes when toggling off
   const toggleEditMode = () => {
     if (editMode) {
-      // console.log("Saving changes...");
-      // if (bioDescription !== originalBioDescription) {
-      //   updateClubAttribute(id, "description", bioDescription);
-      //   setOriginalBioDescription(bioDescription); // Update the original value
-      // } else {
-      //   console.log("No changes detected in bio description.");
-      // }
-      // if (email !== originalEmail) {
-      //   updateClubAttribute(id, "email", email);
-      //   setOriginalEmail(email); // Update the original value
-      // } else {
-      //   console.log("No changes detected in email.");
-      // }
-      // if (insta !== originalInsta) {
-      //   updateClubAttribute(id, "instagram", insta);
-      //   setOriginalInsta(insta); // Update the original value
-      // } else {
-      //   console.log("No changes detected in insta.");
-      // }
       handleSave();
     }
     setEditMode((prev) => !prev);
