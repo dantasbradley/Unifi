@@ -35,80 +35,108 @@ const HomeScreen = () => {
     fetchJoinedCommunitiesPosts();
   }, [joinedCommunities]);
 
-  const fetchJoinedCommunitiesPosts = async () => {
-    console.log("Joined clubs:", Array.from(joinedCommunities));
-    joinedCommunities.forEach(handleFetchPostsForClub);
-  };
-
   const fetchUserId = async () => {
-    const userId = await AsyncStorage.getItem('userId');
+    const userId = await AsyncStorage.getItem('cognitoSub');
     return userId;
   }
 
-  const handleFetchPostsForClub = async (clubId) => {
-    const userId = await fetchUserId();
-    if (!userId) {
-      console.error('User ID is not set');
-      Alert.alert('Error', 'User not logged in.');
-      return;
-    }
-    const postsData = await fetchPostsForClub(clubId); // fetch posts
-  
-    const postsWithLikesPromises = postsData.map(async (post) => {
-      const likesResponse = await fetch(`http://3.85.25.255:3000/likes/count/${post.id}`);
-      const likesData = await likesResponse.json();
-  
-      const userLikesResponse = await fetch(`http://3.85.25.255:3000/likes/user_likes?post_id=${post.id}&user_id=${userId}`);
-      const userLikesData = await userLikesResponse.json();
-  
-      return {
-        ...post,
-        likes: likesData.likesCount,
-        isLikedByUser: userLikesData.isLikedByUser,
-      };
-    });
-  
-    const postsWithLikes = await Promise.all(postsWithLikesPromises);
-  
-    setPosts((prevPosts) => {
-      const uniquePosts = new Set(prevPosts.map(post => post.id)); // existing post ids
-      const newPosts = postsWithLikes.filter(post => !uniquePosts.has(post.id));
-      return [...prevPosts, ...newPosts];
-    });
-  };
-  
+  const fetchJoinedCommunitiesPosts = async () => {
+  console.log("Fetching posts for joined communities");
+  joinedCommunities.forEach(async (clubId) => {
+    console.log(`Fetching posts for club: ${clubId}`);
+    await handleFetchPostsForClub(clubId);
+  });
+};
 
-  const handleLike = async (post) => {
-    const userId = await AsyncStorage.getItem('userId'); // Assumed stored upon login
-    const url = post.isLikedByUser ? 'http://3.85.25.255:3000/likes/remove' : 'http://3.85.25.255:3000/likes/add';
-    const method = post.isLikedByUser ? 'DELETE' : 'POST';
-  
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ post_id: post.id, user_id: userId })
-      });
-  
-      if (!response.ok) throw new Error('Failed to toggle like');
-  
-      // Optimistically update the UI
-      setPosts((currentPosts) =>
-        currentPosts.map((p) =>
-          p.id === post.id
-            ? {
-                ...p,
-                likes: post.isLikedByUser ? p.likes - 1 : p.likes + 1,
-                isLikedByUser: !post.isLikedByUser,
-              }
-            : p
-        )
-      );
-    } catch (error) {
-      console.error("Error toggling like:", error);
-      Alert.alert("Error", "Failed to toggle like. Please try again.");
+const handleFetchPostsForClub = async (clubId) => {
+  console.log(`Fetching user ID for likes`);
+  const userId = await fetchUserId();
+  if (!userId) {
+    console.error('User ID is not set');
+    Alert.alert('Error', 'User not logged in.');
+    return;
+  }
+  console.log(`Fetching posts data for club ID: ${clubId}`);
+  const postsData = await fetchPostsForClub(clubId);
+  console.log(`Posts data received: ${JSON.stringify(postsData)}`);
+
+  const postsWithLikes = await Promise.all(postsData.map(async (post) => {
+    console.log(`Fetching like count for post ID: ${post.id}`);
+    const likesResponse = await fetch(`http://3.85.25.255:3000/likes/count/${post.id}`);
+    const likesData = await likesResponse.json();
+    console.log(`Likes data for post ID ${post.id}: ${JSON.stringify(likesData)}`);
+
+    console.log(`Checking if user ${userId} liked post ID ${post.id}`);
+    const userLikesResponse = await fetch(`http://3.85.25.255:3000/likes/user_likes?post_id=${post.id}&user_id=${userId}`);
+    const userLikesData = await userLikesResponse.json();
+    console.log(`User likes data for post ID ${post.id}: ${JSON.stringify(userLikesData)}`);
+
+    return {
+      ...post,
+      likes: likesData.likesCount,
+      isLikedByUser: userLikesData.isLikedByUser,
+    };
+  }));
+
+  console.log(`Updating posts state with new data`);
+  setPosts((prevPosts) => {
+    const updatedPosts = [...prevPosts, ...postsWithLikes];
+    console.log(`Updated posts state: ${JSON.stringify(updatedPosts)}`);
+    return updatedPosts;
+  });
+};
+
+
+const handleLike = async (post) => {
+  console.log(`Handling like for post ID: ${post.id}`);
+  const userId = await AsyncStorage.getItem('cognitoSub');
+  if (!userId) {
+    console.log("User ID not found in storage");
+    Alert.alert("Error", "User ID not found. Please log in again.");
+    return;
+  }
+
+  const url = post.isLikedByUser ? 'http://3.85.25.255:3000/likes/remove' : 'http://3.85.25.255:3000/likes/add';
+  const method = post.isLikedByUser ? 'DELETE' : 'POST';
+  console.log(`URL: ${url} Method: ${method} UserID: ${userId} PostID: ${post.id}`);
+
+  try {
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ post_id: post.id, user_id: userId })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.log(`Failed to toggle like. Response: ${errorData}`);
+      throw new Error(`Failed to toggle like: ${errorData}`);
     }
-  };
+
+    console.log(`Like toggle successful for post ID: ${post.id}`);
+    setPosts((currentPosts) => {
+      const updatedPosts = currentPosts.map((p) => {
+        if (p.id === post.id) {
+          return {
+            ...p,
+            likes: post.isLikedByUser ? p.likes - 1 : p.likes + 1,
+            isLikedByUser: !post.isLikedByUser,
+          };
+        }
+        return p;
+      });
+      console.log(`Posts after toggle: ${JSON.stringify(updatedPosts)}`);
+      return updatedPosts;
+    });
+  } catch (error) {
+    console.error("Error toggling like:", error);
+    Alert.alert("Error", error.message);
+  }
+};
+
+  
   
 
   const renderPost = ({ item }) => (
