@@ -436,7 +436,6 @@ export default function CommunityDetailsScreen() {
 
         {activeTab === "Events" && (
           <View style={{ flex: 1 }}>
-            <Text style={styles.sectionTitle}>Events</Text>
             <FlatList
               data={events}
               keyExtractor={(item) => item.id}
