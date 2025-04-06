@@ -247,6 +247,7 @@ app.post('/login', (req, res) => {
 });
 
 // WIP
+// Function for handling notifications
 app.post('/notifications', async (req, res) => {
     console.log(`calling function: /date/${req.params.date}`);
     const { sub } = req.body;
