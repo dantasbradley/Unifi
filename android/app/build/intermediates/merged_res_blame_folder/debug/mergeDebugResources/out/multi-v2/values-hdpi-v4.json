@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.anonymous.reactnativeunifi.app-mergeDebugResources-76:/values-hdpi-v4/values-hdpi-v4.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\shayn\\.gradle\\caches\\8.10.2\\transforms\\4e281530be34104892e2ad4bd5f7ce60\\transformed\\appcompat-1.7.0\\res\\values-hdpi-v4\\values-hdpi-v4.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "6",
+                        "endColumns": "13",
+                        "endOffsets": "327"
+                    }
+                }
+            ]
+        }
+    ]
+}

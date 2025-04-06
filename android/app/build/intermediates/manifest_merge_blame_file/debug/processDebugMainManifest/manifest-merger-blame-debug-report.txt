@@ -1,0 +1,702 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.anonymous.reactnativeunifi"
+4    android:versionCode="1"
+5    android:versionName="1.0.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="34" />
+10
+11    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+11-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:5:3-75
+11-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:5:20-73
+12    <uses-permission android:name="android.permission.INTERNET" />
+12-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:2:3-64
+12-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:2:20-62
+13    <uses-permission
+13-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:3:3-77
+14        android:name="android.permission.READ_EXTERNAL_STORAGE"
+14-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:3:20-75
+15        android:maxSdkVersion="32" />
+15-->[:expo-image] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:17:9-35
+16    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+16-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:4:3-68
+16-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:4:20-66
+17    <uses-permission android:name="android.permission.VIBRATE" />
+17-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:6:3-63
+17-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:6:20-61
+18    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+18-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:7:3-78
+18-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:7:20-76
+19
+20    <queries>
+20-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:8:3-14:13
+21        <intent>
+21-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:9:5-13:14
+22            <action android:name="android.intent.action.VIEW" />
+22-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:10:7-58
+22-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:10:15-56
+23
+24            <category android:name="android.intent.category.BROWSABLE" />
+24-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:11:7-67
+24-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:11:17-65
+25
+26            <data android:scheme="https" />
+26-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:12:7-37
+26-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:12:13-35
+27        </intent>
+28        <!-- Query open documents -->
+29        <intent>
+29-->[:expo-file-system] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:15:9-17:18
+30            <action android:name="android.intent.action.OPEN_DOCUMENT_TREE" />
+30-->[:expo-file-system] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:16:13-79
+30-->[:expo-file-system] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:16:21-76
+31        </intent>
+32        <intent>
+32-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:15:9-19:18
+33
+34            <!-- Required for picking images from the camera roll if targeting API 30 -->
+35            <action android:name="android.media.action.IMAGE_CAPTURE" />
+35-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:18:13-73
+35-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:18:21-70
+36        </intent>
+37        <intent>
+37-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:20:9-24:18
+38
+39            <!-- Required for picking images from the camera if targeting API 30 -->
+40            <action android:name="android.media.action.ACTION_VIDEO_CAPTURE" />
+40-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:23:13-80
+40-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:23:21-77
+41        </intent>
+42        <intent>
+42-->[:expo-web-browser] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-web-browser\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:8:9-12:18
+43
+44            <!-- Required for opening tabs if targeting API 30 -->
+45            <action android:name="android.support.customtabs.action.CustomTabsService" />
+45-->[:expo-web-browser] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-web-browser\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:11:13-90
+45-->[:expo-web-browser] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-web-browser\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:11:21-87
+46        </intent>
+47        <intent>
+47-->[com.github.CanHub:Android-Image-Cropper:4.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6f90088764504c28540c71df5cab5e5b\transformed\Android-Image-Cropper-4.3.1\AndroidManifest.xml:10:9-16:18
+48            <action android:name="android.intent.action.GET_CONTENT" />
+48-->[com.github.CanHub:Android-Image-Cropper:4.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6f90088764504c28540c71df5cab5e5b\transformed\Android-Image-Cropper-4.3.1\AndroidManifest.xml:11:13-72
+48-->[com.github.CanHub:Android-Image-Cropper:4.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6f90088764504c28540c71df5cab5e5b\transformed\Android-Image-Cropper-4.3.1\AndroidManifest.xml:11:21-69
+49
+50            <category android:name="android.intent.category.OPENABLE" />
+50-->[com.github.CanHub:Android-Image-Cropper:4.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6f90088764504c28540c71df5cab5e5b\transformed\Android-Image-Cropper-4.3.1\AndroidManifest.xml:13:13-73
+50-->[com.github.CanHub:Android-Image-Cropper:4.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6f90088764504c28540c71df5cab5e5b\transformed\Android-Image-Cropper-4.3.1\AndroidManifest.xml:13:23-70
+51
+52            <data android:mimeType="*/*" />
+52-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:12:7-37
+53        </intent>
+54    </queries>
+55
+56    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- Required for picking images from camera directly -->
+56-->[:expo-updates] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-updates\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:7:5-79
+56-->[:expo-updates] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-updates\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:7:22-76
+57    <uses-permission android:name="android.permission.CAMERA" />
+57-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:8:5-65
+57-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:8:22-62
+58    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+58-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:7:5-81
+58-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:7:22-78
+59    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+59-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:8:5-77
+59-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:8:22-74
+60    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- Required by older versions of Google Play services to create IID tokens -->
+60-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:24:5-68
+60-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:24:22-65
+61    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+61-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:26:5-82
+61-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:26:22-79
+62
+63    <permission
+63-->[androidx.core:core:1.13.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\7c9cc1837872d3f3c493d8957d3cd35a\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
+64        android:name="com.anonymous.reactnativeunifi.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+64-->[androidx.core:core:1.13.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\7c9cc1837872d3f3c493d8957d3cd35a\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
+65        android:protectionLevel="signature" />
+65-->[androidx.core:core:1.13.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\7c9cc1837872d3f3c493d8957d3cd35a\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
+66
+67    <uses-permission android:name="com.anonymous.reactnativeunifi.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+67-->[androidx.core:core:1.13.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\7c9cc1837872d3f3c493d8957d3cd35a\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
+67-->[androidx.core:core:1.13.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\7c9cc1837872d3f3c493d8957d3cd35a\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
+68    <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE" /> <!-- for android -->
+68-->[com.android.installreferrer:installreferrer:2.2] C:\Users\shayn\.gradle\caches\8.10.2\transforms\592a398b0f29c505df380861c80f149a\transformed\installreferrer-2.2\AndroidManifest.xml:9:5-110
+68-->[com.android.installreferrer:installreferrer:2.2] C:\Users\shayn\.gradle\caches\8.10.2\transforms\592a398b0f29c505df380861c80f149a\transformed\installreferrer-2.2\AndroidManifest.xml:9:22-107
+69    <!-- <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS"/> -->
+70    <!-- <uses-permission android:name="com.android.launcher.permission.WRITE_SETTINGS"/> -->
+71    <!-- <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" /> -->
+72    <!-- <uses-permission android:name="com.android.launcher.permission.UNINSTALL_SHORTCUT" /> -->
+73    <!-- for Samsung -->
+74    <uses-permission android:name="com.sec.android.provider.badge.permission.READ" />
+74-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:19:5-86
+74-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:19:22-83
+75    <uses-permission android:name="com.sec.android.provider.badge.permission.WRITE" /> <!-- for htc -->
+75-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:20:5-87
+75-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:20:22-84
+76    <uses-permission android:name="com.htc.launcher.permission.READ_SETTINGS" />
+76-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:23:5-81
+76-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:23:22-78
+77    <uses-permission android:name="com.htc.launcher.permission.UPDATE_SHORTCUT" /> <!-- for sony -->
+77-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:24:5-83
+77-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:24:22-80
+78    <uses-permission android:name="com.sonyericsson.home.permission.BROADCAST_BADGE" />
+78-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:27:5-88
+78-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:27:22-85
+79    <uses-permission android:name="com.sonymobile.home.permission.PROVIDER_INSERT_BADGE" /> <!-- for apex -->
+79-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:28:5-92
+79-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:28:22-89
+80    <uses-permission android:name="com.anddoes.launcher.permission.UPDATE_COUNT" /> <!-- for solid -->
+80-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:31:5-84
+80-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:31:22-81
+81    <uses-permission android:name="com.majeur.launcher.permission.UPDATE_BADGE" /> <!-- for huawei -->
+81-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:34:5-83
+81-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:34:22-80
+82    <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE" />
+82-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:37:5-91
+82-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:37:22-88
+83    <uses-permission android:name="com.huawei.android.launcher.permission.READ_SETTINGS" />
+83-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:38:5-92
+83-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:38:22-89
+84    <uses-permission android:name="com.huawei.android.launcher.permission.WRITE_SETTINGS" /> <!-- for ZUK -->
+84-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:39:5-93
+84-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:39:22-90
+85    <uses-permission android:name="android.permission.READ_APP_BADGE" /> <!-- for OPPO -->
+85-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:42:5-73
+85-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:42:22-70
+86    <uses-permission android:name="com.oppo.launcher.permission.READ_SETTINGS" />
+86-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:45:5-82
+86-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:45:22-79
+87    <uses-permission android:name="com.oppo.launcher.permission.WRITE_SETTINGS" /> <!-- for EvMe -->
+87-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:46:5-83
+87-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:46:22-80
+88    <uses-permission android:name="me.everything.badger.permission.BADGE_COUNT_READ" />
+88-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:49:5-88
+88-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:49:22-85
+89    <uses-permission android:name="me.everything.badger.permission.BADGE_COUNT_WRITE" />
+89-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:50:5-89
+89-->[me.leolin:ShortcutBadger:1.1.22] C:\Users\shayn\.gradle\caches\8.10.2\transforms\148b79b53772b373b7e6c34f12c4b34f\transformed\ShortcutBadger-1.1.22\AndroidManifest.xml:50:22-86
+90
+91    <application
+91-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:15:3-34:17
+92        android:name="com.anonymous.reactnativeunifi.MainApplication"
+92-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:15:16-47
+93        android:allowBackup="true"
+93-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:15:162-188
+94        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+94-->[androidx.core:core:1.13.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\7c9cc1837872d3f3c493d8957d3cd35a\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
+95        android:debuggable="true"
+96        android:extractNativeLibs="false"
+97        android:icon="@mipmap/ic_launcher"
+97-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:15:81-115
+98        android:label="@string/app_name"
+98-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:15:48-80
+99        android:roundIcon="@mipmap/ic_launcher_round"
+99-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:15:116-161
+100        android:supportsRtl="true"
+100-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:15:221-247
+101        android:theme="@style/AppTheme"
+101-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:15:189-220
+102        android:usesCleartextTraffic="true" >
+102-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\debug\AndroidManifest.xml:6:18-53
+103        <meta-data
+103-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:16:5-82
+104            android:name="expo.modules.updates.ENABLED"
+104-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:16:16-59
+105            android:value="true" />
+105-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:16:60-80
+106        <meta-data
+106-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:17:5-119
+107            android:name="expo.modules.updates.EXPO_RUNTIME_VERSION"
+107-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:17:16-72
+108            android:value="@string/expo_runtime_version" />
+108-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:17:73-117
+109        <meta-data
+109-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:18:5-105
+110            android:name="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH"
+110-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:18:16-80
+111            android:value="ALWAYS" />
+111-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:18:81-103
+112        <meta-data
+112-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:19:5-99
+113            android:name="expo.modules.updates.EXPO_UPDATES_LAUNCH_WAIT_MS"
+113-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:19:16-79
+114            android:value="0" />
+114-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:19:80-97
+115        <meta-data
+115-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:20:5-141
+116            android:name="expo.modules.updates.EXPO_UPDATE_URL"
+116-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:20:16-67
+117            android:value="https://u.expo.dev/01c39f9a-18ed-44a3-bbec-3bcb7e485cd9" />
+117-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:20:68-139
+118
+119        <activity
+119-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:21:5-33:16
+120            android:name="com.anonymous.reactnativeunifi.MainActivity"
+120-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:21:15-43
+121            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode"
+121-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:21:44-134
+122            android:exported="true"
+122-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:21:256-279
+123            android:launchMode="singleTask"
+123-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:21:135-166
+124            android:screenOrientation="portrait"
+124-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:21:280-316
+125            android:theme="@style/Theme.App.SplashScreen"
+125-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:21:210-255
+126            android:windowSoftInputMode="adjustResize" >
+126-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:21:167-209
+127            <intent-filter>
+127-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:22:7-25:23
+128                <action android:name="android.intent.action.MAIN" />
+128-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:23:9-60
+128-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:23:17-58
+129
+130                <category android:name="android.intent.category.LAUNCHER" />
+130-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:24:9-68
+130-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:24:19-66
+131            </intent-filter>
+132            <intent-filter>
+132-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:26:7-32:23
+133                <action android:name="android.intent.action.VIEW" />
+133-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:10:7-58
+133-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:10:15-56
+134
+135                <category android:name="android.intent.category.DEFAULT" />
+135-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:28:9-67
+135-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:28:19-65
+136                <category android:name="android.intent.category.BROWSABLE" />
+136-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:11:7-67
+136-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:11:17-65
+137
+138                <data android:scheme="myapp" />
+138-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:12:7-37
+138-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:12:13-35
+139                <data android:scheme="com.anonymous.reactnativeunifi" />
+139-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:12:7-37
+139-->C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\android\app\src\main\AndroidManifest.xml:12:13-35
+140            </intent-filter>
+141        </activity>
+142
+143        <provider
+143-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:8:9-16:20
+144            android:name="com.reactnativecommunity.webview.RNCWebViewFileProvider"
+144-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:9:13-83
+145            android:authorities="com.anonymous.reactnativeunifi.fileprovider"
+145-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:10:13-64
+146            android:exported="false"
+146-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:11:13-37
+147            android:grantUriPermissions="true" >
+147-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:12:13-47
+148            <meta-data
+148-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:13:13-15:63
+149                android:name="android.support.FILE_PROVIDER_PATHS"
+149-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:14:17-67
+150                android:resource="@xml/file_provider_paths" />
+150-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:15:17-60
+151        </provider>
+152        <provider
+152-->[:expo-file-system] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:21:9-30:20
+153            android:name="expo.modules.filesystem.FileSystemFileProvider"
+153-->[:expo-file-system] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:22:13-74
+154            android:authorities="com.anonymous.reactnativeunifi.FileSystemFileProvider"
+154-->[:expo-file-system] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:23:13-74
+155            android:exported="false"
+155-->[:expo-file-system] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:24:13-37
+156            android:grantUriPermissions="true" >
+156-->[:expo-file-system] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-file-system\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:25:13-47
+157            <meta-data
+157-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:13:13-15:63
+158                android:name="android.support.FILE_PROVIDER_PATHS"
+158-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:14:17-67
+159                android:resource="@xml/file_system_provider_paths" />
+159-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:15:17-60
+160        </provider>
+161
+162        <service
+162-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:28:9-40:19
+163            android:name="com.google.android.gms.metadata.ModuleDependencies"
+163-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:29:13-78
+164            android:enabled="false"
+164-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:30:13-36
+165            android:exported="false" >
+165-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:31:13-37
+166            <intent-filter>
+166-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:33:13-35:29
+167                <action android:name="com.google.android.gms.metadata.MODULE_DEPENDENCIES" />
+167-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:34:17-94
+167-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:34:25-91
+168            </intent-filter>
+169
+170            <meta-data
+170-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:37:13-39:36
+171                android:name="photopicker_activity:0:required"
+171-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:38:17-63
+172                android:value="" />
+172-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:39:17-33
+173        </service>
+174
+175        <activity
+175-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:42:9-44:59
+176            android:name="com.canhub.cropper.CropImageActivity"
+176-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:43:13-64
+177            android:exported="true"
+177-->[com.github.CanHub:Android-Image-Cropper:4.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6f90088764504c28540c71df5cab5e5b\transformed\Android-Image-Cropper-4.3.1\AndroidManifest.xml:35:13-36
+178            android:theme="@style/Base.Theme.AppCompat" /> <!-- https://developer.android.com/guide/topics/manifest/provider-element.html -->
+178-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:44:13-56
+179        <provider
+179-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:46:9-54:20
+180            android:name="expo.modules.imagepicker.fileprovider.ImagePickerFileProvider"
+180-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:47:13-89
+181            android:authorities="com.anonymous.reactnativeunifi.ImagePickerFileProvider"
+181-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:48:13-75
+182            android:exported="false"
+182-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:49:13-37
+183            android:grantUriPermissions="true" >
+183-->[:expo-image-picker] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-image-picker\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:50:13-47
+184            <meta-data
+184-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:13:13-15:63
+185                android:name="android.support.FILE_PROVIDER_PATHS"
+185-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:14:17-67
+186                android:resource="@xml/image_picker_provider_paths" />
+186-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:15:17-60
+187        </provider>
+188
+189        <service
+189-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:11:9-17:19
+190            android:name="expo.modules.notifications.service.ExpoFirebaseMessagingService"
+190-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:12:13-91
+191            android:exported="false" >
+191-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:13:13-37
+192            <intent-filter android:priority="-1" >
+192-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:14:13-16:29
+192-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:14:28-49
+193                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+193-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:15:17-78
+193-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:15:25-75
+194            </intent-filter>
+195        </service>
+196
+197        <receiver
+197-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:19:9-31:20
+198            android:name="expo.modules.notifications.service.NotificationsService"
+198-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:20:13-83
+199            android:enabled="true"
+199-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:21:13-35
+200            android:exported="false" >
+200-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:22:13-37
+201            <intent-filter android:priority="-1" >
+201-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:23:13-30:29
+201-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:23:28-49
+202                <action android:name="expo.modules.notifications.NOTIFICATION_EVENT" />
+202-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:24:17-88
+202-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:24:25-85
+203                <action android:name="android.intent.action.BOOT_COMPLETED" />
+203-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:25:17-79
+203-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:25:25-76
+204                <action android:name="android.intent.action.REBOOT" />
+204-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:26:17-71
+204-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:26:25-68
+205                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+205-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:27:17-82
+205-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:27:25-79
+206                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+206-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:28:17-82
+206-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:28:25-79
+207                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+207-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:29:17-84
+207-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:29:25-81
+208            </intent-filter>
+209        </receiver>
+210
+211        <activity
+211-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:33:9-40:75
+212            android:name="expo.modules.notifications.service.NotificationForwarderActivity"
+212-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:34:13-92
+213            android:excludeFromRecents="true"
+213-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:35:13-46
+214            android:exported="false"
+214-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:36:13-37
+215            android:launchMode="standard"
+215-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:37:13-42
+216            android:noHistory="true"
+216-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:38:13-37
+217            android:taskAffinity=""
+217-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:39:13-36
+218            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+218-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:40:13-72
+219
+220        <meta-data
+220-->[:expo-modules-core] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:9:9-11:89
+221            android:name="org.unimodules.core.AppLoader#react-native-headless"
+221-->[:expo-modules-core] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:10:13-79
+222            android:value="expo.modules.adapters.react.apploader.RNHeadlessAppLoader" />
+222-->[:expo-modules-core] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:11:13-86
+223        <meta-data
+223-->[:expo-modules-core] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:12:9-15:45
+224            android:name="com.facebook.soloader.enabled"
+224-->[:expo-modules-core] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:13:13-57
+225            android:value="true" />
+225-->[:expo-modules-core] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:14:13-33
+226
+227        <activity
+227-->[com.facebook.react:react-android:0.76.6] C:\Users\shayn\.gradle\caches\8.10.2\transforms\e5381690151dbd4cf9a1bf789726f60a\transformed\react-android-0.76.6-debug\AndroidManifest.xml:19:9-21:40
+228            android:name="com.facebook.react.devsupport.DevSettingsActivity"
+228-->[com.facebook.react:react-android:0.76.6] C:\Users\shayn\.gradle\caches\8.10.2\transforms\e5381690151dbd4cf9a1bf789726f60a\transformed\react-android-0.76.6-debug\AndroidManifest.xml:20:13-77
+229            android:exported="false" />
+229-->[com.facebook.react:react-android:0.76.6] C:\Users\shayn\.gradle\caches\8.10.2\transforms\e5381690151dbd4cf9a1bf789726f60a\transformed\react-android-0.76.6-debug\AndroidManifest.xml:21:13-37
+230
+231        <meta-data
+231-->[com.github.bumptech.glide:okhttp3-integration:4.11.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\19fc6e7df69cb80686b6abc125534fc0\transformed\okhttp3-integration-4.11.0\AndroidManifest.xml:11:9-13:43
+232            android:name="com.bumptech.glide.integration.okhttp3.OkHttpGlideModule"
+232-->[com.github.bumptech.glide:okhttp3-integration:4.11.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\19fc6e7df69cb80686b6abc125534fc0\transformed\okhttp3-integration-4.11.0\AndroidManifest.xml:12:13-84
+233            android:value="GlideModule" />
+233-->[com.github.bumptech.glide:okhttp3-integration:4.11.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\19fc6e7df69cb80686b6abc125534fc0\transformed\okhttp3-integration-4.11.0\AndroidManifest.xml:13:13-40
+234
+235        <provider
+235-->[com.github.CanHub:Android-Image-Cropper:4.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6f90088764504c28540c71df5cab5e5b\transformed\Android-Image-Cropper-4.3.1\AndroidManifest.xml:23:9-31:20
+236            android:name="com.canhub.cropper.CropFileProvider"
+236-->[com.github.CanHub:Android-Image-Cropper:4.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6f90088764504c28540c71df5cab5e5b\transformed\Android-Image-Cropper-4.3.1\AndroidManifest.xml:24:13-63
+237            android:authorities="com.anonymous.reactnativeunifi.cropper.fileprovider"
+237-->[com.github.CanHub:Android-Image-Cropper:4.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6f90088764504c28540c71df5cab5e5b\transformed\Android-Image-Cropper-4.3.1\AndroidManifest.xml:25:13-72
+238            android:exported="false"
+238-->[com.github.CanHub:Android-Image-Cropper:4.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6f90088764504c28540c71df5cab5e5b\transformed\Android-Image-Cropper-4.3.1\AndroidManifest.xml:26:13-37
+239            android:grantUriPermissions="true" >
+239-->[com.github.CanHub:Android-Image-Cropper:4.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6f90088764504c28540c71df5cab5e5b\transformed\Android-Image-Cropper-4.3.1\AndroidManifest.xml:27:13-47
+240            <meta-data
+240-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:13:13-15:63
+241                android:name="android.support.FILE_PROVIDER_PATHS"
+241-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:14:17-67
+242                android:resource="@xml/library_file_paths" />
+242-->[:react-native-webview] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:15:17-60
+243        </provider>
+244
+245        <receiver
+245-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:29:9-40:20
+246            android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
+246-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:30:13-78
+247            android:exported="true"
+247-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:31:13-36
+248            android:permission="com.google.android.c2dm.permission.SEND" >
+248-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:32:13-73
+249            <intent-filter>
+249-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:33:13-35:29
+250                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+250-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:34:17-81
+250-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:34:25-78
+251            </intent-filter>
+252
+253            <meta-data
+253-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:37:13-39:40
+254                android:name="com.google.android.gms.cloudmessaging.FINISHED_AFTER_HANDLED"
+254-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:38:17-92
+255                android:value="true" />
+255-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:39:17-37
+256        </receiver>
+257        <!--
+258             FirebaseMessagingService performs security checks at runtime,
+259             but set to not exported to explicitly avoid allowing another app to call it.
+260        -->
+261        <service
+261-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:46:9-53:19
+262            android:name="com.google.firebase.messaging.FirebaseMessagingService"
+262-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:47:13-82
+263            android:directBootAware="true"
+263-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:48:13-43
+264            android:exported="false" >
+264-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:49:13-37
+265            <intent-filter android:priority="-500" >
+265-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:14:13-16:29
+265-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:14:28-49
+266                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+266-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:15:17-78
+266-->[:expo-notifications] C:\Users\shayn\OneDrive\Documents\GitHub\Unifi\node_modules\expo-notifications\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:15:25-75
+267            </intent-filter>
+268        </service>
+269        <service
+269-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:54:9-63:19
+270            android:name="com.google.firebase.components.ComponentDiscoveryService"
+270-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:55:13-84
+271            android:directBootAware="true"
+271-->[com.google.firebase:firebase-common:21.0.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\4ad58d613a9e8053102fc294aa604cd0\transformed\firebase-common-21.0.0\AndroidManifest.xml:32:13-43
+272            android:exported="false" >
+272-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:56:13-37
+273            <meta-data
+273-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:57:13-59:85
+274                android:name="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingKtxRegistrar"
+274-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:58:17-122
+275                android:value="com.google.firebase.components.ComponentRegistrar" />
+275-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:59:17-82
+276            <meta-data
+276-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:60:13-62:85
+277                android:name="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingRegistrar"
+277-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:61:17-119
+278                android:value="com.google.firebase.components.ComponentRegistrar" />
+278-->[com.google.firebase:firebase-messaging:24.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\caa78456df1f143b1cf22530945d5fd2\transformed\firebase-messaging-24.0.1\AndroidManifest.xml:62:17-82
+279            <meta-data
+279-->[com.google.firebase:firebase-installations:17.2.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\7b0312bcb3d06ce2e32bb1cc242407e8\transformed\firebase-installations-17.2.0\AndroidManifest.xml:15:13-17:85
+280                android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsKtxRegistrar"
+280-->[com.google.firebase:firebase-installations:17.2.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\7b0312bcb3d06ce2e32bb1cc242407e8\transformed\firebase-installations-17.2.0\AndroidManifest.xml:16:17-130
+281                android:value="com.google.firebase.components.ComponentRegistrar" />
+281-->[com.google.firebase:firebase-installations:17.2.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\7b0312bcb3d06ce2e32bb1cc242407e8\transformed\firebase-installations-17.2.0\AndroidManifest.xml:17:17-82
+282            <meta-data
+282-->[com.google.firebase:firebase-installations:17.2.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\7b0312bcb3d06ce2e32bb1cc242407e8\transformed\firebase-installations-17.2.0\AndroidManifest.xml:18:13-20:85
+283                android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar"
+283-->[com.google.firebase:firebase-installations:17.2.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\7b0312bcb3d06ce2e32bb1cc242407e8\transformed\firebase-installations-17.2.0\AndroidManifest.xml:19:17-127
+284                android:value="com.google.firebase.components.ComponentRegistrar" />
+284-->[com.google.firebase:firebase-installations:17.2.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\7b0312bcb3d06ce2e32bb1cc242407e8\transformed\firebase-installations-17.2.0\AndroidManifest.xml:20:17-82
+285            <meta-data
+285-->[com.google.firebase:firebase-common-ktx:21.0.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6ad5c22af78ed86fd1a41b120dc0df93\transformed\firebase-common-ktx-21.0.0\AndroidManifest.xml:12:13-14:85
+286                android:name="com.google.firebase.components:com.google.firebase.ktx.FirebaseCommonLegacyRegistrar"
+286-->[com.google.firebase:firebase-common-ktx:21.0.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6ad5c22af78ed86fd1a41b120dc0df93\transformed\firebase-common-ktx-21.0.0\AndroidManifest.xml:13:17-116
+287                android:value="com.google.firebase.components.ComponentRegistrar" />
+287-->[com.google.firebase:firebase-common-ktx:21.0.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6ad5c22af78ed86fd1a41b120dc0df93\transformed\firebase-common-ktx-21.0.0\AndroidManifest.xml:14:17-82
+288            <meta-data
+288-->[com.google.firebase:firebase-common:21.0.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\4ad58d613a9e8053102fc294aa604cd0\transformed\firebase-common-21.0.0\AndroidManifest.xml:35:13-37:85
+289                android:name="com.google.firebase.components:com.google.firebase.FirebaseCommonKtxRegistrar"
+289-->[com.google.firebase:firebase-common:21.0.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\4ad58d613a9e8053102fc294aa604cd0\transformed\firebase-common-21.0.0\AndroidManifest.xml:36:17-109
+290                android:value="com.google.firebase.components.ComponentRegistrar" />
+290-->[com.google.firebase:firebase-common:21.0.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\4ad58d613a9e8053102fc294aa604cd0\transformed\firebase-common-21.0.0\AndroidManifest.xml:37:17-82
+291            <meta-data
+291-->[com.google.firebase:firebase-datatransport:18.2.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\de937d79c5859d86ba3732dda1aec381\transformed\firebase-datatransport-18.2.0\AndroidManifest.xml:25:13-27:85
+292                android:name="com.google.firebase.components:com.google.firebase.datatransport.TransportRegistrar"
+292-->[com.google.firebase:firebase-datatransport:18.2.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\de937d79c5859d86ba3732dda1aec381\transformed\firebase-datatransport-18.2.0\AndroidManifest.xml:26:17-115
+293                android:value="com.google.firebase.components.ComponentRegistrar" />
+293-->[com.google.firebase:firebase-datatransport:18.2.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\de937d79c5859d86ba3732dda1aec381\transformed\firebase-datatransport-18.2.0\AndroidManifest.xml:27:17-82
+294        </service>
+295
+296        <activity
+296-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\c3de2893153ea36604624969c4ac8703\transformed\play-services-base-18.0.1\AndroidManifest.xml:20:9-22:45
+297            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+297-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\c3de2893153ea36604624969c4ac8703\transformed\play-services-base-18.0.1\AndroidManifest.xml:20:19-85
+298            android:exported="false"
+298-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\c3de2893153ea36604624969c4ac8703\transformed\play-services-base-18.0.1\AndroidManifest.xml:22:19-43
+299            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+299-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\c3de2893153ea36604624969c4ac8703\transformed\play-services-base-18.0.1\AndroidManifest.xml:21:19-78
+300
+301        <provider
+301-->[com.google.firebase:firebase-common:21.0.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\4ad58d613a9e8053102fc294aa604cd0\transformed\firebase-common-21.0.0\AndroidManifest.xml:23:9-28:39
+302            android:name="com.google.firebase.provider.FirebaseInitProvider"
+302-->[com.google.firebase:firebase-common:21.0.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\4ad58d613a9e8053102fc294aa604cd0\transformed\firebase-common-21.0.0\AndroidManifest.xml:24:13-77
+303            android:authorities="com.anonymous.reactnativeunifi.firebaseinitprovider"
+303-->[com.google.firebase:firebase-common:21.0.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\4ad58d613a9e8053102fc294aa604cd0\transformed\firebase-common-21.0.0\AndroidManifest.xml:25:13-72
+304            android:directBootAware="true"
+304-->[com.google.firebase:firebase-common:21.0.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\4ad58d613a9e8053102fc294aa604cd0\transformed\firebase-common-21.0.0\AndroidManifest.xml:26:13-43
+305            android:exported="false"
+305-->[com.google.firebase:firebase-common:21.0.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\4ad58d613a9e8053102fc294aa604cd0\transformed\firebase-common-21.0.0\AndroidManifest.xml:27:13-37
+306            android:initOrder="100" />
+306-->[com.google.firebase:firebase-common:21.0.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\4ad58d613a9e8053102fc294aa604cd0\transformed\firebase-common-21.0.0\AndroidManifest.xml:28:13-36
+307        <provider
+307-->[androidx.emoji2:emoji2:1.3.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\efe5246881fbf63f5b419accd3e5a85b\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+308            android:name="androidx.startup.InitializationProvider"
+308-->[androidx.emoji2:emoji2:1.3.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\efe5246881fbf63f5b419accd3e5a85b\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
+309            android:authorities="com.anonymous.reactnativeunifi.androidx-startup"
+309-->[androidx.emoji2:emoji2:1.3.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\efe5246881fbf63f5b419accd3e5a85b\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
+310            android:exported="false" >
+310-->[androidx.emoji2:emoji2:1.3.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\efe5246881fbf63f5b419accd3e5a85b\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
+311            <meta-data
+311-->[androidx.emoji2:emoji2:1.3.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\efe5246881fbf63f5b419accd3e5a85b\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+312                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+312-->[androidx.emoji2:emoji2:1.3.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\efe5246881fbf63f5b419accd3e5a85b\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+313                android:value="androidx.startup" />
+313-->[androidx.emoji2:emoji2:1.3.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\efe5246881fbf63f5b419accd3e5a85b\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+314            <meta-data
+314-->[androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\shayn\.gradle\caches\8.10.2\transforms\17c439731f3f5e38760b354560d323d8\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:29:13-31:52
+315                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+315-->[androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\shayn\.gradle\caches\8.10.2\transforms\17c439731f3f5e38760b354560d323d8\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:30:17-78
+316                android:value="androidx.startup" />
+316-->[androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\shayn\.gradle\caches\8.10.2\transforms\17c439731f3f5e38760b354560d323d8\transformed\lifecycle-process-2.8.3\AndroidManifest.xml:31:17-49
+317            <meta-data
+317-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+318                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+318-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+319                android:value="androidx.startup" />
+319-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+320        </provider>
+321
+322        <meta-data
+322-->[com.google.android.gms:play-services-basement:18.3.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\3f076e1b410da544d9fb1a91d7dee49c\transformed\play-services-basement-18.3.0\AndroidManifest.xml:21:9-23:69
+323            android:name="com.google.android.gms.version"
+323-->[com.google.android.gms:play-services-basement:18.3.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\3f076e1b410da544d9fb1a91d7dee49c\transformed\play-services-basement-18.3.0\AndroidManifest.xml:22:13-58
+324            android:value="@integer/google_play_services_version" />
+324-->[com.google.android.gms:play-services-basement:18.3.0] C:\Users\shayn\.gradle\caches\8.10.2\transforms\3f076e1b410da544d9fb1a91d7dee49c\transformed\play-services-basement-18.3.0\AndroidManifest.xml:23:13-66
+325
+326        <receiver
+326-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+327            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+327-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+328            android:directBootAware="false"
+328-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+329            android:enabled="true"
+329-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+330            android:exported="true"
+330-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+331            android:permission="android.permission.DUMP" >
+331-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+332            <intent-filter>
+332-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+333                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+333-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+333-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+334            </intent-filter>
+335            <intent-filter>
+335-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+336                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+336-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+336-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+337            </intent-filter>
+338            <intent-filter>
+338-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+339                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+339-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+339-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+340            </intent-filter>
+341            <intent-filter>
+341-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+342                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+342-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+342-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\f31c90dd60a23ae290df9ab0aa804e03\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+343            </intent-filter>
+344        </receiver>
+345
+346        <service
+346-->[androidx.room:room-runtime:2.6.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\8c2be2da2bfae2f659f390dfad40109c\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
+347            android:name="androidx.room.MultiInstanceInvalidationService"
+347-->[androidx.room:room-runtime:2.6.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\8c2be2da2bfae2f659f390dfad40109c\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
+348            android:directBootAware="true"
+348-->[androidx.room:room-runtime:2.6.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\8c2be2da2bfae2f659f390dfad40109c\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
+349            android:exported="false" />
+349-->[androidx.room:room-runtime:2.6.1] C:\Users\shayn\.gradle\caches\8.10.2\transforms\8c2be2da2bfae2f659f390dfad40109c\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
+350        <service
+350-->[com.google.android.datatransport:transport-backend-cct:3.1.9] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6204941bc32228adb131b7699a573f21\transformed\transport-backend-cct-3.1.9\AndroidManifest.xml:28:9-34:19
+351            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
+351-->[com.google.android.datatransport:transport-backend-cct:3.1.9] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6204941bc32228adb131b7699a573f21\transformed\transport-backend-cct-3.1.9\AndroidManifest.xml:29:13-103
+352            android:exported="false" >
+352-->[com.google.android.datatransport:transport-backend-cct:3.1.9] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6204941bc32228adb131b7699a573f21\transformed\transport-backend-cct-3.1.9\AndroidManifest.xml:30:13-37
+353            <meta-data
+353-->[com.google.android.datatransport:transport-backend-cct:3.1.9] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6204941bc32228adb131b7699a573f21\transformed\transport-backend-cct-3.1.9\AndroidManifest.xml:31:13-33:39
+354                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
+354-->[com.google.android.datatransport:transport-backend-cct:3.1.9] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6204941bc32228adb131b7699a573f21\transformed\transport-backend-cct-3.1.9\AndroidManifest.xml:32:17-94
+355                android:value="cct" />
+355-->[com.google.android.datatransport:transport-backend-cct:3.1.9] C:\Users\shayn\.gradle\caches\8.10.2\transforms\6204941bc32228adb131b7699a573f21\transformed\transport-backend-cct-3.1.9\AndroidManifest.xml:33:17-36
+356        </service>
+357        <service
+357-->[com.google.android.datatransport:transport-runtime:3.1.9] C:\Users\shayn\.gradle\caches\8.10.2\transforms\14c75317885cade359c766f2efe84643\transformed\transport-runtime-3.1.9\AndroidManifest.xml:26:9-30:19
+358            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
+358-->[com.google.android.datatransport:transport-runtime:3.1.9] C:\Users\shayn\.gradle\caches\8.10.2\transforms\14c75317885cade359c766f2efe84643\transformed\transport-runtime-3.1.9\AndroidManifest.xml:27:13-117
+359            android:exported="false"
+359-->[com.google.android.datatransport:transport-runtime:3.1.9] C:\Users\shayn\.gradle\caches\8.10.2\transforms\14c75317885cade359c766f2efe84643\transformed\transport-runtime-3.1.9\AndroidManifest.xml:28:13-37
+360            android:permission="android.permission.BIND_JOB_SERVICE" >
+360-->[com.google.android.datatransport:transport-runtime:3.1.9] C:\Users\shayn\.gradle\caches\8.10.2\transforms\14c75317885cade359c766f2efe84643\transformed\transport-runtime-3.1.9\AndroidManifest.xml:29:13-69
+361        </service>
+362
+363        <receiver
+363-->[com.google.android.datatransport:transport-runtime:3.1.9] C:\Users\shayn\.gradle\caches\8.10.2\transforms\14c75317885cade359c766f2efe84643\transformed\transport-runtime-3.1.9\AndroidManifest.xml:32:9-34:40
+364            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
+364-->[com.google.android.datatransport:transport-runtime:3.1.9] C:\Users\shayn\.gradle\caches\8.10.2\transforms\14c75317885cade359c766f2efe84643\transformed\transport-runtime-3.1.9\AndroidManifest.xml:33:13-132
+365            android:exported="false" />
+365-->[com.google.android.datatransport:transport-runtime:3.1.9] C:\Users\shayn\.gradle\caches\8.10.2\transforms\14c75317885cade359c766f2efe84643\transformed\transport-runtime-3.1.9\AndroidManifest.xml:34:13-37
+366    </application>
+367
+368</manifest>
