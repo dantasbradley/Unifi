@@ -22,11 +22,11 @@ export default function TabLayout() {
         screenOptions={({ route }) => ({
           headerShown: true,
           headerTitle: "",
-          headerStyle: { backgroundColor: "black" },
+          headerStyle: { backgroundColor: "#1F363D" },
           headerTitleStyle: { color: "white" },
 
           tabBarStyle: {
-            backgroundColor: "black",
+            backgroundColor: "#1F363D",
             height: 88,
             paddingBottom: 12,
             borderTopWidth: 0,
@@ -89,7 +89,7 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black",
+    backgroundColor: "#1F363D",
   },
   iconContainer: {
     flex: 1,

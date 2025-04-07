@@ -93,11 +93,11 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#40798C",
     padding: 10,
   },
   postContainer: {
-    backgroundColor: "#222",
+    backgroundColor: "#70A9A1",
     padding: 15,
     borderRadius: 8,
     marginBottom: 10,

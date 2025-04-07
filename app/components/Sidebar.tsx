@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     top: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     bottom: 60, 
     width: 280,
-    backgroundColor: "black",
+    backgroundColor: "#1F363D",
     zIndex: 2,
   },
   headerRow: {

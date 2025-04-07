@@ -117,13 +117,14 @@ const NotificationScreen: React.FC<NotificationProps> = ({profile}) => {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: "#000",
+        backgroundColor: "#40798C",
         flexDirection: "column",
         alignItems: "stretch",
         justifyContent: "center",
         flex: 1
     },
     notification: {
+        backgroundColor: "#70A9A1",
         borderBottomWidth: 1,
         borderBottomColor: "gray",
         borderTopWidth: 1,

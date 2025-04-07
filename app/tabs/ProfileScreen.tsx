@@ -22,7 +22,7 @@ const ProfileScreen = () => {
     // Define dynamic styles based on editMode
     const getInputStyle = () => ({
         flex: 1,
-        backgroundColor: editMode ? '#fff' : '#000', // White when editing, black otherwise
+        backgroundColor: editMode ? '#fff' : '#70A9A1', // White when editing, black otherwise
         color: editMode ? '#000' : '#fff', // Black text when editing, white otherwise
         padding: 12,
         borderRadius: 5,
@@ -275,11 +275,11 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000',
+        backgroundColor: '#40798C',
         padding: 20,
     },
     header: {
-        backgroundColor: '#000',
+        backgroundColor: '#40798C',
         paddingVertical: 20,
         paddingHorizontal: 20,
         borderBottomWidth: 1,
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
-        backgroundColor: '#000',
+        backgroundColor: '#70A9A1',
         color: '#fff',
         padding: 12,
         borderRadius: 5,
