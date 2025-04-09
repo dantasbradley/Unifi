@@ -69,7 +69,7 @@ export default function ExploreScreen() {
             onToggleJoin={() => toggleJoinCommunity(item.id)}
             onPress={() => router.push({
               pathname: "/tabs/ExploreScreen/CommunityDetails",
-              params: { id: item.id, name: item.name, isAdmin: adminCommunities.has(item.id.toString()) },
+              params: { id: item.id, name: item.name, isAdmin: adminCommunities.has(item.id.toString()), startTab: "Bio" },
             })}
           />
         )}

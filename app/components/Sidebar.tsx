@@ -89,7 +89,7 @@ const Sidebar = () => {
                 closeSidebar();
                 router.push({
                 pathname: "/tabs/ExploreScreen/CommunityDetails",
-                params: { id: community.id, name: community.name, isAdmin: adminCommunities.has(community.id.toString()) },
+                params: { id: community.id, name: community.name, isAdmin: adminCommunities.has(community.id.toString()), startTab: "Bio" },
               }); }}
             />
           ))}
