@@ -370,6 +370,7 @@ function handleInsert(res, query, params, successMessage) {
             console.error('Error executing query:', error);
             return res.status(500).json({ message: 'Database error', error });
         }
+        console.error(successMessage);
         res.status(201).json({ message: successMessage, id: results.insertId });
     });
 }
@@ -387,7 +388,6 @@ function validateFields(fields, res) {
 app.post('/DB/clubs/add', (req, res) => {
     const { name, location, admin_id } = req.body;
     console.log('=== /DB/clubs/add =input=', { name, location, admin_id });
-
     if (!validateFields({ name, location, admin_id }, res)) return;
 
     const query = 'INSERT INTO test.clubs (name, location) VALUES (?, ?)';
@@ -408,7 +408,7 @@ app.post('/DB/clubs/add', (req, res) => {
                 return res.status(500).json({ message: 'Error adding admin to club', error: adminError });
             }
             
-            console.log('=== /DB/clubs/add =output2= Club admin added successfully');
+            console.log('Club and admin added successfully');
             res.status(201).json({
                 message: 'Club and admin added successfully',
                 id: club_id,
@@ -420,7 +420,6 @@ app.post('/DB/clubs/add', (req, res) => {
 app.post('/DB/events/add', (req, res) => {
     const { title, date, time, location, description, club_id } = req.body;
     console.log('=== /DB/events/add =input=', { title, date, time, location, description, club_id });
-
     if (!validateFields({ title, date, time, location, description, club_id }, res)) return;
 
     const query = 'INSERT INTO test.events (title, date, time, location, description, club_id) VALUES (?, ?, ?, ?, ?, ?)';
@@ -430,32 +429,30 @@ app.post('/DB/events/add', (req, res) => {
 app.post('/DB/posts/add', (req, res) => {
     const { title, content, filePath, club_id } = req.body;
     console.log('=== /DB/posts/add =input=', { title, content, filePath, club_id });
-
     if (!validateFields({ title, content, club_id }, res)) return;
 
     const query = 'INSERT INTO test.posts (title, content, filePath, club_id) VALUES (?, ?, ?, ?)';
     handleInsert(res, query, [title, content, filePath, club_id], 'Post added successfully');
 });
-// === Add Club Admin ===
-app.post('/DB/club_admins/add', (req, res) => {
-    const { admin_id, club_id } = req.body;
-    console.log('=== /DB/club_admins/add =input=', { admin_id, club_id });
-
-    if (!validateFields({ admin_id, club_id }, res)) return;
-
-    const query = 'INSERT INTO test.club_admins (admin_id, club_id) VALUES (?, ?)';
-    handleInsert(res, query, [admin_id, club_id], 'Club admin added successfully');
-});
 // === Add Notification ===
 app.post('/DB/notifications/add', (req, res) => {
     const { title, type, club_id } = req.body;
     console.log('=== /DB/notifications/add =input=', { title, type, club_id });
-
     if (!validateFields({ title, type, club_id }, res)) return;
 
     const query = 'INSERT INTO test.notifications (title, type, club_id) VALUES (?, ?, ?)';
     handleInsert(res, query, [title, type, club_id], 'Notification added successfully');
 });
+// === Add Following ===
+app.post('/DB/following/add', (req, res) => {
+    const { user_id, club_id } = req.body;
+    console.log('=== /DB/following/add =input=', { user_id, club_id });
+    if (!validateFields({ user_id, club_id }, res)) return;
+
+    const query = 'INSERT INTO test.following (user_id, club_id) VALUES (?, ?)';
+    handleInsert(res, query, [user_id, club_id], 'Following added successfully');
+});
+
 
 
 // Function to get all records from a given table
@@ -486,6 +483,43 @@ app.get('/DB/:table/get/:identifier=:value', (req, res) => {
         }
         console.log(`=== /DB/${table}/get/${identifier}=${value} =output= success`);
         res.json(results);
+    });
+});
+// Function to check if a record exists based on two identifiers and their values
+app.get('/DB/:table/exists/:id1=:val1/:id2=:val2', (req, res) => {
+    const { table, id1, val1, id2, val2 } = req.params;
+    console.log(`=== /DB/${table}/exists/${id1}=${val1}/${id2}=${val2} =input=`);
+
+    const query = `SELECT EXISTS(SELECT 1 FROM ?? WHERE ?? = ? AND ?? = ?) AS exists`;
+    pool.query(query, [table, id1, val1, id2, val2], (err, results) => {
+        if (err) {
+            console.error(`Error checking existence in ${table}:`, err);
+            return res.status(500).json({ message: `Failed to check record existence in ${table}` });
+        }
+
+        const exists = !!results[0].exists;
+        console.log(`=== /DB/${table}/exists/${id1}=${val1}/${id2}=${val2} =output= ${exists}`);
+        res.json({ exists });
+    });
+});
+// Function to delete records from a given table based on two column identifiers and their values
+app.delete('/DB/:table/delete/:id1=:val1/:id2=:val2', (req, res) => {
+    const { table, id1, val1, id2, val2 } = req.params;
+    console.log(`=== /DB/${table}/delete/${id1}=${val1}/${id2}=${val2} =input=`);
+
+    const query = `DELETE FROM ?? WHERE ?? = ? AND ?? = ?`;
+    pool.query(query, [table, id1, val1, id2, val2], (err, results) => {
+        if (err) {
+            console.error(`Error deleting from ${table} where ${id1} = ${val1} and ${id2} = ${val2}:`, err);
+            return res.status(500).json({ message: `Failed to delete data from ${table}` });
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: `No records found to delete in ${table} where ${id1} = ${val1} and ${id2} = ${val2}` });
+        }
+
+        console.log(`=== /DB/${table}/delete/${id1}=${val1}/${id2}=${val2} =output= success`);
+        res.json({ message: `Successfully deleted ${results.affectedRows} record(s) from ${table}` });
     });
 });
 // Function to get a specific attribute of a record, given ID
