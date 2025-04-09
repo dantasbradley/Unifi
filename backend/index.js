@@ -363,152 +363,86 @@ const pool = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
+// helper functions for insert
+function handleInsert(res, query, params, successMessage) {
+    pool.query(query, params, (error, results) => {
+        if (error) {
+            console.error('Error executing query:', error);
+            return res.status(500).json({ message: 'Database error', error });
+        }
+        res.status(201).json({ message: successMessage, id: results.insertId });
+    });
+}
+function validateFields(fields, res) {
+    for (const key in fields) {
+        if (!fields[key]) {
+            res.status(400).json({ message: `Missing required field: ${key}` });
+            return false;
+        }
+    }
+    return true;
+}
 //DATABASE FUNCTIONS
-// Function to add a club
-// app.post('/DB/clubs/add', (req, res) => {
-//     const { name, location } = req.body;
-//     console.log('=== /DB/clubs/add =input= name: ', name, ', location: ', location);
-
-//     if (!name || !location) {
-//         console.log('Both name and location are required');
-//         return res.status(400).json({ message: 'Club name and location are required.' });
-//     }
-
-//     const query = 'INSERT INTO test.clubs (name, location) VALUES (?, ?)';
-
-//     pool.query(query, [name, location], (error, results) => {
-//         if (error) {
-//             console.error('Error inserting club:', error);
-//             return res.status(500).json({ message: 'Database error', error });
-//         }
-//         console.log('=== /DB/clubs/add =output= name: ', name, ', location: ', location);
-//         res.status(201).json({ 
-//             message: 'Club added successfully', 
-//             id: results.insertId 
-//         });
-//     });
-// });
-// Function to add a club
+// === Add Club ===
 app.post('/DB/clubs/add', (req, res) => {
     const { name, location, admin_id } = req.body;
-    console.log('=== /DB/clubs/add =input= name: ', name, ', location: ', location, ', admin_id: ', admin_id);
+    console.log('=== /DB/clubs/add =input=', { name, location, admin_id });
 
-    if (!name || !location || !admin_id) {
-        console.log('Club name, location, and admin_id are required');
-        return res.status(400).json({ message: 'Club name, location, and admin ID are required.' });
-    }
+    if (!validateFields({ name, location, admin_id }, res)) return;
 
-    const query = 'INSERT INTO test.clubs (name, location) VALUES (?, ?)';
-    pool.query(query, [name, location], (error, results) => {
+    const clubQuery = 'INSERT INTO test.clubs (name, location) VALUES (?, ?)';
+    pool.query(clubQuery, [name, location], (error, results) => {
         if (error) {
             console.error('Error inserting club:', error);
             return res.status(500).json({ message: 'Database error', error });
         }
 
-        const club_id = results.insertId; // Get the new club's ID
-        console.log('=== /DB/clubs/add =output1= Club added with ID: ', club_id);
+        const club_id = results.insertId;
+        console.log('=== /DB/clubs/add =output1= Club ID:', club_id);
 
-        // Add the admin for the newly created club
         const adminQuery = 'INSERT INTO test.club_admins (admin_id, club_id) VALUES (?, ?)';
-        pool.query(adminQuery, [admin_id, club_id], (adminError, adminResults) => {
-            if (adminError) {
-                console.error('Error inserting club admin:', adminError);
-                return res.status(500).json({ message: 'Error adding admin to club', error: adminError });
-            }
-            
-            console.log('=== /DB/clubs/add =output2= Club admin added successfully');
-            res.status(201).json({
-                message: 'Club and admin added successfully',
-                id: club_id,
-            });
-        });
+        handleInsert(res, adminQuery, [admin_id, club_id], 'Club and admin added successfully');
     });
 });
-
-// Function to add an event
+// === Add Event ===
 app.post('/DB/events/add', (req, res) => {
-    const { title, date, time, location, description, club_id} = req.body;
-    console.log('=== /DB/clubs/add =input= title: ', title, ', date: ', date, ', time: ', time, ', location: ', location, ', description: ', description, ', club_id: ', club_id);
+    const { title, date, time, location, description, club_id } = req.body;
+    console.log('=== /DB/events/add =input=', { title, date, time, location, description, club_id });
 
-    if (!title || !date || !time || !location || !description || !club_id) {
-        console.log('All fields are required');
-        return res.status(400).json({ message: 'All fields are required.' });
-    }
+    if (!validateFields({ title, date, time, location, description, club_id }, res)) return;
+
     const query = 'INSERT INTO test.events (title, date, time, location, description, club_id) VALUES (?, ?, ?, ?, ?, ?)';
-    pool.query(query, [title, date, time, location, description, club_id], (error, results) => {
-        if (error) {
-            console.error('Error inserting event:', error);
-            return res.status(500).json({ message: 'Database error', error });
-        }
-        console.log('=== /DB/clubs/add =output= title: ', title, ', date: ', date, ', time: ', time, ', location: ', location, ', description: ', description, ', club_id: ', club_id);
-        res.status(201).json({ 
-            message: 'Event added successfully', 
-            id: results.insertId 
-        });
-    });
+    handleInsert(res, query, [title, date, time, location, description, club_id], 'Event added successfully');
 });
-// Function to add a post
+// === Add Post ===
 app.post('/DB/posts/add', (req, res) => {
     const { title, content, filePath, club_id } = req.body;
-    console.log('=== /DB/clubs/add =input= title: ', title, ', content: ', content, ', filePath: ', filePath, ', club_id: ', club_id);
-    if (!title || !content || !club_id) {
-        console.log('All fields are required');
-        return res.status(400).json({ message: 'All fields are required.' });
-    }
+    console.log('=== /DB/posts/add =input=', { title, content, filePath, club_id });
+
+    if (!validateFields({ title, content, club_id }, res)) return;
+
     const query = 'INSERT INTO test.posts (title, content, filePath, club_id) VALUES (?, ?, ?, ?)';
-    pool.query(query, [title, content, filePath, club_id], (error, results) => {
-        if (error) {
-            console.error('Error inserting post:', error);
-            return res.status(500).json({ message: 'Database error', error });
-        }
-        console.log('=== /DB/clubs/add =output= title: ', title, ', content: ', content, ', filePath: ', filePath, ', club_id: ', club_id);
-        res.status(201).json({ 
-            message: 'Post added successfully', 
-            id: results.insertId 
-        });
-    });
+    handleInsert(res, query, [title, content, filePath, club_id], 'Post added successfully');
 });
-// Function to add a club admin
+// === Add Club Admin ===
 app.post('/DB/club_admins/add', (req, res) => {
     const { admin_id, club_id } = req.body;
-    console.log('=== /DB/clubs/add =input= admin_id: ', admin_id, ', club_id: ', club_id);
-    if (!admin_id || !club_id) {
-        console.log('Both admin_id and club_id are required');
-        return res.status(400).json({ message: 'Admin ID and Club ID are required.' });
-    }
+    console.log('=== /DB/club_admins/add =input=', { admin_id, club_id });
+
+    if (!validateFields({ admin_id, club_id }, res)) return;
+
     const query = 'INSERT INTO test.club_admins (admin_id, club_id) VALUES (?, ?)';
-    pool.query(query, [admin_id, club_id], (error, results) => {
-        if (error) {
-            console.error('Error inserting club admin:', error);
-            return res.status(500).json({ message: 'Database error', error });
-        }
-        console.log('=== /DB/clubs/add =output= admin_id: ', admin_id, ', club_id: ', club_id);
-        res.status(201).json({ 
-            message: 'Club admin added successfully', 
-            id: results.insertId 
-        });
-    });
+    handleInsert(res, query, [admin_id, club_id], 'Club admin added successfully');
 });
-// Function to add notifications
+// === Add Notification ===
 app.post('/DB/notifications/add', (req, res) => {
     const { title, type, club_id } = req.body;
-    console.log('=== /DB/clubs/add =input= title: ', title, ', type: ', type, ', club_id: ', club_id);
-    if (!title || !type || !club_id) {
-        console.log('All fields are required');
-        return res.status(400).json({ message: 'All fields are required.' });
-    }
+    console.log('=== /DB/notifications/add =input=', { title, type, club_id });
+
+    if (!validateFields({ title, type, club_id }, res)) return;
+
     const query = 'INSERT INTO test.notifications (title, type, club_id) VALUES (?, ?, ?)';
-    pool.query(query, [title, type, club_id], (error, results) => {
-        if (error) {
-            console.error('Error inserting notification:', error);
-            return res.status(500).json({ message: 'Database error', error });
-        }
-        console.log('=== /DB/clubs/add =output= title: ', title, ', type: ', type, ', club_id: ', club_id);
-        res.status(201).json({ 
-            message: 'Notification added successfully', 
-            id: results.insertId 
-        });
-    });
+    handleInsert(res, query, [title, type, club_id], 'Notification added successfully');
 });
 
 
