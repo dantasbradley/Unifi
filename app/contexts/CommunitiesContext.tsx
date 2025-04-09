@@ -39,14 +39,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
   useEffect(() => {
     console.log("useEffect context");
     fetchCommunities();
-    fetchUserAttribute("custom:clubs_following").then((clubs) => {
-      if (clubs) {
-        let clubsList = clubs === "No Clubs" ? [] : clubs.split(',').map(club => club.trim());
-        const uniqueClubs = new Set(clubsList); // Assuming IDs are strings
-        setJoinedCommunities(uniqueClubs);
-        console.log("Followed clubs retrieved and deduplicated:", Array.from(uniqueClubs));
-      }
-    });
+    fetchFollowingClubs();
     fetchAdminClubs();
   }, []);
 
@@ -82,6 +75,38 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
     }
   };
 
+  const fetchFollowingClubs = async () => {
+    const cognitoSub = await AsyncStorage.getItem("cognitoSub");
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/following/get/user_id=${cognitoSub}`);
+      const data = await response.json();
+      if (data && Array.isArray(data)) {
+        const followingClubIds = data.map((item: any) => String(item.club_id));
+        // console.log("Following clubs:", followingClubIds);
+        setJoinedCommunities(new Set(followingClubIds));
+      } else {
+        setJoinedCommunities(new Set());
+      }
+    } catch (error) {
+      console.error("Error fetching following clubs:", error);
+    }
+  };
+
+  const fetchFollowersCount = async (clubId: string) => {
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/following/get/club_id=${clubId}`);
+      const data = await response.json();
+      if (data && Array.isArray(data)) {
+        const followers = data.map((item: any) => String(item.user_id));
+        return followers.length;
+      } else {
+        return 0;
+      }
+    } catch (error) {
+      console.error("Error fetching followers:", error);
+    }
+  };
+
   const fetchUserAttribute = async (attributeName : any) => {
       const cognitoSub = await AsyncStorage.getItem('cognitoSub');
       try {
@@ -98,19 +123,62 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       }
   };
 
-  const toggleJoinCommunity = (id: string) => {
-    setJoinedCommunities((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-        updateMembersCount(id, -1);
-      } else {
-        newSet.add(id);
-        updateMembersCount(id, 1);
+  const toggleJoinCommunity = async (id: string) => {
+    const newSet = new Set(joinedCommunities);
+    let isJoined = newSet.has(id);
+    if (isJoined) {
+      newSet.delete(id);
+      await unfollow(id);
+    } else {
+      newSet.add(id);
+      await follow(id);
+    }
+    const newCount = await fetchFollowersCount(id);
+    await updateMembersCount(id, newCount); 
+    setJoinedCommunities(newSet);
+  };
+
+  const follow = async (clubId: string) => {
+    const cognitoSub = await AsyncStorage.getItem('cognitoSub');
+    try {
+      const response = await fetch("http://3.85.25.255:3000/DB/following/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: cognitoSub, club_id: clubId }),
+      });
+      const result = await response.json();
+      if (result.error) {
+        throw new Error(result.message || "Unknown error");
       }
-      updateUserAttribute("custom:clubs_following", Array.from(newSet).join(","));
-      return newSet;
-    });
+      console.log("follow success: ", result);
+    } catch (error) {
+      console.error("Error adding following:", error);
+      Alert.alert("Error following. Please try again.");
+    }
+  };
+
+  const unfollow = async (clubId : any) => {
+    if (!clubId) {
+      console.error("Club ID is required");
+      return;
+    }
+    const cognitoSub = await AsyncStorage.getItem('cognitoSub');
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/following/delete/club_id=${clubId}/user_id=${cognitoSub}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error("Failed to unfollow");
+      console.log("Unfollow success:", clubId, data);
+    } catch (error) {
+      console.error("Error unfollowing:", error);
+      Alert.alert("Error", "Failed to unfollow.");
+    }
   };
 
   const updateUserAttribute = async (attributeName : any, value : any) => {
@@ -135,16 +203,11 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       }
   };
 
-  const updateMembersCount = async (id: string, changeInt: number) => {
-    const attributeName = "membersCount";
-    const membersCount = await fetchClubAttribute(id, attributeName);
-    if (membersCount !== undefined) {
-      const newCount = parseInt(membersCount) + changeInt;
-      await updateClubAttribute(id, attributeName, newCount.toString());
-      setCommunities((prev) =>
-        prev.map((community) => (community.id === id ? { ...community, membersCount: newCount } : community))
-      );
-    }
+  const updateMembersCount = async (id: string, newCount: any) => {
+    await updateClubAttribute(id, "membersCount", newCount.toString());
+    setCommunities((prev) =>
+      prev.map((community) => (community.id === id ? { ...community, membersCount: newCount } : community))
+    );
   };
 
   const fetchClubAttribute = async (clubId : any, attribute : any) => {
