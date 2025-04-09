@@ -4,7 +4,7 @@
             "outputFile": "com.anonymous.reactnativeunifi.app-mergeDebugResources-76:/values-es-rES/values-es-rES.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\shayn\\.gradle\\caches\\8.10.2\\transforms\\e5381690151dbd4cf9a1bf789726f60a\\transformed\\react-android-0.76.6-debug\\res\\values-es-rES\\values-es-rES.xml",
+                    "source": "C:\\Users\\shayn\\.gradle\\caches\\8.10.2\\transforms\\5e8b8fef46ff08f0630f2d48d693e7d5\\transformed\\react-android-0.76.6-debug\\res\\values-es-rES\\values-es-rES.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",

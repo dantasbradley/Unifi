@@ -4,7 +4,7 @@
             "outputFile": "com.anonymous.reactnativeunifi.app-mergeDebugResources-76:/values-v23/values-v23.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\shayn\\.gradle\\caches\\8.10.2\\transforms\\4e281530be34104892e2ad4bd5f7ce60\\transformed\\appcompat-1.7.0\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\shayn\\.gradle\\caches\\8.10.2\\transforms\\fb999c479a95f13cd4739c668336a88c\\transformed\\appcompat-1.7.0\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,20,34,35,36,39,43,44,45,46",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -15,7 +15,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\shayn\\.gradle\\caches\\8.10.2\\transforms\\7c6acb07e1599a82d2a70532a6995da0\\transformed\\material-1.6.1\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\shayn\\.gradle\\caches\\8.10.2\\transforms\\5bafbf950d2fc2937746a8c1499f63f7\\transformed\\material-1.6.1\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,5,8,13,17,20,23,26,31,34,38",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4",
@@ -34,7 +34,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\shayn\\.gradle\\caches\\8.10.2\\transforms\\f5e4a3d796d810fdc3882b2cd6e5a810\\transformed\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\shayn\\.gradle\\caches\\8.10.2\\transforms\\8412c3ab120fc277505200f412b9a7fd\\transformed\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

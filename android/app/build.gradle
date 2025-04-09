@@ -126,7 +126,7 @@ android {
     }
 
     buildFeatures {
-        compose true
+        compose false
     }
 
     composeOptions {
@@ -134,7 +134,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "19"
+        jvmTarget = "17"
     }
 }
 
