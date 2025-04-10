@@ -10,6 +10,9 @@ import AddPostModal from "../../components/ExploreComponents/AddPostModal";
 import EditToggleButton from "../../components/ExploreComponents/EditToggleButton";
 import { CommunitiesContext } from "../../contexts/CommunitiesContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
+
 
 const placeholderImage = require("../../../assets/images/placeholder.png");
 
@@ -370,6 +373,7 @@ export default function CommunityDetailsScreen() {
         uploadImage(`club_profile_pics/${id}_${name}`, result.assets[0].uri);
     }
   };
+  
 
   return (
     <View style={styles.container}>

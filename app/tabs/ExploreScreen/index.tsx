@@ -5,6 +5,9 @@ import { useRouter } from "expo-router";
 import CommunityCard from "../../components/ExploreComponents/CommunityCard";
 import CreateCommunityModal from "../../components/ExploreComponents/CreateCommunityModal";
 import { CommunitiesContext } from "../../contexts/CommunitiesContext";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
+
 
 export default function ExploreScreen() {
   const router = useRouter();
@@ -36,6 +39,13 @@ export default function ExploreScreen() {
     }
     setRefreshing(false);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      handleRefresh();
+    }, [])
+  );
+  
 
   const addNewCommunity = async () => {
     if (!newCommunityName.trim() || !newCommunityLocation.trim()) {
