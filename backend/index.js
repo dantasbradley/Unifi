@@ -452,6 +452,15 @@ app.post('/DB/following/add', (req, res) => {
     const query = 'INSERT INTO test.following (user_id, club_id) VALUES (?, ?)';
     handleInsert(res, query, [user_id, club_id], 'Following added successfully');
 });
+// === Add Like ===
+app.post('/DB/likes/add', (req, res) => {
+    const { user_id, post_id } = req.body;
+    console.log('=== /DB/likes/add =input=', { user_id, post_id });
+    if (!validateFields({ user_id, post_id }, res)) return;
+
+    const query = 'INSERT INTO test.likes (user_id, post_id) VALUES (?, ?)';
+    handleInsert(res, query, [user_id, post_id], 'Like added successfully');
+});
 
 
 
@@ -573,34 +582,6 @@ app.post('/DB/:table/update/attribute', (req, res) => {
     });
 });
 
-
-app.get('/DB/posts/get', async (req, res) => {
-    const { club_id } = req.query;  // Get club_id from the query string
-
-    if (!club_id) {
-        return res.status(400).json({ message: 'Club ID is required.' });
-    }
-
-    // SQL query to select all posts where the club_id matches
-    const query = 'SELECT * FROM test.posts WHERE club_id = ?';
-
-    try {
-        pool.query(query, [club_id], (error, results) => {
-            if (error) {
-                console.error('Error fetching posts:', error);
-                return res.status(500).json({ message: 'Database error', error });
-            }
-            if (results.length === 0) {
-                return res.status(404).json({ message: 'No posts found for this club.' });
-            }
-            res.json({ message: 'Posts retrieved successfully', posts: results });
-        });
-    } catch (error) {
-        console.error('Server error while fetching posts:', error);
-        res.status(500).json({ message: 'Failed to retrieve posts.' });
-    }
-});
-
 app.get('/likes/count/:post_id', (req, res) => {
     const post_id = req.params.post_id;
 
@@ -627,7 +608,6 @@ app.get('/likes/user_likes', (req, res) => {
         res.json({ isLikedByUser: !!results[0].liked });
     });
 });
-
 
 app.post('/likes/add', (req, res) => {
     const { post_id, user_id } = req.body;
