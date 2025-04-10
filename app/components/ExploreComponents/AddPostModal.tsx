@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 interface AddPostModalProps {
   visible: boolean;
@@ -25,6 +26,9 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
   return (
     <View style={styles.modalOverlay}>
       <View style={styles.modalContainer}>
+      <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
+          <Ionicons name="close" size={24} color="#fff" />
+        </TouchableOpacity>
         <Text style={styles.modalTitle}>Add New Post</Text>
 
         <Text style={styles.modalLabel}>Title:</Text>
@@ -48,13 +52,6 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.createButton} onPress={onCreate}>
             <Text style={styles.createButtonText}>Create</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.createButton, { backgroundColor: "#444" }]}
-            onPress={onClose}
-          >
-            <Text style={styles.createButtonText}>Cancel</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -99,7 +96,7 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center"
   },
   createButton: {
     backgroundColor: "#fff",
@@ -112,6 +109,11 @@ const styles = StyleSheet.create({
     color: "#000",
     fontWeight: "bold",
   },
+  modalCloseButton: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+  }
 });
 
 export default AddPostModal;
