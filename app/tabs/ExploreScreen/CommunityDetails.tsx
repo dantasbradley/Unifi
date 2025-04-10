@@ -63,6 +63,8 @@ export default function CommunityDetailsScreen() {
   const [email, setEmail] = useState("example@gmail.com");  
   const [originalInsta, setOriginalInsta] = useState(""); // Store the original value
   const [insta, setInsta] = useState("@insertHandle");
+  const [originalLocation, setOriginalLocation] = useState("");
+  const [location, setLocation] = useState("location");
  
   // const [profileImage, setProfileImage] = useState<ImageSourcePropType>(placeholderImage);
   const [imageUrl, setImageUrl] = useState("");
@@ -248,6 +250,7 @@ export default function CommunityDetailsScreen() {
     saveIfChanged(id, "description", bioDescription, originalBioDescription, setOriginalBioDescription);
     saveIfChanged(id, "email", email, originalEmail, setOriginalEmail);
     saveIfChanged(id, "instagram", insta, originalInsta, setOriginalInsta);
+    saveIfChanged(id, "location", location, originalLocation, setOriginalLocation);
   };
 
   const saveIfChanged = (
@@ -292,6 +295,7 @@ export default function CommunityDetailsScreen() {
     loadClubAttribute(id, "description", setBioDescription, setOriginalBioDescription);
     loadClubAttribute(id, "email", setEmail, setOriginalEmail);
     loadClubAttribute(id, "instagram", setInsta, setOriginalInsta);
+    loadClubAttribute(id, "location", setLocation, setOriginalLocation);
   }, []);
   
   const loadClubAttribute = async (
@@ -469,11 +473,19 @@ export default function CommunityDetailsScreen() {
                   placeholder="Instagram"
                   placeholderTextColor="#aaa"
                 />
+                <TextInput
+                  style={[styles.sectionText, styles.input]}
+                  value={location}
+                  onChangeText={setLocation}
+                  placeholder="Location"
+                  placeholderTextColor="#aaa"
+                />
               </>
             ) : (
               <>
                 <Text style={styles.sectionText}>Email: {email}</Text>
                 <Text style={styles.sectionText}>Insta: {insta}</Text>
+                <Text style={styles.sectionText}>Location: {location}</Text>
               </>
             )}
             {isAdmin === "true" && (
