@@ -16,10 +16,10 @@ export interface Event {
 
 interface EventCardProps {
   event: Event;
+  onDelete?: () => void;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event }) => {
-  // tracks if user is attending
+const EventCard: React.FC<EventCardProps> = ({ event, onDelete }) => {
   const [isAttending, setIsAttending] = useState(false);
 
   const handleAttend = () => {
@@ -46,7 +46,14 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
           {isAttending ? "Attending" : "Attend"}
         </Text>
       </TouchableOpacity>
+      
+    {onDelete && (
+      <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
+        <Text style={styles.deleteButtonText}>Delete Event</Text>
+      </TouchableOpacity>
+    )}
     </View>
+    
   );
 };
 
@@ -98,6 +105,18 @@ const styles = StyleSheet.create({
     color: "#000",
     fontWeight: "bold",
   },
+  deleteButton: {
+    backgroundColor: "red",
+    marginTop: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    alignSelf: "flex-end",
+  },
+  deleteButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  }  
 });
 
 export default EventCard;

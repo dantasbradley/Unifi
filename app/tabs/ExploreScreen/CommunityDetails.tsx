@@ -206,30 +206,39 @@ export default function CommunityDetailsScreen() {
   };
 
   const formatEventDateTime = (dateStr, timeStr) => {
+    console.log("🕓 Original Inputs => Date:", dateStr, "| Time:", timeStr);
+  
     const date = new Date(dateStr);
     let [hours, minutes] = timeStr.split(':').map(Number);
-
-    // Create a new date object combining the date and the time to adjust for time zone
+    console.log("🔍 Parsed Time => Hours:", hours, "| Minutes:", minutes);
+  
+    // Create new Date object with time included
     const dateTime = new Date(date);
     dateTime.setHours(hours);
     dateTime.setMinutes(minutes);
-
-    // Get timezone offset in hours and adjust hours accordingly
+    console.log("📆 Combined DateTime (pre-timezone):", dateTime.toString());
+  
+    // Adjust for local timezone
     const timeZoneOffsetInHours = dateTime.getTimezoneOffset() / 60;
     dateTime.setHours(dateTime.getHours() - timeZoneOffsetInHours);
-
-    // Convert 24-hour time to 12-hour format with AM or PM
+    console.log("🌍 Adjusted for Timezone =>", dateTime.toString(), "| Offset (hrs):", timeZoneOffsetInHours);
+  
+    // Convert to 12-hour format
     hours = dateTime.getHours();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
     hours = hours ? hours : 12; // the hour '0' should be '12'
     minutes = dateTime.getMinutes().toString().padStart(2, '0');
-
+    console.log("🕰️ Formatted Time =>", `${hours}:${minutes} ${ampm}`);
+  
     const formattedDate = `${dateTime.getMonth() + 1}/${dateTime.getDate()}/${dateTime.getFullYear().toString().slice(-2)}`;
     const formattedTime = `${hours}:${minutes} ${ampm}`;
-
-    return `${formattedDate} @ ${formattedTime}`;
+    const finalString = `${formattedDate} @ ${formattedTime}`;
+  
+    console.log("✅ Final Formatted DateTime:", finalString);
+    return finalString;
   };
+  
 
 
 
@@ -537,16 +546,54 @@ export default function CommunityDetailsScreen() {
               data={events}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <EventCard event={{
-                  id: item.id,
-                  datetime: formatEventDateTime(item.date, item.time), // Ensure this is calculated before passing
-                  location: item.location,
-                  title: item.title,
-                  description: item.description,
-                  attendees: item.attendees
-                }} />
-                
-            )}
+                <EventCard
+                  event={{
+                    id: item.id,
+                    datetime: formatEventDateTime(item.date, item.time),
+                    location: item.location,
+                    title: item.title,
+                    description: item.description,
+                    attendees: item.attendees,
+                    date: item.date,
+                    time: item.time,
+                  }}
+                  onDelete={
+                    isAdmin === "true"
+                      ? () => {
+                          Alert.alert(
+                            "Delete Event",
+                            `Are you sure you want to delete "${item.title}"?`,
+                            [
+                              { text: "Cancel", style: "cancel" },
+                              {
+                                text: "Delete",
+                                style: "destructive",
+                                onPress: async () => {
+                                  try {
+                                    const response = await fetch(`http://3.85.25.255:3000/DB/events/delete/${item.id}`, {
+                                      method: 'DELETE',
+                                    });
+                                    const result = await response.json();
+                                    if (response.ok) {
+                                      setEvents((prevEvents) => prevEvents.filter((e) => e.id !== item.id));
+                                      Alert.alert("Deleted", "Event successfully deleted.");
+                                    } else {
+                                      Alert.alert("Error", result.message || "Failed to delete event.");
+                                    }
+                                  } catch (err) {
+                                    console.error("Delete error:", err);
+                                    Alert.alert("Error", "Could not connect to server.");
+                                  }
+                                }
+                              }
+                            ]
+                          );
+                        }
+                      : undefined
+                  }
+                />
+              )}              
+            
               style={{ marginTop: 10 }}
             />
 
