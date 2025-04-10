@@ -39,7 +39,7 @@ const initialPosts: Post[] = [
 
 export default function CommunityDetailsScreen() {
   const router = useRouter();
-  const { id, name, isAdmin} = useLocalSearchParams();
+  const { id, name, isAdmin, startTab} = useLocalSearchParams();
 
   const {
     fetchClubAttribute = () => {},
@@ -145,7 +145,8 @@ export default function CommunityDetailsScreen() {
             setNewEventTime("");
             setNewEventLocation("");
             setNewEventDescription("");
-            handleCreateNotification(newEventTitle, "New Event");
+            const datetime = formatEventDateTime(newEventDate, newEventTime);
+            handleCreateNotification(datetime, "New Event");
         } else {
             Alert.alert("Error", data.message || "Failed to create event.");
         }
@@ -190,7 +191,6 @@ export default function CommunityDetailsScreen() {
             setPostModalVisible(false);
             setNewPostName("");
             setNewPostContent("");
-            handleCreateNotification(newPostName, "New Post");
         } else {
             Alert.alert("Error", data.message || "Failed to create post.");
         }
@@ -224,7 +224,7 @@ export default function CommunityDetailsScreen() {
     const formattedTime = `${hours}:${minutes} ${ampm}`;
 
     return `${formattedDate} @ ${formattedTime}`;
-};
+  };
 
 
 
@@ -266,6 +266,7 @@ export default function CommunityDetailsScreen() {
 
   useEffect(() => {
     console.log("isAdmin: ", isAdmin);
+    setActiveTab(startTab as "Bio" | "Events" | "Community");
     fetchImage(`club_profile_pics/${id}_${name}`, `user_profile_pics/default`);
     // fetchClubAttribute(id, "description").then((description) => {
     //   if (description) {
@@ -368,7 +369,7 @@ export default function CommunityDetailsScreen() {
     if (!result.canceled) {
         uploadImage(`club_profile_pics/${id}_${name}`, result.assets[0].uri);
     }
-};
+  };
 
   return (
     <View style={styles.container}>
