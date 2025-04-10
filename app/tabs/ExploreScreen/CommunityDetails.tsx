@@ -9,6 +9,7 @@ import AddEventModal from "../../components/ExploreComponents/AddEventModal";
 import AddPostModal from "../../components/ExploreComponents/AddPostModal";
 import EditToggleButton from "../../components/ExploreComponents/EditToggleButton";
 import { CommunitiesContext } from "../../contexts/CommunitiesContext";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const placeholderImage = require("../../../assets/images/placeholder.png");
 
@@ -470,6 +471,46 @@ export default function CommunityDetailsScreen() {
                 <Text style={styles.sectionText}>Insta: {insta}</Text>
               </>
             )}
+            {isAdmin === "true" && (
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => {
+                  Alert.alert(
+                    "Delete Club",
+                    "Are you sure you want to permanently delete this club?",
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: "Delete",
+                        style: "destructive",
+                        onPress: async () => {
+                          try {
+                            const response = await fetch(`http://3.85.25.255:3000/DB/clubs/delete/${id}`, {
+                              method: 'DELETE',
+                            });
+
+                            const result = await response.json();
+
+                            if (response.ok) {
+                              Alert.alert("Deleted", "The club was deleted successfully.");
+                              router.replace("/tabs/ExploreScreen"); // Go back to home or previous screen
+                            } else {
+                              Alert.alert("Error", result.message || "Failed to delete club.");
+                            }
+                          } catch (err) {
+                            console.error("Delete error:", err);
+                            Alert.alert("Error", "Could not connect to server.");
+                          }
+                        }
+                      }
+                    ]
+                  );
+                }}
+              >
+                <Text style={styles.deleteButtonText}>Delete Club</Text>
+              </TouchableOpacity>
+            )}
+
           </View>
         )}
 
@@ -634,4 +675,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  deleteButton: {
+    backgroundColor: "red",
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 20,
+    alignItems: "center",
+  },
+  deleteButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  }
 });

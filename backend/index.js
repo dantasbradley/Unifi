@@ -407,6 +407,7 @@ app.post('/DB/clubs/add', (req, res) => {
 
         const club_id = results.insertId; // Get the new club's ID
         console.log('=== /DB/clubs/add =output1= Club added with ID: ', club_id);
+        
 
         // Add the admin for the newly created club
         const adminQuery = 'INSERT INTO test.club_admins (admin_id, club_id) VALUES (?, ?)';
@@ -620,6 +621,36 @@ app.get('/DB/posts/get', async (req, res) => {
         res.status(500).json({ message: 'Failed to retrieve posts.' });
     }
 });
+
+app.delete('/DB/clubs/delete/:club_id', async (req, res) => {
+    const club_id = req.params.club_id;
+
+    if (!club_id) {
+        return res.status(400).json({ message: 'Club ID is required.' });
+    }
+
+    try{
+        // Then, delete the club itself
+        const deleteClubQuery = 'DELETE FROM test.clubs WHERE id = ?';
+        pool.query(deleteClubQuery, [club_id], (err, result) => {
+            if (err) {
+                console.error('Error deleting club:', err);
+                return res.status(500).json({ message: 'Database error', error: err });
+            }
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ message: 'No club found with the provided ID.' });
+            }
+
+            console.log(`Club with id ${club_id} deleted.`);
+            res.json({ message: 'Club deleted successfully', club_id });
+        });
+
+    } catch (error) {
+        console.error('Error during club deletion:', error);
+        res.status(500).json({ message: 'Failed to delete club and related data.', error });
+    }
+});
+
 
 app.get('/likes/count/:post_id', (req, res) => {
     const post_id = req.params.post_id;
