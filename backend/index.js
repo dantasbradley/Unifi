@@ -420,12 +420,24 @@ app.post('/DB/clubs/add', (req, res) => {
 // === Add Event ===
 app.post('/DB/events/add', (req, res) => {
     const { title, date, time, location, description, club_id } = req.body;
-    console.log('=== /DB/events/add =input=', { title, date, time, location, description, club_id });
+
+    console.log('=== 📥 /DB/events/add =input=');
+    console.log('   • Title:', title);
+    console.log('   • Date:', date);
+    console.log('   • Time:', time);
+    console.log('   • Location:', location);
+    console.log('   • Description:', description);
+    console.log('   • Club ID:', club_id);
+
     if (!validateFields({ title, date, time, location, description, club_id }, res)) return;
 
     const query = 'INSERT INTO test.events (title, date, time, location, description, club_id) VALUES (?, ?, ?, ?, ?, ?)';
+    
+    console.log('📦 Inserting event into database...');
+    
     handleInsert(res, query, [title, date, time, location, description, club_id], 'Event added successfully');
 });
+
 // === Add Post ===
 app.post('/DB/posts/add', (req, res) => {
     const { title, content, filePath, club_id } = req.body;

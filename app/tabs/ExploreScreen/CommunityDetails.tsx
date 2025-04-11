@@ -112,54 +112,67 @@ export default function CommunityDetailsScreen() {
   // Community posts state
   const handleCreateEvent = async () => {
     if (!newEventTitle || !newEventDate || !newEventTime || !newEventLocation || !newEventDescription) {
-        Alert.alert("Error", "All fields are required to create an event.");
-        return;
+      Alert.alert("Error", "All fields are required to create an event.");
+      return;
     }
-
+  
+    console.log("🗓️ Creating Event With:");
+    console.log("   • Title:", newEventTitle);
+    console.log("   • Date:", newEventDate);
+    console.log("   • Time:", newEventTime);
+    console.log("   • Location:", newEventLocation);
+    console.log("   • Description:", newEventDescription);
+  
     try {
-        const response = await fetch("http://3.85.25.255:3000/DB/events/add", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                title: newEventTitle,
-                date: newEventDate,
-                time: newEventTime,
-                location: newEventLocation,
-                description: newEventDescription,
-                club_id: id, // Assuming 'id' is the club's ID
-            }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            const newEvent: Event = {
-                id: data.id.toString(),
-                date: newEventDate,
-                time: newEventTime,
-                location: newEventLocation,
-                title: newEventTitle,
-                description: newEventDescription,
-                attendees: 0,
-            };
-
-            setEvents([...events, newEvent]);
-            setEventModalVisible(false);
-            setNewEventTitle("");
-            setNewEventDate("");
-            setNewEventTime("");
-            setNewEventLocation("");
-            setNewEventDescription("");
-            const datetime = formatEventDateTime(newEventDate, newEventTime);
-            handleCreateNotification(datetime, "New Event");
-        } else {
-            Alert.alert("Error", data.message || "Failed to create event.");
-        }
+      const response = await fetch("http://3.85.25.255:3000/DB/events/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newEventTitle,
+          date: newEventDate,
+          time: newEventTime,
+          location: newEventLocation,
+          description: newEventDescription,
+          club_id: id,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        const newEvent: Event = {
+          id: data.id.toString(),
+          date: newEventDate,
+          time: newEventTime,
+          location: newEventLocation,
+          title: newEventTitle,
+          description: newEventDescription,
+          attendees: 0,
+        };
+  
+        console.log("✅ Event successfully created with ID:", data.id);
+        console.log("📅 Final Stored Date:", newEvent.date);
+        console.log("⏰ Final Stored Time:", newEvent.time);
+  
+        setEvents([...events, newEvent]);
+        setEventModalVisible(false);
+        setNewEventTitle("");
+        setNewEventDate("");
+        setNewEventTime("");
+        setNewEventLocation("");
+        setNewEventDescription("");
+  
+        const datetime = formatEventDateTime(newEventDate, newEventTime);
+        handleCreateNotification(datetime, "New Event");
+      } else {
+        Alert.alert("Error", data.message || "Failed to create event.");
+      }
     } catch (error) {
-        console.error("Error creating event:", error);
-        Alert.alert("Error", "Could not connect to server.");
+      console.error("❌ Error creating event:", error);
+      Alert.alert("Error", "Could not connect to server.");
     }
   };
+  
 
   // Return white color if tab is active, else gray
   const handleCreatePost = async () => {
@@ -208,36 +221,33 @@ export default function CommunityDetailsScreen() {
   const formatEventDateTime = (dateStr, timeStr) => {
     console.log("🕓 Original Inputs => Date:", dateStr, "| Time:", timeStr);
   
-    const date = new Date(dateStr);
+    // Parse the time string (e.g. "16:30")
     let [hours, minutes] = timeStr.split(':').map(Number);
     console.log("🔍 Parsed Time => Hours:", hours, "| Minutes:", minutes);
   
-    // Create new Date object with time included
-    const dateTime = new Date(date);
-    dateTime.setHours(hours);
-    dateTime.setMinutes(minutes);
-    console.log("📆 Combined DateTime (pre-timezone):", dateTime.toString());
+    // Create a new Date object from the date string
+    const dateParts = dateStr.split('-').length === 3 ? dateStr.split('-') : dateStr.split('/');
+    const [year, month, day] = dateParts.length === 3 && dateParts[0].length === 4
+      ? [parseInt(dateParts[0]), parseInt(dateParts[1]), parseInt(dateParts[2])]
+      : [parseInt(dateParts[2]), parseInt(dateParts[0]), parseInt(dateParts[1])];
   
-    // Adjust for local timezone
-    const timeZoneOffsetInHours = dateTime.getTimezoneOffset() / 60;
-    dateTime.setHours(dateTime.getHours() - timeZoneOffsetInHours);
-    console.log("🌍 Adjusted for Timezone =>", dateTime.toString(), "| Offset (hrs):", timeZoneOffsetInHours);
+    const dateTime = new Date(year, month - 1, day, hours, minutes);
+    console.log("📆 Combined DateTime (no timezone shift):", dateTime.toString());
   
     // Convert to 12-hour format
-    hours = dateTime.getHours();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    minutes = dateTime.getMinutes().toString().padStart(2, '0');
-    console.log("🕰️ Formatted Time =>", `${hours}:${minutes} ${ampm}`);
+    const displayHours = dateTime.getHours();
+    const ampm = displayHours >= 12 ? 'PM' : 'AM';
+    const formattedHours = displayHours % 12 || 12; // Convert 0 to 12
+    const formattedMinutes = dateTime.getMinutes().toString().padStart(2, '0');
   
-    const formattedDate = `${dateTime.getMonth() + 1}/${dateTime.getDate()}/${dateTime.getFullYear().toString().slice(-2)}`;
-    const formattedTime = `${hours}:${minutes} ${ampm}`;
+    const formattedDate = `${month}/${day}/${year.toString().slice(-2)}`;
+    const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
     const finalString = `${formattedDate} @ ${formattedTime}`;
   
     console.log("✅ Final Formatted DateTime:", finalString);
     return finalString;
   };
+  
   
 
 
