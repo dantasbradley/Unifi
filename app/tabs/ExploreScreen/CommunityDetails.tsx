@@ -443,6 +443,39 @@ export default function CommunityDetailsScreen() {
         uploadImage(`club_profile_pics/${id}_${name}`, result.assets[0].uri);
     }
   };
+
+  const handleDeletePost = async (postId: string) => {
+    Alert.alert(
+      "Delete Post",
+      "Are you sure you want to delete this post?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const response = await fetch(`http://3.85.25.255:3000/DB/posts/delete/${postId}`, {
+                method: 'DELETE',
+              });
+  
+              const result = await response.json();
+  
+              if (response.ok) {
+                setCommunityPosts((prev) => prev.filter((post) => post.id !== postId));
+                Alert.alert("Deleted", "Post successfully deleted.");
+              } else {
+                Alert.alert("Error", result.message || "Failed to delete post.");
+              }
+            } catch (err) {
+              console.error("Delete post error:", err);
+              Alert.alert("Error", "Could not connect to server.");
+            }
+          }
+        }
+      ]
+    );
+  };
   
 
   return (
@@ -691,12 +724,16 @@ export default function CommunityDetailsScreen() {
               data={communityPosts}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <PostCard
-                  post={item}
-                  isLiked={likedPosts.has(item.id)}
-                  onToggleLike={() => toggleLikePost(item.id)}
-                />
+                <View style={{ marginBottom: 10 }}>
+                  <PostCard
+                    post={item}
+                    isLiked={likedPosts.has(item.id)}
+                    onToggleLike={() => toggleLikePost(item.id)}
+                    onDelete={isAdmin === "true" ? () => handleDeletePost(item.id) : undefined}
+                  />
+                </View>
               )}
+              
               style={{ marginTop: 10 }}
             />
             <AddPostModal
@@ -816,5 +853,16 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
-  }
+  },
+  postDeleteButton: {
+    backgroundColor: "red",
+    padding: 8,
+    borderRadius: 6,
+    marginTop: 4,
+    alignSelf: "flex-end",
+  },
+  postDeleteButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  }  
 });

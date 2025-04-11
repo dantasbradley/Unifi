@@ -447,6 +447,35 @@ app.post('/DB/posts/add', (req, res) => {
     const query = 'INSERT INTO test.posts (title, content, filePath, club_id) VALUES (?, ?, ?, ?)';
     handleInsert(res, query, [title, content, filePath, club_id], 'Post added successfully');
 });
+
+app.delete('/DB/posts/delete/:post_id', async (req, res) => {
+    const { post_id } = req.params;
+
+    if (!post_id) {
+        return res.status(400).json({ message: 'Post ID is required.' });
+    }
+
+    try {
+        const query = 'DELETE FROM test.posts WHERE id = ?';
+        pool.query(query, [post_id], (err, result) => {
+            if (err) {
+                console.error('Error deleting post:', err);
+                return res.status(500).json({ message: 'Database error', error: err });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ message: 'No post found with the provided ID.' });
+            }
+
+            console.log(`Post with ID ${post_id} deleted.`);
+            res.json({ message: 'Post deleted successfully', post_id });
+        });
+    } catch (error) {
+        console.error('Error during post deletion:', error);
+        res.status(500).json({ message: 'Failed to delete post.', error });
+    }
+});
+
 // === Add Notification ===
 app.post('/DB/notifications/add', (req, res) => {
     const { title, type, club_id } = req.body;

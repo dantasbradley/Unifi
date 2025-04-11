@@ -17,9 +17,10 @@ interface PostCardProps {
   post: Post;
   isLiked: boolean;
   onToggleLike: () => void;
+  onDelete?: () => void;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike, onDelete }) => {
   return (
     <View style={styles.postContainer}>
       <View style={styles.postHeader}>
@@ -33,6 +34,12 @@ const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike }) => {
           <Text style={styles.actionText}>{post.likes}</Text>
         </TouchableOpacity>
       </View>
+
+      {onDelete && (
+            <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
+              <Text style={styles.deleteButtonText}>Delete Event</Text>
+            </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -80,6 +87,18 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     fontSize: 14,
   },
+  deleteButton: {
+    backgroundColor: "red",
+    marginTop: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    alignSelf: "flex-end",
+  },
+  deleteButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  }  
 });
 
 export default PostCard;
