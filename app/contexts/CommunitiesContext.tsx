@@ -39,6 +39,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
   const [joinedCommunities, setJoinedCommunities] = useState<Set<string>>(new Set());
   const [adminCommunities, setAdminCommunities] = useState<Set<string>>(new Set());
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [attendingEvents, setAttendingEvents] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     console.log("useEffect context");
@@ -123,6 +124,23 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
     }
   };
 
+  const fetchAttendingEvents = async () => {
+    const cognitoSub = await AsyncStorage.getItem('cognitoSub');
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/attending/get/user_id=${cognitoSub}`);
+      const data = await response.json();
+      if (data && Array.isArray(data)) {
+        const attendingEvents = data.map((item: any) => String(item.event_id));
+        console.log("attending events:", attendingEvents);
+        setAttendingEvents(new Set(attendingEvents));
+      } else {
+        setAttendingEvents(new Set());
+      }
+    } catch (error) {
+      console.error("Error fetching post likers:", error);
+    }
+  };
+
   const fetchFollowersCount = async (clubId: string) => {
     try {
       const response = await fetch(`http://3.85.25.255:3000/DB/following/get/club_id=${clubId}`);
@@ -146,6 +164,22 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         const likers = data.map((item: any) => String(item.user_id));
         console.log("likers count:", likers.length);
         return likers.length;
+      } else {
+        return 0;
+      }
+    } catch (error) {
+      console.error("Error fetching post likers:", error);
+    }
+  };
+
+  const fetchAttendersCount = async (eventID: string) => {
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/attending/get/event_id=${eventID}`);
+      const data = await response.json();
+      if (data && Array.isArray(data)) {
+        const attenders = data.map((item: any) => String(item.user_id));
+        console.log("attenders count:", attenders.length);
+        return attenders.length;
       } else {
         return 0;
       }
@@ -380,6 +414,79 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         body: JSON.stringify({ id: postID, attribute: "likes", value: newCount }),
       });
       console.log("Post likes updated successfully");
+    } catch (error) {
+      console.error("Error updating attribute:", error);
+    }
+  };
+
+  const toggleAttendEvent = async (eventID: string) => {
+    console.log("Toggling attend event for ID:", eventID);
+    const newSet = new Set(attendingEvents);
+    let isAttending = newSet.has(eventID);
+    if (isAttending) {
+      newSet.delete(eventID);
+      await attendEvent(eventID);
+    } else {
+      newSet.add(eventID);
+      await unattendEvent(eventID);
+    }
+    await updateAttendingNumber(eventID);
+    setAttendingEvents(newSet);
+    console.log("End of toggle attend");
+  };
+
+  const attendEvent = async (eventID: string) => {
+    const cognitoSub = await AsyncStorage.getItem('cognitoSub');
+    try {
+      const response = await fetch("http://3.85.25.255:3000/DB/attending/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: cognitoSub, event_id: eventID }),
+      });
+      const result = await response.json();
+      if (result.error) {
+        throw new Error(result.message || "Unknown error");
+      }
+      console.log("attendEvent success: ", result);
+    } catch (error) {
+      console.error("Error attending event:", error);
+      Alert.alert("Error attending event. Please try again.");
+    }
+  };
+
+  const unattendEvent = async (eventID : any) => {
+    if (!eventID) {
+      console.error("Event ID is required");
+      return;
+    }
+    const cognitoSub = await AsyncStorage.getItem('cognitoSub');
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/attending/delete/event_id=${eventID}/user_id=${cognitoSub}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error("Failed to unattend");
+      console.log("Unattend success:", eventID, data);
+    } catch (error) {
+      console.error("Error Unattend:", error);
+      Alert.alert("Error", "Failed to Unattend.");
+    }
+  };
+
+  const updateAttendingNumber = async (eventID: string) => {
+    const newCount = await fetchAttendersCount(eventID);
+    try {
+      await fetch(`http://3.85.25.255:3000/DB/events/update/attribute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: eventID, attribute: "attending", value: newCount }),
+      });
+      console.log("Attending Number updated successfully");
     } catch (error) {
       console.error("Error updating attribute:", error);
     }
