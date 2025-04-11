@@ -755,6 +755,10 @@ export default function CommunityDetailsScreen() {
             {/* <TouchableOpacity style={styles.addButton} onPress={() => setPostModalVisible(true)}>
               <Ionicons name="add" size={32} color="black" />
             </TouchableOpacity> */}
+
+            refreshControl={
+            <RefreshControl refreshing={refreshingPosts} onRefresh={handleRefreshPosts} />
+          }
           </View>
         )}
       </View>
