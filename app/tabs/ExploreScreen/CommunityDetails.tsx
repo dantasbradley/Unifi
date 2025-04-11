@@ -35,7 +35,7 @@ const initialPosts: Post[] = [
   {
     id: "1",
     title: "Group Reading",
-    time: "8h",
+    created_at: "8h",
     content: "Last Tuesday, we had a huge turnout!",
     likes: 2,
     comments: 0,
@@ -52,7 +52,8 @@ export default function CommunityDetailsScreen() {
     fetchClubAttribute = () => {},
     updateClubAttribute = () => {},
     fetchPostsForClub = () => {},
-    fetchEventsForClub = () => {}
+    fetchEventsForClub = () => {},
+    fetchClubImage = () => {},
   } = useContext(CommunitiesContext) || {};
   
   const communitiesContext = useContext(CommunitiesContext);
@@ -223,7 +224,7 @@ export default function CommunityDetailsScreen() {
             const newPost: Post = {
                 id: data.id.toString(),
                 title: newPostName,
-                time: "0h",
+                created_at: "0h",
                 content: newPostContent,
                 likes: 0,
                 comments: 0,
@@ -321,7 +322,7 @@ export default function CommunityDetailsScreen() {
   useEffect(() => {
     console.log("isAdmin: ", isAdmin);
     setActiveTab(startTab as "Bio" | "Events" | "Community");
-    fetchImage(`club_profile_pics/${id}_${name}`, `user_profile_pics/default`);
+    handleFetchClubImage(`club_profile_pics/${id}_${name}`);
     // fetchClubAttribute(id, "description").then((description) => {
     //   if (description) {
     //     setBioDescription(description);
@@ -413,18 +414,11 @@ export default function CommunityDetailsScreen() {
   
 
 
-  //image functions
-  const fetchImage = async (filePath : any, defaultPath : any) => {
-    try {
-        console.log("filePath: ", filePath);
-        const response = await fetch(`http://3.85.25.255:3000/S3/get/image?filePath=${encodeURIComponent(filePath)}&defaultPath=${encodeURIComponent(defaultPath)}`);
-        const data = await response.json();
-        // console.log("Signed URL: ", data.url);
-        setImageUrl(data.url);
-    } catch (error) {
-        console.error('Failed to fetch image:', error);
-    }
+  const handleFetchClubImage = async (filePath : any) => {
+    const imageUrl = await fetchClubImage(`club_profile_pics/${id}_${name}`);
+    setImageUrl(imageUrl); 
   };
+
   const uploadImage = async (filePath : any, imageUri : any) => {
     try {
         console.log("filePath: ", filePath);
@@ -436,7 +430,7 @@ export default function CommunityDetailsScreen() {
             method: 'PUT',
             body: blob,
         });
-        fetchImage(`club_profile_pics/${id}_${name}`, `user_profile_pics/default`);
+        await handleFetchClubImage(`club_profile_pics/${id}_${name}`);
     } catch (error) {
         console.error('Failed to upload image:', error);
         alert('Upload failed!');
