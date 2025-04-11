@@ -637,16 +637,17 @@ export default function CommunityDetailsScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <EventCard
-              event={{
-                id: item.id,
-                datetime: formatEventDateTime(item.date, item.time),
-                location: item.location,
-                title: item.title,
-                description: item.description,
-                attendees: item.attendees,
-                date: item.date,
-                time: item.time,
-              }}
+              // event={{
+              //   id: item.id,
+              //   datetime: formatEventDateTime(item.date, item.time),
+              //   location: item.location,
+              //   title: item.title,
+              //   description: item.description,
+              //   attendees: item.attendees,
+              //   date: item.date,
+              //   time: item.time,
+              // }}
+              event={item}
               onDelete={
                 isAdmin === "true"
                   ? () => {

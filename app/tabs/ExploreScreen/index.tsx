@@ -15,15 +15,12 @@ export default function ExploreScreen() {
     communities = [],
     joinedCommunities = new Set(),
     adminCommunities = new Set(),
-    addCommunity = () => {},
     toggleJoinCommunity = () => {},
     fetchCommunities = () => {},
   } = useContext(CommunitiesContext) || {};
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [newCommunityName, setNewCommunityName] = useState("");
-  const [newCommunityLocation, setNewCommunityLocation] = useState("");
-  const [modalVisible, setModalVisible] = useState(false);
+  
   const [refreshing, setRefreshing] = useState(false);
   const [refreshKey, setRefreshKey] = useState(Date.now());
 
@@ -45,18 +42,6 @@ export default function ExploreScreen() {
       handleRefresh();
     }, [])
   );
-  
-
-  const addNewCommunity = async () => {
-    if (!newCommunityName.trim() || !newCommunityLocation.trim()) {
-      Alert.alert("Error", "Community name and location cannot be empty");
-      return;
-    }
-    addCommunity(newCommunityName, newCommunityLocation);
-    setNewCommunityName("");
-    setNewCommunityLocation("");
-    setModalVisible(false);
-  };
 
   return (
     <View style={styles.container}>
@@ -69,7 +54,9 @@ export default function ExploreScreen() {
       />
       <FlatList
         key={refreshKey}
-        data={communities.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))}
+        data={communities
+          .filter(c => !adminCommunities.has(c.id.toString()))
+          .filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))}        
         keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
           <CommunityCard
@@ -87,18 +74,6 @@ export default function ExploreScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       />
-      <CreateCommunityModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        newCommunityName={newCommunityName}
-        onChangeName={setNewCommunityName}
-        newCommunityLocation={newCommunityLocation}
-        onChangeLocation={setNewCommunityLocation}
-        onCreate={addNewCommunity}
-      />
-      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-        <Ionicons name="add" size={32} color="black" />
-      </TouchableOpacity>
     </View>
   );
 }
@@ -115,18 +90,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     fontSize: 16,
-  },
-  addButton: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    backgroundColor: "#fff",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 5,
   },
 });
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 export interface Post {
@@ -10,6 +10,8 @@ export interface Post {
   content: string;
   likes: number;
   comments: number;
+  clubName: string;
+  clubImageUrl: string;
 }
 
 
@@ -23,6 +25,12 @@ interface PostCardProps {
 const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike, onDelete }) => {
   return (
     <View style={styles.postContainer}>
+      {post.clubImageUrl ? (
+          <Image source={{ uri: post.clubImageUrl }} style={styles.communityImage} />
+      ) : (
+          <Text>...</Text>
+      )}
+      <Text style={styles.postTitle}>{post.clubName}</Text>
       <View style={styles.postHeader}>
         <Text style={styles.postTitle}>{post.title}</Text>
         <Text style={styles.postTime}>{post.timeFormatted}</Text>
@@ -50,6 +58,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 15,
     marginBottom: 10,
+  },
+  communityImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 15,
+    marginRight: 10,
   },
   postHeader: {
     flexDirection: "row",

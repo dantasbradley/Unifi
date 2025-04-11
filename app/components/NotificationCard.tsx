@@ -8,8 +8,7 @@ interface Notification {
   type: string;
   time: number;
   clubName: string;
-  imageUrl: string;
-  club_id: number;
+  clubImageUrl: string;
 }
 
 interface NotificationCardProps {
@@ -18,28 +17,15 @@ interface NotificationCardProps {
 }
 
 const NotificationCard: React.FC<NotificationCardProps> = ({ item, onPress }) => {
-  const {
-    fetchClubAttribute = () => {},
-  } = useContext(CommunitiesContext) || {};
-
-  const [clubName, setClubName] = useState("");
 
   const truncateText = (text: string, maxLength: number): string => {
     return text.length > maxLength ? text.substring(0, maxLength - 3) + "..." : text;
   };
 
-  useEffect(() => {
-    fetchClubAttribute(item.club_id, "name").then((name) => {
-      if (name) {
-        setClubName(name);
-      }
-    });
-  }, [item.club_id]);
-
   return (
     <TouchableOpacity style={styles.notification} onPress={onPress}>
-    {item.imageUrl ? (
-        <Image source={{ uri: item.imageUrl }} style={styles.communityImage} />
+    {item.clubImageUrl ? (
+        <Image source={{ uri: item.clubImageUrl }} style={styles.communityImage} />
     ) : (
         <Text>...</Text>
     )}

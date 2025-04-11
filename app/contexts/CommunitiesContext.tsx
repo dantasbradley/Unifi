@@ -24,6 +24,7 @@ interface CommunitiesContextType {
   fetchPostsForClub: (clubId: string) => void;
   fetchEventsForClub: (clubId: string) => void;
   fetchNotificationsForClub: (clubId: string) => void;
+  fetchClubImage: (filePath: any) => Promise<string>;
 }
 
 export const CommunitiesContext = createContext<CommunitiesContextType | null>(null);
@@ -52,10 +53,19 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       console.log("fetching communities");
       const response = await fetch("http://3.85.25.255:3000/DB/clubs/get");
       const data = await response.json();
-      const formattedData = data.map((community: any) => ({
-        ...community,
-        id: String(community.id),
-      }));
+      const formattedData = await Promise.all(
+        data.map(async (community: any) => {
+          const clubId = community.id;
+          const clubName = community.name;
+          const imageUrl = await fetchClubImage(`club_profile_pics/${clubId}_${clubName}`);
+  
+          return {
+            ...community,
+            id: String(clubId),
+            imageUrl,
+          };
+        })
+      );
       setCommunities(formattedData);
       // console.log("Communities fetched successfully:", formattedData);
     } catch (error) {
@@ -302,60 +312,6 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
     }
   };
 
-  const fetchNotificationsForClub = async (clubId : any) => {
-    if (!clubId) {
-      console.error("Club ID is required");
-      return;
-    }
-    try {
-      const response = await fetch(`http://3.85.25.255:3000/DB/notifications/get/club_id=${clubId}`);
-      const data = await response.json();
-      if (!response.ok) throw new Error("Failed to fetch notifications");
-      console.log("Notifications fetched for club:", clubId, data);
-      const formattedNotifications = data.map((notification: any) => {
-        notification.time = formatDistanceToNow(new Date(notification.time), { addSuffix: true })
-        return notification;
-      });
-      return formattedNotifications;
-    } catch (error) {
-      console.error("Error fetching notifications for club:", error);
-      Alert.alert("Error", "Failed to fetch notifications for the club.");
-    }
-  };
-
-  const fetchPostsForClub = async (clubId : any) => {
-    if (!clubId) {
-      console.error("Club ID is required");
-      return;
-    }
-    try {
-      const response = await fetch(`http://3.85.25.255:3000/DB/posts/get/club_id=${clubId}`);
-      const data = await response.json();
-      if (!response.ok) throw new Error("Failed to fetch posts");
-      console.log("Posts fetched for club:", clubId, data);
-      console.log("📦 Raw post data from backend:", data);
-      const formattedPosts = data.map((post: any) => {
-        const parsedTime = new Date(post.time);
-        console.log("⏰ Parsed time:", post.time, "=>", parsedTime.toString());
-      
-        return {
-          ...post,
-          timeFormatted: !isNaN(parsedTime.getTime())
-            ? formatDistanceToNow(parsedTime, { addSuffix: true })
-            : "Unknown time",
-        };
-      });
-      
-      
-      
-      
-      return formattedPosts;
-    } catch (error) {
-      console.error("Error fetching posts for club:", error);
-      Alert.alert("Error", "Failed to fetch posts for the club.");
-    }
-  };
-
   const toggleLikePost = async (postID: string) => {
     console.log("Toggling like for post ID:", postID);
     const newSet = new Set(likedPosts);
@@ -439,11 +395,17 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       const data = await response.json();
   
       if (response.ok) {
+        const clubName = await fetchClubAttribute(clubId, "name");
+        const clubImageUrl = await fetchClubImage(`club_profile_pics/${clubId}_${clubName}`);
         // Format the date of each event to "YYYY-MM-DD"
         const formattedEvents = data.map((event: any) => {
           const date = new Date(event.date);  // assuming 'date' is the key holding the date string
-          event.date = date.toISOString().split('T')[0];  // Format to "YYYY-MM-DD"
-          return event;
+          return {
+            ...event,
+            date: date.toISOString().split("T")[0],
+            clubName,
+            clubImageUrl,
+          };
         });
         return formattedEvents;
       } else {
@@ -452,6 +414,80 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
     } catch (error) {
       console.error("Error fetching events:", error);
       Alert.alert("Error", "Could not connect to server.");
+    }
+  };
+
+  const fetchPostsForClub = async (clubId : any) => {
+    if (!clubId) {
+      console.error("Club ID is required");
+      return;
+    }
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/posts/get/club_id=${clubId}`);
+      const data = await response.json();
+      if (!response.ok) throw new Error("Failed to fetch posts");
+      // console.log("📦 Raw post data from backend:", data);
+
+      const clubName = await fetchClubAttribute(clubId, "name");
+      const clubImageUrl = await fetchClubImage(`club_profile_pics/${clubId}_${clubName}`);
+
+      const formattedPosts = data.map((post: any) => {
+        const parsedTime = new Date(post.time);
+        // console.log("⏰ Parsed time:", post.time, "=>", parsedTime.toString());
+      
+        return {
+          ...post,
+          timeFormatted: !isNaN(parsedTime.getTime())
+            ? formatDistanceToNow(parsedTime, { addSuffix: true })
+            : "Unknown time",
+            clubName,
+            clubImageUrl,
+        };
+      });
+      return formattedPosts;
+    } catch (error) {
+      console.error("Error fetching posts for club:", error);
+      Alert.alert("Error", "Failed to fetch posts for the club.");
+    }
+  };
+
+  const fetchNotificationsForClub = async (clubId : any) => {
+    if (!clubId) {
+      console.error("Club ID is required");
+      return;
+    }
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/notifications/get/club_id=${clubId}`);
+      const data = await response.json();
+      if (!response.ok) throw new Error("Failed to fetch notifications");
+      console.log("Notifications fetched for club:", clubId, data);
+
+      const clubName = await fetchClubAttribute(clubId, "name");
+      const clubImageUrl = await fetchClubImage(`club_profile_pics/${clubId}_${clubName}`);
+      
+      const formattedNotifications = data.map((notification: any) => ({
+        ...notification,
+        time: formatDistanceToNow(new Date(notification.time), { addSuffix: true }),
+        clubName,
+        clubImageUrl,
+      }));
+      return formattedNotifications;
+    } catch (error) {
+      console.error("Error fetching notifications for club:", error);
+      Alert.alert("Error", "Failed to fetch notifications for the club.");
+    }
+  };
+
+  const fetchClubImage = async (filePath : any) => {
+    const defaultPath = `user_profile_pics/default`;
+    try {
+    const response = await fetch(
+        `http://3.85.25.255:3000/S3/get/image?filePath=${encodeURIComponent(filePath)}&defaultPath=${encodeURIComponent(defaultPath)}`
+    );
+    const data = await response.json();
+    return data.url;
+    } catch (error) {
+        console.error("Failed to fetch image:", error);
     }
   };
 
@@ -478,6 +514,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         fetchPostsForClub,
         fetchEventsForClub,
         fetchNotificationsForClub,
+        fetchClubImage,
       }}
     >
       {children}

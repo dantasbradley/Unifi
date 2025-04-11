@@ -14,7 +14,6 @@ const NotificationScreen: React.FC<NotificationProps> = ({ profile }) => {
         joinedCommunities = new Set(), 
         adminCommunities = new Set(),
         fetchNotificationsForClub = () => {}, 
-        fetchClubAttribute = () => {} 
       } = useContext(CommunitiesContext) || {};
     const [notifications, setNotifications] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
@@ -42,31 +41,13 @@ const NotificationScreen: React.FC<NotificationProps> = ({ profile }) => {
         console.log("Joined clubs:", Array.from(joinedCommunities));
         joinedCommunities.forEach(handleFetchNotificationsForClub);
     };
-    const fetchImage = async (filePath : any, defaultPath : any) => {
-        try {
-        const response = await fetch(
-            `http://3.85.25.255:3000/S3/get/image?filePath=${encodeURIComponent(filePath)}&defaultPath=${encodeURIComponent(defaultPath)}`
-        );
-        const data = await response.json();
-        return data.url;
-        } catch (error) {
-            console.error("Failed to fetch image:", error);
-        }
-    };
 
     const handleFetchNotificationsForClub = async (clubId: any) => {
         const data = await fetchNotificationsForClub(clubId);
         console.log("Fetched Notifs: ", data);
-        const club_name = await fetchClubAttribute(clubId, "name");
-        const image_url = await fetchImage(`club_profile_pics/${clubId}_${club_name}`, `user_profile_pics/default`);
-        const enrichedData = data.map((notif: any) => ({
-            ...notif,
-            clubName: club_name || "Unknown Club",
-            imageUrl: image_url,
-        }));
         setNotifications((prevNotifs) => {
             const uniqueNotifs = new Set(prevNotifs.map((notif) => notif.id));
-            const newNotifs = enrichedData.filter((notif) => !uniqueNotifs.has(notif.id));
+            const newNotifs = data.filter((notif) => !uniqueNotifs.has(notif.id));
             return [...prevNotifs, ...newNotifs];
         });
     };

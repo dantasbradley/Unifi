@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 export interface Event {
   id: string;
   date: string,
   time: string,
-  datetime: string; // Combined date and time
+  datetime: string;
   location: string;
   title: string;
   description: string;
   attendees: number;
+  clubName: string;
+  clubImageUrl: string;
 }
 
 
@@ -28,6 +30,12 @@ const EventCard: React.FC<EventCardProps> = ({ event, onDelete }) => {
 
   return (
     <View style={styles.eventContainer}>
+      {event.clubImageUrl ? (
+          <Image source={{ uri: event.clubImageUrl }} style={styles.communityImage} />
+      ) : (
+          <Text>...</Text>
+      )}
+      <Text style={styles.eventTitle}>{event.clubName}</Text>
       <View style={styles.eventHeader}>
         <Text style={styles.eventDate}>
           {event.datetime} 
@@ -63,6 +71,12 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     marginBottom: 10,
+  },
+  communityImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 15,
+    marginRight: 10,
   },
   eventHeader: {
     flexDirection: "row",

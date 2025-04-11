@@ -26,7 +26,7 @@ const Sidebar = () => {
   const translateX = new Animated.Value(isSidebarOpen ? 0 : -sidebarWidth);
   const [filter, setFilter] = useState("admin");
 
-  const imageUrl = "https://via.placeholder.com/50"; // Placeholder image URL
+  // const imageUrl = "https://via.placeholder.com/50"; // Placeholder image URL
 
   const [newCommunityName, setNewCommunityName] = useState("");
   const [newCommunityLocation, setNewCommunityLocation] = useState("");
@@ -75,10 +75,6 @@ const Sidebar = () => {
     }
   }, [filter, communities, adminCommunities, joinedCommunities]);
 
-  // useEffect(() => {
-  //   console.log("Displayed clubs updated:", displayedClubs);
-  // }, [displayedClubs]);
-
   return (
     <>
       {isSidebarOpen && (
@@ -123,18 +119,6 @@ const Sidebar = () => {
           )}
 
           {/* Club List */}
-          {/* {displayedClubs.map((community) => (
-            <CommunityCard 
-              key={community.id} 
-              community={community} 
-              onPress={() => {
-                closeSidebar();
-                router.push({
-                pathname: "/tabs/ExploreScreen/CommunityDetails",
-                params: { id: community.id, name: community.name, isAdmin: adminCommunities.has(community.id.toString()), startTab: "Bio" },
-              }); }}
-            />
-          ))} */}
           <FlatList
             key={refreshKey}
             data={displayedClubs}
@@ -166,9 +150,6 @@ const Sidebar = () => {
             onChangeLocation={setNewCommunityLocation}
             onCreate={addNewCommunity}
           />
-          {/* <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-            <Ionicons name="add" size={32} color="black" />
-          </TouchableOpacity> */}
         </View>
       </Animated.View>
     </>
@@ -187,18 +168,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000",
     padding: 15,
-  },
-  addButton: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    backgroundColor: "#fff",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 5,
   },
   regularAddButton: {
     backgroundColor: "#fff",
@@ -269,47 +238,6 @@ const styles = StyleSheet.create({
   },
   activeFilterText: {  // New style for active filter text
     color: "black",
-  },
-  cardContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#222",
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 10,
-  },
-  adminBadge: {
-    backgroundColor: "#FFD700",  // Gold color
-    color: "#000",
-    padding: 5,
-    borderRadius: 5,
-    fontWeight: "bold",
-    marginTop: 5,
-  },
-  joinButton: {
-    backgroundColor: "#3b82f6",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  joinButtonText: {
-    color: "white",
-    fontSize: 16,
-  },
-  infoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  communityImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 15,
-    marginRight: 10,
-  },
-  textContainer: {
-    flex: 1,
-    justifyContent: "center",
   },
   communityName: {
     color: "#fff",
