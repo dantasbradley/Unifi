@@ -5,11 +5,13 @@ import { Ionicons } from "@expo/vector-icons";
 export interface Post {
   id: string;
   title: string;
-  time: string;
+  time: string; // original timestamp, used for sorting
+  timeFormatted: string; // user-friendly string
   content: string;
   likes: number;
   comments: number;
 }
+
 
 interface PostCardProps {
   post: Post;
@@ -22,7 +24,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike }) => {
     <View style={styles.postContainer}>
       <View style={styles.postHeader}>
         <Text style={styles.postTitle}>{post.title}</Text>
-        <Text style={styles.postTime}>{post.time}</Text>
+        <Text style={styles.postTime}>{post.timeFormatted}</Text>
       </View>
       <Text style={styles.postContent}>{post.content}</Text>
       <View style={styles.postActions}>

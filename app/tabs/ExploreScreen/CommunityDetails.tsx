@@ -114,54 +114,67 @@ export default function CommunityDetailsScreen() {
   // Community posts state
   const handleCreateEvent = async () => {
     if (!newEventTitle || !newEventDate || !newEventTime || !newEventLocation || !newEventDescription) {
-        Alert.alert("Error", "All fields are required to create an event.");
-        return;
+      Alert.alert("Error", "All fields are required to create an event.");
+      return;
     }
-
+  
+    console.log("🗓️ Creating Event With:");
+    console.log("   • Title:", newEventTitle);
+    console.log("   • Date:", newEventDate);
+    console.log("   • Time:", newEventTime);
+    console.log("   • Location:", newEventLocation);
+    console.log("   • Description:", newEventDescription);
+  
     try {
-        const response = await fetch("http://3.85.25.255:3000/DB/events/add", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                title: newEventTitle,
-                date: newEventDate,
-                time: newEventTime,
-                location: newEventLocation,
-                description: newEventDescription,
-                club_id: id, // Assuming 'id' is the club's ID
-            }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            const newEvent: Event = {
-                id: data.id.toString(),
-                date: newEventDate,
-                time: newEventTime,
-                location: newEventLocation,
-                title: newEventTitle,
-                description: newEventDescription,
-                attendees: 0,
-            };
-
-            setEvents([...events, newEvent]);
-            setEventModalVisible(false);
-            setNewEventTitle("");
-            setNewEventDate("");
-            setNewEventTime("");
-            setNewEventLocation("");
-            setNewEventDescription("");
-            const datetime = formatEventDateTime(newEventDate, newEventTime);
-            handleCreateNotification(datetime, "New Event");
-        } else {
-            Alert.alert("Error", data.message || "Failed to create event.");
-        }
+      const response = await fetch("http://3.85.25.255:3000/DB/events/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newEventTitle,
+          date: newEventDate,
+          time: newEventTime,
+          location: newEventLocation,
+          description: newEventDescription,
+          club_id: id,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        const newEvent: Event = {
+          id: data.id.toString(),
+          date: newEventDate,
+          time: newEventTime,
+          location: newEventLocation,
+          title: newEventTitle,
+          description: newEventDescription,
+          attendees: 0,
+        };
+  
+        console.log("✅ Event successfully created with ID:", data.id);
+        console.log("📅 Final Stored Date:", newEvent.date);
+        console.log("⏰ Final Stored Time:", newEvent.time);
+  
+        setEvents([...events, newEvent]);
+        setEventModalVisible(false);
+        setNewEventTitle("");
+        setNewEventDate("");
+        setNewEventTime("");
+        setNewEventLocation("");
+        setNewEventDescription("");
+  
+        const datetime = formatEventDateTime(newEventDate, newEventTime);
+        handleCreateNotification(datetime, "New Event");
+      } else {
+        Alert.alert("Error", data.message || "Failed to create event.");
+      }
     } catch (error) {
-        console.error("Error creating event:", error);
-        Alert.alert("Error", "Could not connect to server.");
+      console.error("❌ Error creating event:", error);
+      Alert.alert("Error", "Could not connect to server.");
     }
   };
+  
 
   // Return white color if tab is active, else gray
   const handleCreatePost = async () => {
@@ -208,30 +221,41 @@ export default function CommunityDetailsScreen() {
   };
 
   const formatEventDateTime = (dateStr, timeStr) => {
-    const date = new Date(dateStr);
+    console.log("🕓 Original Inputs => Date:", dateStr, "| Time:", timeStr);
+  
+    // Parse the time string (e.g. "16:30")
     let [hours, minutes] = timeStr.split(':').map(Number);
-
-    // Create a new date object combining the date and the time to adjust for time zone
-    const dateTime = new Date(date);
-    dateTime.setHours(hours);
-    dateTime.setMinutes(minutes);
-
-    // Get timezone offset in hours and adjust hours accordingly
-    const timeZoneOffsetInHours = dateTime.getTimezoneOffset() / 60;
-    dateTime.setHours(dateTime.getHours() - timeZoneOffsetInHours);
-
-    // Convert 24-hour time to 12-hour format with AM or PM
-    hours = dateTime.getHours();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    minutes = dateTime.getMinutes().toString().padStart(2, '0');
-
+    console.log("🔍 Parsed Time => Hours:", hours, "| Minutes:", minutes);
+  
+    // Create a new Date object from the date string
+    const dateParts = dateStr.split('-').length === 3 ? dateStr.split('-') : dateStr.split('/');
+    const [year, month, day] = dateParts.length === 3 && dateParts[0].length === 4
+      ? [parseInt(dateParts[0]), parseInt(dateParts[1]), parseInt(dateParts[2])]
+      : [parseInt(dateParts[2]), parseInt(dateParts[0]), parseInt(dateParts[1])];
+  
+    const dateTime = new Date(year, month - 1, day, hours, minutes);
+    console.log("📆 Combined DateTime (before -4h):", dateTime.toString());
+  
+    // Subtract 4 hours
+    dateTime.setHours(dateTime.getHours() - 4);
+    console.log("⏪ Adjusted DateTime (-4 hours):", dateTime.toString());
+  
+    // Convert to 12-hour format
+    const displayHours = dateTime.getHours();
+    const ampm = displayHours >= 12 ? 'PM' : 'AM';
+    const formattedHours = displayHours % 12 || 12;
+    const formattedMinutes = dateTime.getMinutes().toString().padStart(2, '0');
+  
     const formattedDate = `${dateTime.getMonth() + 1}/${dateTime.getDate()}/${dateTime.getFullYear().toString().slice(-2)}`;
-    const formattedTime = `${hours}:${minutes} ${ampm}`;
-
-    return `${formattedDate} @ ${formattedTime}`;
+    const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
+    const finalString = `${formattedDate} @ ${formattedTime}`;
+  
+    console.log("✅ Final Formatted DateTime:", finalString);
+    return finalString;
   };
+  
+  
+  
 
 
 
@@ -543,16 +567,54 @@ export default function CommunityDetailsScreen() {
               data={events}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <EventCard event={{
-                  id: item.id,
-                  datetime: formatEventDateTime(item.date, item.time), // Ensure this is calculated before passing
-                  location: item.location,
-                  title: item.title,
-                  description: item.description,
-                  attendees: item.attendees
-                }} />
-                
-            )}
+                <EventCard
+                  event={{
+                    id: item.id,
+                    datetime: formatEventDateTime(item.date, item.time),
+                    location: item.location,
+                    title: item.title,
+                    description: item.description,
+                    attendees: item.attendees,
+                    date: item.date,
+                    time: item.time,
+                  }}
+                  onDelete={
+                    isAdmin === "true"
+                      ? () => {
+                          Alert.alert(
+                            "Delete Event",
+                            `Are you sure you want to delete "${item.title}"?`,
+                            [
+                              { text: "Cancel", style: "cancel" },
+                              {
+                                text: "Delete",
+                                style: "destructive",
+                                onPress: async () => {
+                                  try {
+                                    const response = await fetch(`http://3.85.25.255:3000/DB/events/delete/${item.id}`, {
+                                      method: 'DELETE',
+                                    });
+                                    const result = await response.json();
+                                    if (response.ok) {
+                                      setEvents((prevEvents) => prevEvents.filter((e) => e.id !== item.id));
+                                      Alert.alert("Deleted", "Event successfully deleted.");
+                                    } else {
+                                      Alert.alert("Error", result.message || "Failed to delete event.");
+                                    }
+                                  } catch (err) {
+                                    console.error("Delete error:", err);
+                                    Alert.alert("Error", "Could not connect to server.");
+                                  }
+                                }
+                              }
+                            ]
+                          );
+                        }
+                      : undefined
+                  }
+                />
+              )}              
+            
               style={{ marginTop: 10 }}
             />
 

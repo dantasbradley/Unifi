@@ -333,10 +333,22 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       const data = await response.json();
       if (!response.ok) throw new Error("Failed to fetch posts");
       console.log("Posts fetched for club:", clubId, data);
+      console.log("📦 Raw post data from backend:", data);
       const formattedPosts = data.map((post: any) => {
-        post.time = formatDistanceToNow(new Date(post.time), { addSuffix: true })
-        return post;
+        const parsedTime = new Date(post.time);
+        console.log("⏰ Parsed time:", post.time, "=>", parsedTime.toString());
+      
+        return {
+          ...post,
+          timeFormatted: !isNaN(parsedTime.getTime())
+            ? formatDistanceToNow(parsedTime, { addSuffix: true })
+            : "Unknown time",
+        };
       });
+      
+      
+      
+      
       return formattedPosts;
     } catch (error) {
       console.error("Error fetching posts for club:", error);

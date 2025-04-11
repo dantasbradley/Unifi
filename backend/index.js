@@ -420,12 +420,24 @@ app.post('/DB/clubs/add', (req, res) => {
 // === Add Event ===
 app.post('/DB/events/add', (req, res) => {
     const { title, date, time, location, description, club_id } = req.body;
-    console.log('=== /DB/events/add =input=', { title, date, time, location, description, club_id });
+
+    console.log('=== 📥 /DB/events/add =input=');
+    console.log('   • Title:', title);
+    console.log('   • Date:', date);
+    console.log('   • Time:', time);
+    console.log('   • Location:', location);
+    console.log('   • Description:', description);
+    console.log('   • Club ID:', club_id);
+
     if (!validateFields({ title, date, time, location, description, club_id }, res)) return;
 
     const query = 'INSERT INTO test.events (title, date, time, location, description, club_id) VALUES (?, ?, ?, ?, ?, ?)';
+    
+    console.log('📦 Inserting event into database...');
+    
     handleInsert(res, query, [title, date, time, location, description, club_id], 'Event added successfully');
 });
+
 // === Add Post ===
 app.post('/DB/posts/add', (req, res) => {
     const { title, content, filePath, club_id } = req.body;
@@ -639,6 +651,35 @@ app.delete('/DB/clubs/delete/:club_id', async (req, res) => {
         res.status(500).json({ message: 'Failed to delete club and related data.', error });
     }
 });
+
+app.delete('/DB/events/delete/:event_id', async (req, res) => {
+    const { event_id } = req.params;
+
+    if (!event_id) {
+        return res.status(400).json({ message: 'Event ID is required.' });
+    }
+
+    try {
+        const query = 'DELETE FROM test.events WHERE id = ?';
+        pool.query(query, [event_id], (err, result) => {
+            if (err) {
+                console.error('Error deleting event:', err);
+                return res.status(500).json({ message: 'Database error', error: err });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ message: 'No event found with the provided ID.' });
+            }
+
+            console.log(`Event with ID ${event_id} deleted.`);
+            res.json({ message: 'Event deleted successfully', event_id });
+        });
+    } catch (error) {
+        console.error('Error during event deletion:', error);
+        res.status(500).json({ message: 'Failed to delete event.', error });
+    }
+});
+
 
 
 app.get('/likes/count/:post_id', (req, res) => {
