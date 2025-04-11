@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, ImageSourcePropType} from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, RefreshControl } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
@@ -54,6 +54,9 @@ export default function CommunityDetailsScreen() {
   const communitiesContext = useContext(CommunitiesContext);
 
   const [activeTab, setActiveTab] = useState<"Bio" | "Events" | "Community">("Bio");
+  const [refreshingEvents, setRefreshingEvents] = useState(false);
+  const [refreshingPosts, setRefreshingPosts] = useState(false);
+
 
   // State for Bio editing
   const [editMode, setEditMode] = useState(false);
@@ -348,8 +351,37 @@ export default function CommunityDetailsScreen() {
 
   const handleFetchEventsForClub = async (clubId: any) => {
     const data = await fetchEventsForClub(clubId);
-    setEvents(data);
+    
+    // Sort events by datetime (newest first)
+    const sortedEvents = [...data].sort((a, b) => {
+      const aDateTime = new Date(`${a.date}T${a.time}`);
+      const bDateTime = new Date(`${b.date}T${b.time}`);
+      return bDateTime.getTime() - aDateTime.getTime(); // Newest first
+    });
+  
+    setEvents(sortedEvents);
   };
+  
+  const handleRefreshEvents = async () => {
+    setRefreshingEvents(true);
+    try {
+      await handleFetchEventsForClub(id);
+    } catch (error) {
+      console.error("Error refreshing events:", error);
+    }
+    setRefreshingEvents(false);
+  };
+  
+  const handleRefreshPosts = async () => {
+    setRefreshingPosts(true);
+    try {
+      await handleFetchPostsForClub(id);
+    } catch (error) {
+      console.error("Error refreshing posts:", error);
+    }
+    setRefreshingPosts(false);
+  };
+  
 
 
   //image functions
@@ -558,59 +590,62 @@ export default function CommunityDetailsScreen() {
         {activeTab === "Events" && (
           <View style={{ flex: 1 }}>
             <FlatList
-              data={events}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <EventCard
-                  event={{
-                    id: item.id,
-                    datetime: formatEventDateTime(item.date, item.time),
-                    location: item.location,
-                    title: item.title,
-                    description: item.description,
-                    attendees: item.attendees,
-                    date: item.date,
-                    time: item.time,
-                  }}
-                  onDelete={
-                    isAdmin === "true"
-                      ? () => {
-                          Alert.alert(
-                            "Delete Event",
-                            `Are you sure you want to delete "${item.title}"?`,
-                            [
-                              { text: "Cancel", style: "cancel" },
-                              {
-                                text: "Delete",
-                                style: "destructive",
-                                onPress: async () => {
-                                  try {
-                                    const response = await fetch(`http://3.85.25.255:3000/DB/events/delete/${item.id}`, {
-                                      method: 'DELETE',
-                                    });
-                                    const result = await response.json();
-                                    if (response.ok) {
-                                      setEvents((prevEvents) => prevEvents.filter((e) => e.id !== item.id));
-                                      Alert.alert("Deleted", "Event successfully deleted.");
-                                    } else {
-                                      Alert.alert("Error", result.message || "Failed to delete event.");
-                                    }
-                                  } catch (err) {
-                                    console.error("Delete error:", err);
-                                    Alert.alert("Error", "Could not connect to server.");
-                                  }
+          data={events}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <EventCard
+              event={{
+                id: item.id,
+                datetime: formatEventDateTime(item.date, item.time),
+                location: item.location,
+                title: item.title,
+                description: item.description,
+                attendees: item.attendees,
+                date: item.date,
+                time: item.time,
+              }}
+              onDelete={
+                isAdmin === "true"
+                  ? () => {
+                      Alert.alert(
+                        "Delete Event",
+                        `Are you sure you want to delete "${item.title}"?`,
+                        [
+                          { text: "Cancel", style: "cancel" },
+                          {
+                            text: "Delete",
+                            style: "destructive",
+                            onPress: async () => {
+                              try {
+                                const response = await fetch(`http://3.85.25.255:3000/DB/events/delete/${item.id}`, {
+                                  method: 'DELETE',
+                                });
+                                const result = await response.json();
+                                if (response.ok) {
+                                  setEvents((prevEvents) => prevEvents.filter((e) => e.id !== item.id));
+                                  Alert.alert("Deleted", "Event successfully deleted.");
+                                } else {
+                                  Alert.alert("Error", result.message || "Failed to delete event.");
                                 }
+                              } catch (err) {
+                                console.error("Delete error:", err);
+                                Alert.alert("Error", "Could not connect to server.");
                               }
-                            ]
-                          );
-                        }
-                      : undefined
-                  }
-                />
-              )}              
-            
-              style={{ marginTop: 10 }}
+                            }
+                          }
+                        ]
+                      );
+                    }
+                  : undefined
+              }
             />
+          )}
+          style={{ marginTop: 10 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshingEvents} onRefresh={handleRefreshEvents} />
+          }
+        />
+
 
             <AddEventModal
               visible={eventModalVisible}
@@ -642,12 +677,15 @@ export default function CommunityDetailsScreen() {
 
         {activeTab === "Community" && (
           <View style={{ flex: 1 }}>
-            <FlatList
-              data={communityPosts}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => <PostCard post={item} />}
-              style={{ marginTop: 10 }}
-            />
+          <FlatList
+            data={communityPosts}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <PostCard post={item} />}
+            style={{ marginTop: 10 }}
+            refreshControl={
+              <RefreshControl refreshing={refreshingPosts} onRefresh={handleRefreshPosts} />
+            }
+          />
             <AddPostModal
               visible={postModalVisible}
               onClose={() => setPostModalVisible(false)}
