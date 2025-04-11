@@ -573,6 +573,9 @@ export default function CommunityDetailsScreen() {
         );
         setEditEventModalVisible(false);
         Alert.alert("Success", "Event updated successfully.");
+        const formattedDateTime = formatEventDateTime(updatedDate, updatedTime);
+        const updateMessage = `📆 Updated: ${updatedTitle} – ${formattedDateTime}`;
+        handleCreateNotification(updateMessage, "Event Updated");
       } else {
         Alert.alert("Error", data.message || "Failed to update event.");
       }
@@ -774,15 +777,19 @@ export default function CommunityDetailsScreen() {
                 );
               } : undefined}
           
-              onEdit={isAdmin === "true" ? () => {
-                setSelectedEventId(item.id);
-                setEditEventTitle(item.title);
-                setEditEventDate(item.date);
-                setEditEventTime(item.time);
-                setEditEventLocation(item.location);
-                setEditEventDescription(item.description);
-                setEditEventModalVisible(true);
-              } : undefined}
+              onEdit={
+                isAdmin === "true"
+                  ? () => {
+                      setSelectedEventId(item.id);
+                      setEditEventTitle(item.title);
+                      setEditEventDate(item.date);
+                      setEditEventTime(item.time);
+                      setEditEventLocation(item.location);
+                      setEditEventDescription(item.description);
+                      setEditEventModalVisible(true);
+                    }
+                  : undefined
+              }              
             />
           )}
           
@@ -821,17 +828,20 @@ export default function CommunityDetailsScreen() {
               onChangeLocation={setEditEventLocation}
               newEventDescription={editEventDescription}
               onChangeDescription={setEditEventDescription}
-              onSubmit={() =>
-                handleEditEvent(
-                  selectedEventId,
-                  editEventTitle,
-                  editEventDate,
-                  editEventTime,
-                  editEventLocation,
-                  editEventDescription
-                )
-              }
+              onCreate={() => {
+                if (selectedEventId) {
+                  handleEditEvent(
+                    selectedEventId,
+                    editEventTitle,
+                    editEventDate,
+                    editEventTime,
+                    editEventLocation,
+                    editEventDescription
+                  );
+                }
+              }}
             />
+
 
 
             {/* Plus button to add event */}

@@ -18,9 +18,10 @@ export interface Event {
 interface EventCardProps {
   event: Event;
   onDelete?: () => void;
+  onEdit?: () => void;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, onDelete }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, onDelete, onEdit }) => {
   const [isAttending, setIsAttending] = useState(false);
 
   const handleAttend = () => {
@@ -73,7 +74,13 @@ const EventCard: React.FC<EventCardProps> = ({ event, onDelete }) => {
             <Text style={styles.deleteText}>Delete</Text>
           </TouchableOpacity>
         )}
+
       </View>
+      {onEdit && (
+          <TouchableOpacity style={styles.editButton} onPress={onEdit}>
+            <Ionicons name="create-outline" size={20} color="#fff" />
+          </TouchableOpacity>
+        )}
     </View>
   );
 };
@@ -173,6 +180,14 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
+  editButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "#333",
+    padding: 6,
+    borderRadius: 6,
+  }  
 });
 
 export default EventCard;
