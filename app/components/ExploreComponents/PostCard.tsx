@@ -13,9 +13,11 @@ export interface Post {
 
 interface PostCardProps {
   post: Post;
+  isLiked: boolean;
+  onToggleLike: () => void;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike }) => {
   return (
     <View style={styles.postContainer}>
       <View style={styles.postHeader}>
@@ -24,17 +26,9 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       </View>
       <Text style={styles.postContent}>{post.content}</Text>
       <View style={styles.postActions}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="heart-outline" size={20} color="#fff" />
+        <TouchableOpacity style={styles.actionButton} onPress={() => onToggleLike()}>
+          <Ionicons name={isLiked ? "heart" : "heart-outline"} size={20} color={isLiked ? "white" : "#fff"} />
           <Text style={styles.actionText}>{post.likes}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="chatbubble-outline" size={20} color="#fff" />
-          <Text style={styles.actionText}>{post.comments}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="share-social-outline" size={20} color="#fff" />
-          <Text style={styles.actionText}>Share</Text>
         </TouchableOpacity>
       </View>
     </View>
