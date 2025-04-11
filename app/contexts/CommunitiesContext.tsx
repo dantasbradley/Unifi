@@ -432,7 +432,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       const clubImageUrl = await fetchClubImage(`club_profile_pics/${clubId}_${clubName}`);
 
       const formattedPosts = data.map((post: any) => {
-        const parsedTime = new Date(post.time);
+        const parsedTime = new Date(post.created_at);
         // console.log("⏰ Parsed time:", post.time, "=>", parsedTime.toString());
       
         return {
@@ -479,7 +479,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
   };
 
   const fetchClubImage = async (filePath : any) => {
-    const defaultPath = `user_profile_pics/default`;
+    const defaultPath = `club_profile_pics/default`;
     try {
     const response = await fetch(
         `http://3.85.25.255:3000/S3/get/image?filePath=${encodeURIComponent(filePath)}&defaultPath=${encodeURIComponent(defaultPath)}`

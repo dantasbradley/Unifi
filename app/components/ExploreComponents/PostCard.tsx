@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 export interface Post {
   id: string;
   title: string;
-  time: string;
+  created_at: string;
   timeFormatted: string;
   content: string;
   likes: number;
