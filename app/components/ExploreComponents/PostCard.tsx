@@ -20,9 +20,10 @@ interface PostCardProps {
   isLiked: boolean;
   onToggleLike: () => void;
   onDelete?: () => void;
+  onEdit?: () => void;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike, onDelete }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike, onDelete, onEdit }) => {
   return (
     <View style={styles.postContainer}>
       {post.clubImageUrl ? (
@@ -36,21 +37,30 @@ const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike, onDele
         <Text style={styles.postTime}>{post.timeFormatted}</Text>
       </View>
       <Text style={styles.postContent}>{post.content}</Text>
+
       <View style={styles.postActions}>
-        <TouchableOpacity style={styles.actionButton} onPress={() => onToggleLike()}>
+        <TouchableOpacity style={styles.actionButton} onPress={onToggleLike}>
           <Ionicons name={isLiked ? "heart" : "heart-outline"} size={20} color={isLiked ? "white" : "#fff"} />
           <Text style={styles.actionText}>{post.likes}</Text>
         </TouchableOpacity>
-      </View>
 
-      {onDelete && (
-            <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
-              <Text style={styles.deleteButtonText}>Delete Event</Text>
-            </TouchableOpacity>
-      )}
+        {onEdit && (
+          <TouchableOpacity style={styles.editButton} onPress={onEdit}>
+            <Ionicons name="create-outline" size={20} color="#fff" />
+            <Text style={styles.actionText}>Edit</Text>
+          </TouchableOpacity>
+        )}
+
+        {onDelete && (
+          <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
+            <Text style={styles.deleteButtonText}>Delete</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   postContainer: {
@@ -112,6 +122,11 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: "#fff",
     fontWeight: "bold",
+  }  ,
+  editButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 10,
   }  
 });
 

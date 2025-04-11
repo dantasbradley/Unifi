@@ -681,6 +681,33 @@ app.delete('/DB/clubs/delete/:club_id', async (req, res) => {
     }
 });
 
+app.put('/DB/posts/update/:post_id', (req, res) => {
+    const { post_id } = req.params;
+    const { title, content } = req.body;
+
+    console.log('=== /DB/posts/update/:post_id =input=', { post_id, title, content });
+
+    if (!post_id || !title || !content) {
+        return res.status(400).json({ message: 'Post ID, title, and content are required.' });
+    }
+
+    const query = 'UPDATE test.posts SET title = ?, content = ? WHERE id = ?';
+    pool.query(query, [title, content, post_id], (err, results) => {
+        if (err) {
+            console.error('Error updating post:', err);
+            return res.status(500).json({ message: 'Database error', error: err });
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: 'No post found with the provided ID.' });
+        }
+
+        console.log(`Post with ID ${post_id} updated.`);
+        res.json({ message: 'Post updated successfully', post_id });
+    });
+});
+
+
 app.delete('/DB/events/delete/:event_id', async (req, res) => {
     const { event_id } = req.params;
 

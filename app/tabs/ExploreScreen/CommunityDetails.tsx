@@ -8,6 +8,7 @@ import PostCard, { Post } from "../../components/ExploreComponents/PostCard";
 import AddEventModal from "../../components/ExploreComponents/AddEventModal";
 import AddPostModal from "../../components/ExploreComponents/AddPostModal";
 import EditToggleButton from "../../components/ExploreComponents/EditToggleButton";
+import ModifyPostModal from "../../components/ExploreComponents/ModifyPostModal";
 import { CommunitiesContext } from "../../contexts/CommunitiesContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from "@react-navigation/native";
@@ -88,6 +89,12 @@ export default function CommunityDetailsScreen() {
   const [postModalVisible, setPostModalVisible] = useState(false);
   const [newPostName, setNewPostName] = useState("");
   const [newPostContent, setNewPostContent] = useState("");
+
+  const [editPostModalVisible, setEditPostModalVisible] = useState(false);
+  const [editPostTitle, setEditPostTitle] = useState("");
+  const [editPostContent, setEditPostContent] = useState("");
+  const [selectedPostId, setSelectedPostId] = useState(null);
+
 
 
   const handleCreateNotification = async (newTitle : any, newType : any) => {
@@ -476,6 +483,53 @@ export default function CommunityDetailsScreen() {
       ]
     );
   };
+
+  const handleEditPost = async (postId, updatedTitle, updatedContent) => {
+    console.log("Attempting to edit post...");
+    console.log("   • postId:", postId);
+    console.log("   • updatedTitle:", updatedTitle);
+    console.log("   • updatedContent:", updatedContent);
+  
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/posts/update/${postId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: updatedTitle,
+          content: updatedContent,
+        }),
+      });
+  
+      const raw = await response.text(); // get raw string first
+      console.log("📥 Raw response text:", raw);
+  
+      let data;
+      try {
+        data = JSON.parse(raw); // try parsing JSON
+      } catch (err) {
+        console.error("❌ JSON parsing failed:", err);
+        throw new Error("Invalid JSON response from server.");
+      }
+  
+      if (response.ok) {
+        setCommunityPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === postId ? { ...post, title: updatedTitle, content: updatedContent } : post
+          )
+        );
+        setEditPostModalVisible(false);
+        Alert.alert("Success", "Post updated successfully.");
+      } else {
+        Alert.alert("Error", data.message || "Failed to update post.");
+      }
+    } catch (error) {
+      console.error("🔥 Error editing post:", error);
+      Alert.alert("Error", "Could not connect to server.");
+    }
+  };
+  
+  
+  
   
 
   return (
@@ -735,7 +789,18 @@ export default function CommunityDetailsScreen() {
                     isLiked={likedPosts.has(item.id)}
                     onToggleLike={() => toggleLikePost(item.id)}
                     onDelete={isAdmin === "true" ? () => handleDeletePost(item.id) : undefined}
+                    onEdit={
+                      isAdmin === "true"
+                        ? () => {
+                            setSelectedPostId(item.id);
+                            setEditPostTitle(item.title);
+                            setEditPostContent(item.content);
+                            setEditPostModalVisible(true);
+                          }
+                        : undefined
+                    }
                   />
+
                 </View>
                 
               )}
@@ -753,6 +818,20 @@ export default function CommunityDetailsScreen() {
               newPostContent={newPostContent}
               onChangeContent={setNewPostContent}
               onCreate={handleCreatePost}
+            />
+            <ModifyPostModal
+                visible={editPostModalVisible}
+                onClose={() => setEditPostModalVisible(false)}
+                newPostName={editPostTitle}
+                onChangeName={setEditPostTitle}
+                newPostContent={editPostContent}
+                onChangeContent={setEditPostContent}
+                onSubmit={() => {
+                  if (selectedPostId) {
+                    handleEditPost(selectedPostId, editPostTitle, editPostContent);
+                  }
+                }}
+                isEdit={true}
             />
 
             {/* Plus button to add post */}
