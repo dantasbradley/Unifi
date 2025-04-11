@@ -232,21 +232,26 @@ export default function CommunityDetailsScreen() {
       : [parseInt(dateParts[2]), parseInt(dateParts[0]), parseInt(dateParts[1])];
   
     const dateTime = new Date(year, month - 1, day, hours, minutes);
-    console.log("📆 Combined DateTime (no timezone shift):", dateTime.toString());
+    console.log("📆 Combined DateTime (before -4h):", dateTime.toString());
+  
+    // Subtract 4 hours
+    dateTime.setHours(dateTime.getHours() - 4);
+    console.log("⏪ Adjusted DateTime (-4 hours):", dateTime.toString());
   
     // Convert to 12-hour format
     const displayHours = dateTime.getHours();
     const ampm = displayHours >= 12 ? 'PM' : 'AM';
-    const formattedHours = displayHours % 12 || 12; // Convert 0 to 12
+    const formattedHours = displayHours % 12 || 12;
     const formattedMinutes = dateTime.getMinutes().toString().padStart(2, '0');
   
-    const formattedDate = `${month}/${day}/${year.toString().slice(-2)}`;
+    const formattedDate = `${dateTime.getMonth() + 1}/${dateTime.getDate()}/${dateTime.getFullYear().toString().slice(-2)}`;
     const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
     const finalString = `${formattedDate} @ ${formattedTime}`;
   
     console.log("✅ Final Formatted DateTime:", finalString);
     return finalString;
   };
+  
   
   
 
