@@ -667,6 +667,9 @@ export default function CommunityDetailsScreen() {
                                 if (response.ok) {
                                   setEvents((prevEvents) => prevEvents.filter((e) => e.id !== item.id));
                                   Alert.alert("Deleted", "Event successfully deleted.");
+                            
+                                  // 🔔 Add this line to trigger the notification
+                                  handleCreateNotification(item.title, "Event Deleted");
                                 } else {
                                   Alert.alert("Error", result.message || "Failed to delete event.");
                                 }
@@ -675,6 +678,7 @@ export default function CommunityDetailsScreen() {
                                 Alert.alert("Error", "Could not connect to server.");
                               }
                             }
+                            
                           }
                         ]
                       );
@@ -732,9 +736,13 @@ export default function CommunityDetailsScreen() {
                     onDelete={isAdmin === "true" ? () => handleDeletePost(item.id) : undefined}
                   />
                 </View>
+                
               )}
               
               style={{ marginTop: 10 }}
+              refreshControl={
+                <RefreshControl refreshing={refreshingPosts} onRefresh={handleRefreshPosts} />
+              }
             />
             <AddPostModal
               visible={postModalVisible}
