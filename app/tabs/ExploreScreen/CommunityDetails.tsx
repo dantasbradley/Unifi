@@ -732,9 +732,13 @@ export default function CommunityDetailsScreen() {
                     onDelete={isAdmin === "true" ? () => handleDeletePost(item.id) : undefined}
                   />
                 </View>
+                
               )}
               
               style={{ marginTop: 10 }}
+              refreshControl={
+                <RefreshControl refreshing={refreshingPosts} onRefresh={handleRefreshPosts} />
+              }
             />
             <AddPostModal
               visible={postModalVisible}
@@ -755,10 +759,6 @@ export default function CommunityDetailsScreen() {
             {/* <TouchableOpacity style={styles.addButton} onPress={() => setPostModalVisible(true)}>
               <Ionicons name="add" size={32} color="black" />
             </TouchableOpacity> */}
-
-            refreshControl={
-            <RefreshControl refreshing={refreshingPosts} onRefresh={handleRefreshPosts} />
-          }
           </View>
         )}
       </View>
