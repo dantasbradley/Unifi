@@ -371,6 +371,9 @@ export default function CommunityDetailsScreen() {
     handleFetchPostsForClub(id);
   }, [likedPosts]);
 
+  useEffect(() => {
+    handleFetchEventsForClub(id);
+  }, [attendingEvents]);
 
   const handleFetchPostsForClub = async (clubId: any) => {
     const data = await fetchPostsForClub(clubId);

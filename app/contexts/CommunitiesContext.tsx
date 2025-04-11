@@ -116,7 +116,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       const response = await fetch(`http://3.85.25.255:3000/DB/likes/get/user_id=${cognitoSub}`);
       const data = await response.json();
       if (data && Array.isArray(data)) {
-        const likedPosts = data.map((item: any) => String(item.post_id));
+        const likedPosts = data.map((item: any) => Number(item.post_id));
         console.log("posts liked:", likedPosts);
         setLikedPosts(new Set(likedPosts));
       } else {
@@ -133,7 +133,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       const response = await fetch(`http://3.85.25.255:3000/DB/attending/get/user_id=${cognitoSub}`);
       const data = await response.json();
       if (data && Array.isArray(data)) {
-        const attendingEvents = data.map((item: any) => String(item.event_id));
+        const attendingEvents = data.map((item: any) => Number(item.event_id));
         console.log("attending events:", attendingEvents);
         setAttendingEvents(new Set(attendingEvents));
       } else {
