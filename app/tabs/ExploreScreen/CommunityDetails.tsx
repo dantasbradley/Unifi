@@ -48,7 +48,9 @@ export default function CommunityDetailsScreen() {
 
   const {
     likedPosts = new Set(),
+    attendingEvents = new Set(),
     toggleLikePost = () => {},
+    toggleAttendEvent = () => {},
     fetchClubAttribute = () => {},
     updateClubAttribute = () => {},
     fetchPostsForClub = () => {},
@@ -745,6 +747,8 @@ export default function CommunityDetailsScreen() {
           renderItem={({ item }) => (
             <EventCard
               event={item}
+              isAttending={attendingEvents.has(item.id)}
+              onToggleAttend={() => toggleAttendEvent(item.id)}
               onDelete={isAdmin === "true" ? () => {
                 Alert.alert(
                   "Delete Event",

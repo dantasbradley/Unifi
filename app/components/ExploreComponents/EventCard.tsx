@@ -11,23 +11,20 @@ export interface Event {
   location: string;
   title: string;
   description: string;
-  attendees: number;
+  attending: number;
   clubName: string;
   clubImageUrl: string;
 }
 
 interface EventCardProps {
   event: Event;
+  isAttending: boolean;
+  onToggleAttend: () => void;
   onDelete?: () => void;
   onEdit?: () => void;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, onDelete, onEdit }) => {
-  const [isAttending, setIsAttending] = useState(false);
-
-  const handleAttend = () => {
-    setIsAttending((prev) => !prev);
-  };
+const EventCard: React.FC<EventCardProps> = ({ event, isAttending, onToggleAttend, onDelete, onEdit }) => {
 
   return (
     <View style={styles.card}>
@@ -53,7 +50,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onDelete, onEdit }) => {
 
       <View style={styles.metaRow}>
         <Ionicons name="people-outline" size={16} color="#aaa" />
-        <Text style={styles.metaText}>{event.attendees} attending</Text>
+        <Text style={styles.metaText}>{event.attending}</Text>
       </View>
 
       <View style={styles.metaRow}>
@@ -66,7 +63,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onDelete, onEdit }) => {
       <View style={styles.buttonRow}>
         <TouchableOpacity
           style={[styles.attendButton, isAttending && styles.attending]}
-          onPress={handleAttend}
+          onPress={onToggleAttend}
         >
           <Text style={[styles.attendText, isAttending && styles.attendingText]}>
             {isAttending ? "Attending" : "Attend"}

@@ -8,6 +8,7 @@ interface CommunitiesContextType {
   joinedCommunities: Set<string>;
   adminCommunities: Set<string>;
   likedPosts: Set<string>;
+  attendingEvents: Set<string>;
   setCommunities: React.Dispatch<React.SetStateAction<{ id: string; [key: string]: any }[]>>;
   setJoinedCommunities: React.Dispatch<React.SetStateAction<Set<string>>>;
   setAdminCommunities: React.Dispatch<React.SetStateAction<Set<string>>>;
@@ -16,6 +17,7 @@ interface CommunitiesContextType {
   fetchUserAttribute: (attributeName: string) => Promise<string | null>;
   toggleJoinCommunity: (id: string) => void;
   toggleLikePost: (id: string) => void;
+  toggleAttendEvent: (id: string) => void;
   updateUserAttribute: (attributeName: string, value: string) => Promise<boolean>;
   updateMembersCount: (id: string, changeInt: number) => Promise<void>;
   fetchClubAttribute: (clubId: string, attribute: string) => Promise<string | undefined>;
@@ -47,6 +49,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
     fetchFollowingClubs();
     fetchAdminClubs();
     fetchLikedPosts();
+    fetchAttendingEvents();
   }, []);
 
   const fetchCommunities = async () => {
@@ -425,10 +428,10 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
     let isAttending = newSet.has(eventID);
     if (isAttending) {
       newSet.delete(eventID);
-      await attendEvent(eventID);
+      await unattendEvent(eventID);
     } else {
       newSet.add(eventID);
-      await unattendEvent(eventID);
+      await attendEvent(eventID);
     }
     await updateAttendingNumber(eventID);
     setAttendingEvents(newSet);
@@ -603,6 +606,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         joinedCommunities,
         adminCommunities,
         likedPosts,
+        attendingEvents,
         setCommunities,
         setJoinedCommunities,
         setAdminCommunities,
@@ -611,6 +615,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         fetchUserAttribute,
         toggleJoinCommunity,
         toggleLikePost,
+        toggleAttendEvent,
         updateUserAttribute,
         updateMembersCount,
         fetchClubAttribute,
