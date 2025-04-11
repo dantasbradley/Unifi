@@ -45,6 +45,8 @@ export default function CommunityDetailsScreen() {
   const { id, name, isAdmin, startTab} = useLocalSearchParams();
 
   const {
+    likedPosts = new Set(),
+    toggleLikePost = () => {},
     fetchClubAttribute = () => {},
     updateClubAttribute = () => {},
     fetchPostsForClub = () => {},
@@ -322,7 +324,7 @@ export default function CommunityDetailsScreen() {
     loadClubAttribute(id, "description", setBioDescription, setOriginalBioDescription);
     loadClubAttribute(id, "email", setEmail, setOriginalEmail);
     loadClubAttribute(id, "instagram", setInsta, setOriginalInsta);
-    loadClubAttribute(id, "location", setLocation, setOriginalLocation);
+    loadClubAttribute(id, "location", setLocation, setOriginalLocation); 
   }, []);
   
   const loadClubAttribute = async (
@@ -339,9 +341,13 @@ export default function CommunityDetailsScreen() {
   };
 
   useEffect(() => {
-    handleFetchPostsForClub(id); // Fetch posts for the specific club
+    handleFetchPostsForClub(id);
     handleFetchEventsForClub(id);
-  }, []); // Dependency on 'id' to fetch posts when the club changes
+  }, []);
+
+  useEffect(() => {
+    handleFetchPostsForClub(id);
+  }, [likedPosts]);
 
 
   const handleFetchPostsForClub = async (clubId: any) => {
@@ -677,15 +683,18 @@ export default function CommunityDetailsScreen() {
 
         {activeTab === "Community" && (
           <View style={{ flex: 1 }}>
-          <FlatList
-            data={communityPosts}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <PostCard post={item} />}
-            style={{ marginTop: 10 }}
-            refreshControl={
-              <RefreshControl refreshing={refreshingPosts} onRefresh={handleRefreshPosts} />
-            }
-          />
+            <FlatList
+              data={communityPosts}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <PostCard
+                  post={item}
+                  isLiked={likedPosts.has(item.id)}
+                  onToggleLike={() => toggleLikePost(item.id)}
+                />
+              )}
+              style={{ marginTop: 10 }}
+            />
             <AddPostModal
               visible={postModalVisible}
               onClose={() => setPostModalVisible(false)}

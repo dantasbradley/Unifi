@@ -15,11 +15,11 @@ export interface Post {
 
 interface PostCardProps {
   post: Post;
-  onLike?: (post: Post) => void;
+  isLiked: boolean;
+  onToggleLike: () => void;
 }
 
-
-const PostCard: React.FC<PostCardProps> = ({ post, onLike }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike }) => {
   return (
     <View style={styles.postContainer}>
       <View style={styles.postHeader}>
@@ -28,12 +28,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike }) => {
       </View>
       <Text style={styles.postContent}>{post.content}</Text>
       <View style={styles.postActions}>
-      <TouchableOpacity style={styles.actionButton} onPress={() => onLike?.(post)}>
-          <Ionicons
-            name={post.isLikedByUser ? "heart" : "heart-outline"}
-            size={20}
-            color={post.isLikedByUser ? "#fff" : "#888"}
-          />
+        <TouchableOpacity style={styles.actionButton} onPress={() => onToggleLike()}>
+          <Ionicons name={isLiked ? "heart" : "heart-outline"} size={20} color={isLiked ? "white" : "#fff"} />
           <Text style={styles.actionText}>{post.likes}</Text>
         </TouchableOpacity>
       </View>

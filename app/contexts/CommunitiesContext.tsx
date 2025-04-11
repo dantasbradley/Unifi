@@ -7,6 +7,7 @@ interface CommunitiesContextType {
   communities: { id: string; [key: string]: any }[];
   joinedCommunities: Set<string>;
   adminCommunities: Set<string>;
+  likedPosts: Set<string>;
   setCommunities: React.Dispatch<React.SetStateAction<{ id: string; [key: string]: any }[]>>;
   setJoinedCommunities: React.Dispatch<React.SetStateAction<Set<string>>>;
   setAdminCommunities: React.Dispatch<React.SetStateAction<Set<string>>>;
@@ -14,6 +15,7 @@ interface CommunitiesContextType {
   fetchAdminClubs: () => Promise<void>;
   fetchUserAttribute: (attributeName: string) => Promise<string | null>;
   toggleJoinCommunity: (id: string) => void;
+  toggleLikePost: (id: string) => void;
   updateUserAttribute: (attributeName: string, value: string) => Promise<boolean>;
   updateMembersCount: (id: string, changeInt: number) => Promise<void>;
   fetchClubAttribute: (clubId: string, attribute: string) => Promise<string | undefined>;
@@ -35,12 +37,14 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
   const [communities, setCommunities] = useState<{ id: string; [key: string]: any }[]>([]);
   const [joinedCommunities, setJoinedCommunities] = useState<Set<string>>(new Set());
   const [adminCommunities, setAdminCommunities] = useState<Set<string>>(new Set());
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     console.log("useEffect context");
     fetchCommunities();
     fetchFollowingClubs();
     fetchAdminClubs();
+    fetchLikedPosts();
   }, []);
 
   const fetchCommunities = async () => {
@@ -92,6 +96,23 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
     }
   };
 
+  const fetchLikedPosts = async () => {
+    const cognitoSub = await AsyncStorage.getItem('cognitoSub');
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/likes/get/user_id=${cognitoSub}`);
+      const data = await response.json();
+      if (data && Array.isArray(data)) {
+        const likedPosts = data.map((item: any) => String(item.post_id));
+        console.log("posts liked:", likedPosts);
+        setLikedPosts(new Set(likedPosts));
+      } else {
+        setLikedPosts(new Set());
+      }
+    } catch (error) {
+      console.error("Error fetching post likers:", error);
+    }
+  };
+
   const fetchFollowersCount = async (clubId: string) => {
     try {
       const response = await fetch(`http://3.85.25.255:3000/DB/following/get/club_id=${clubId}`);
@@ -104,6 +125,22 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       }
     } catch (error) {
       console.error("Error fetching followers:", error);
+    }
+  };
+
+  const fetchLikersCount = async (postID: string) => {
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/likes/get/post_id=${postID}`);
+      const data = await response.json();
+      if (data && Array.isArray(data)) {
+        const likers = data.map((item: any) => String(item.user_id));
+        console.log("likers count:", likers.length);
+        return likers.length;
+      } else {
+        return 0;
+      }
+    } catch (error) {
+      console.error("Error fetching post likers:", error);
     }
   };
 
@@ -319,6 +356,79 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
     }
   };
 
+  const toggleLikePost = async (postID: string) => {
+    console.log("Toggling like for post ID:", postID);
+    const newSet = new Set(likedPosts);
+    let isLiked = newSet.has(postID);
+    if (isLiked) {
+      newSet.delete(postID);
+      await dislikePost(postID);
+    } else {
+      newSet.add(postID);
+      await likePost(postID);
+    }
+    await updatePostLikes(postID);
+    setLikedPosts(newSet);
+    console.log("End of toggle");
+  };
+
+  const likePost = async (postID: string) => {
+    const cognitoSub = await AsyncStorage.getItem('cognitoSub');
+    try {
+      const response = await fetch("http://3.85.25.255:3000/DB/likes/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: cognitoSub, post_id: postID }),
+      });
+      const result = await response.json();
+      if (result.error) {
+        throw new Error(result.message || "Unknown error");
+      }
+      console.log("likePost success: ", result);
+    } catch (error) {
+      console.error("Error liking post:", error);
+      Alert.alert("Error liking post. Please try again.");
+    }
+  };
+
+  const dislikePost = async (postID : any) => {
+    if (!postID) {
+      console.error("Post ID is required");
+      return;
+    }
+    const cognitoSub = await AsyncStorage.getItem('cognitoSub');
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/likes/delete/post_id=${postID}/user_id=${cognitoSub}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error("Failed to dislike");
+      console.log("Dislike success:", postID, data);
+    } catch (error) {
+      console.error("Error disliking:", error);
+      Alert.alert("Error", "Failed to dislike.");
+    }
+  };
+
+  const updatePostLikes = async (postID: string) => {
+    const newCount = await fetchLikersCount(postID);
+    try {
+      await fetch(`http://3.85.25.255:3000/DB/posts/update/attribute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: postID, attribute: "likes", value: newCount }),
+      });
+      console.log("Post likes updated successfully");
+    } catch (error) {
+      console.error("Error updating attribute:", error);
+    }
+  };
+
   const fetchEventsForClub = async (clubId: any) => {
     if (!clubId) {
       console.error("Club ID is required");
@@ -351,6 +461,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         communities,
         joinedCommunities,
         adminCommunities,
+        likedPosts,
         setCommunities,
         setJoinedCommunities,
         setAdminCommunities,
@@ -358,6 +469,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         fetchAdminClubs,
         fetchUserAttribute,
         toggleJoinCommunity,
+        toggleLikePost,
         updateUserAttribute,
         updateMembersCount,
         fetchClubAttribute,
