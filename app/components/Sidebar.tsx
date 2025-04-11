@@ -1,26 +1,62 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Platform, StatusBar, ScrollView, Image } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Platform, StatusBar, ScrollView, Image, FlatList, RefreshControl, Alert } from "react-native";
 import { useHamburger } from "./Hamburger";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommunitiesContext } from "../contexts/CommunitiesContext";
 import { useMemo } from "react";
 import CommunityItem from "../components/SidebarCommunity";
+import CommunityCard from "../components/ExploreComponents/CommunityCard";
 import { router } from "expo-router";
+import CreateCommunityModal from "./ExploreComponents/CreateCommunityModal";
 
 const Sidebar = () => {
 
   const {
     communities = [],
     joinedCommunities = new Set(),
-    adminCommunities = new Set()
+    adminCommunities = new Set(),
+    addCommunity = () => {},
+    toggleJoinCommunity = () => {},
+    fetchCommunities = () => {},
   } = useContext(CommunitiesContext) || {};
 
   const { isSidebarOpen, closeSidebar } = useHamburger();
   const sidebarWidth = 350;
   const translateX = new Animated.Value(isSidebarOpen ? 0 : -sidebarWidth);
   const [filter, setFilter] = useState("admin");
+
   const imageUrl = "https://via.placeholder.com/50"; // Placeholder image URL
+
+  const [newCommunityName, setNewCommunityName] = useState("");
+  const [newCommunityLocation, setNewCommunityLocation] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(Date.now());
+
+  // Function to refresh the community list
+  const handleRefresh = async () => {
+    console.log("refreshing page");
+    setRefreshing(true);
+    try {
+      await fetchCommunities(); // Fetch latest data
+      setRefreshKey(Date.now()); // 👈 Forces FlatList to refresh
+    } catch (error) {
+      console.error("Error refreshing communities:", error);
+    }
+    setRefreshing(false);
+  };
+
+  const addNewCommunity = async () => {
+    if (!newCommunityName.trim() || !newCommunityLocation.trim()) {
+      Alert.alert("Error", "Community name and location cannot be empty");
+      return;
+    }
+    addCommunity(newCommunityName, newCommunityLocation);
+    setNewCommunityName("");
+    setNewCommunityLocation("");
+    setModalVisible(false);
+  };
 
   useEffect(() => {
     // Trigger animation when sidebar state changes
@@ -30,10 +66,6 @@ const Sidebar = () => {
       useNativeDriver: true,
     }).start();
   }, [isSidebarOpen]);
-
-  const onPress = () => {
-    console.log("Community pressed");
-  };
 
   const displayedClubs = useMemo(() => {
     if (filter === "admin") {
@@ -54,7 +86,7 @@ const Sidebar = () => {
       )}
 
       <Animated.View style={[styles.sidebar, { transform: [{ translateX }] }]}>
-        <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        <View style={styles.container}>
           <View style={styles.headerRow}>
             <Text style={styles.title}>My Organizations</Text>
             <TouchableOpacity onPress={closeSidebar} style={styles.closeButton}>
@@ -80,9 +112,19 @@ const Sidebar = () => {
             </TouchableOpacity>
           </View>
 
+          {/* Conditionally Render Add Button */}
+          {filter === "admin" && (
+            <TouchableOpacity
+              style={styles.regularAddButton}
+              onPress={() => setModalVisible(true)}
+            >
+              <Text style={styles.regularAddButtonText}>+ Add Community</Text>
+            </TouchableOpacity>
+          )}
+
           {/* Club List */}
-          {displayedClubs.map((community) => (
-            <CommunityItem 
+          {/* {displayedClubs.map((community) => (
+            <CommunityCard 
               key={community.id} 
               community={community} 
               onPress={() => {
@@ -92,8 +134,42 @@ const Sidebar = () => {
                 params: { id: community.id, name: community.name, isAdmin: adminCommunities.has(community.id.toString()), startTab: "Bio" },
               }); }}
             />
-          ))}
-        </ScrollView>
+          ))} */}
+          <FlatList
+            key={refreshKey}
+            data={displayedClubs}
+            keyExtractor={item => item.id.toString()}
+            renderItem={({ item }) => (
+              <CommunityCard
+                community={item}
+                isJoined={joinedCommunities.has(item.id)}
+                isAdmin={adminCommunities.has(item.id.toString())}
+                onToggleJoin={() => toggleJoinCommunity(item.id)}
+                onPress={() => {
+                  closeSidebar();
+                  router.push({
+                  pathname: "/tabs/ExploreScreen/CommunityDetails",
+                  params: { id: item.id, name: item.name, isAdmin: adminCommunities.has(item.id.toString()), startTab: "Bio" },
+                }); }}
+              />
+            )}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+            }
+          />
+          <CreateCommunityModal
+            visible={modalVisible}
+            onClose={() => setModalVisible(false)}
+            newCommunityName={newCommunityName}
+            onChangeName={setNewCommunityName}
+            newCommunityLocation={newCommunityLocation}
+            onChangeLocation={setNewCommunityLocation}
+            onCreate={addNewCommunity}
+          />
+          {/* <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+            <Ionicons name="add" size={32} color="black" />
+          </TouchableOpacity> */}
+        </View>
       </Animated.View>
     </>
   );
@@ -107,6 +183,36 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
     zIndex: 1,
   },
+  container: {
+    flex: 1,
+    backgroundColor: "#000",
+    padding: 15,
+  },
+  addButton: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "#fff",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 5,
+  },
+  regularAddButton: {
+    backgroundColor: "#fff",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignSelf: "flex-start",
+    marginBottom: 10,
+  },
+  regularAddButtonText: {
+    color: "black",
+    fontSize: 16,
+    fontWeight: "bold",
+  },  
   sidebar: {
     position: "absolute",
     left: 0,
@@ -115,11 +221,6 @@ const styles = StyleSheet.create({
     width: 350,
     backgroundColor: "black",
     zIndex: 2,
-  },
-  scrollContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 40,
   },
   headerRow: {
     flexDirection: "row",
