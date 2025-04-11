@@ -9,6 +9,7 @@ import AddEventModal from "../../components/ExploreComponents/AddEventModal";
 import AddPostModal from "../../components/ExploreComponents/AddPostModal";
 import EditToggleButton from "../../components/ExploreComponents/EditToggleButton";
 import ModifyPostModal from "../../components/ExploreComponents/ModifyPostModal";
+import ModifyEventModal from "../../components/ExploreComponents/ModifyEventModal";
 import { CommunitiesContext } from "../../contexts/CommunitiesContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from "@react-navigation/native";
@@ -94,6 +95,17 @@ export default function CommunityDetailsScreen() {
   const [editPostTitle, setEditPostTitle] = useState("");
   const [editPostContent, setEditPostContent] = useState("");
   const [selectedPostId, setSelectedPostId] = useState(null);
+
+  //events
+  const [editEventModalVisible, setEditEventModalVisible] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState(null);
+
+  const [editEventTitle, setEditEventTitle] = useState("");
+  const [editEventDate, setEditEventDate] = useState("");
+  const [editEventTime, setEditEventTime] = useState("");
+  const [editEventLocation, setEditEventLocation] = useState("");
+  const [editEventDescription, setEditEventDescription] = useState("");
+
 
 
 
@@ -527,10 +539,54 @@ export default function CommunityDetailsScreen() {
       Alert.alert("Error", "Could not connect to server.");
     }
   };
+
+  const handleEditEvent = async (eventId, updatedTitle, updatedDate, updatedTime, updatedLocation, updatedDescription) => {
+    console.log("Attempting to edit event...");
+    console.log("   • eventId:", eventId);
+    console.log("   • updatedTitle:", updatedTitle);
   
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/events/update/${eventId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: updatedTitle,
+          date: updatedDate,
+          time: updatedTime,
+          location: updatedLocation,
+          description: updatedDescription,
+        }),
+      });
   
+      const raw = await response.text();
+      console.log("📥 Raw response text:", raw);
   
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch (err) {
+        console.error("❌ JSON parsing failed:", err);
+        throw new Error("Invalid JSON response from server.");
+      }
   
+      if (response.ok) {
+        setEvents((prevEvents) =>
+          prevEvents.map((e) =>
+            e.id === eventId
+              ? { ...e, title: updatedTitle, date: updatedDate, time: updatedTime, location: updatedLocation, description: updatedDescription }
+              : e
+          )
+        );
+        setEditEventModalVisible(false);
+        Alert.alert("Success", "Event updated successfully.");
+      } else {
+        Alert.alert("Error", data.message || "Failed to update event.");
+      }
+    } catch (error) {
+      console.error("🔥 Error editing event:", error);
+      Alert.alert("Error", "Could not connect to server.");
+    }
+  };  
 
   return (
     <View style={styles.container}>
@@ -691,57 +747,51 @@ export default function CommunityDetailsScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <EventCard
-              // event={{
-              //   id: item.id,
-              //   datetime: formatEventDateTime(item.date, item.time),
-              //   location: item.location,
-              //   title: item.title,
-              //   description: item.description,
-              //   attendees: item.attendees,
-              //   date: item.date,
-              //   time: item.time,
-              // }}
               event={item}
-              onDelete={
-                isAdmin === "true"
-                  ? () => {
-                      Alert.alert(
-                        "Delete Event",
-                        `Are you sure you want to delete "${item.title}"?`,
-                        [
-                          { text: "Cancel", style: "cancel" },
-                          {
-                            text: "Delete",
-                            style: "destructive",
-                            onPress: async () => {
-                              try {
-                                const response = await fetch(`http://3.85.25.255:3000/DB/events/delete/${item.id}`, {
-                                  method: 'DELETE',
-                                });
-                                const result = await response.json();
-                                if (response.ok) {
-                                  setEvents((prevEvents) => prevEvents.filter((e) => e.id !== item.id));
-                                  Alert.alert("Deleted", "Event successfully deleted.");
-                            
-                                  // 🔔 Add this line to trigger the notification
-                                  handleCreateNotification(item.title, "Event Deleted");
-                                } else {
-                                  Alert.alert("Error", result.message || "Failed to delete event.");
-                                }
-                              } catch (err) {
-                                console.error("Delete error:", err);
-                                Alert.alert("Error", "Could not connect to server.");
-                              }
-                            }
-                            
+              onDelete={isAdmin === "true" ? () => {
+                Alert.alert(
+                  "Delete Event",
+                  `Are you sure you want to delete "${item.title}"?`,
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Delete",
+                      style: "destructive",
+                      onPress: async () => {
+                        try {
+                          const response = await fetch(`http://3.85.25.255:3000/DB/events/delete/${item.id}`, {
+                            method: 'DELETE',
+                          });
+                          const result = await response.json();
+                          if (response.ok) {
+                            setEvents((prevEvents) => prevEvents.filter((e) => e.id !== item.id));
+                            Alert.alert("Deleted", "Event successfully deleted.");
+                            handleCreateNotification(item.title, "Event Deleted");
+                          } else {
+                            Alert.alert("Error", result.message || "Failed to delete event.");
                           }
-                        ]
-                      );
+                        } catch (err) {
+                          console.error("Delete error:", err);
+                          Alert.alert("Error", "Could not connect to server.");
+                        }
+                      }
                     }
-                  : undefined
-              }
+                  ]
+                );
+              } : undefined}
+          
+              onEdit={isAdmin === "true" ? () => {
+                setSelectedEventId(item.id);
+                setEditEventTitle(item.title);
+                setEditEventDate(item.date);
+                setEditEventTime(item.time);
+                setEditEventLocation(item.location);
+                setEditEventDescription(item.description);
+                setEditEventModalVisible(true);
+              } : undefined}
             />
           )}
+          
           style={{ marginTop: 10 }}
           refreshControl={
             <RefreshControl refreshing={refreshingEvents} onRefresh={handleRefreshEvents} />
@@ -764,6 +814,31 @@ export default function CommunityDetailsScreen() {
               onChangeDescription={setNewEventDescription}
               onCreate={handleCreateEvent}
             />
+            <ModifyEventModal
+              visible={editEventModalVisible}
+              onClose={() => setEditEventModalVisible(false)}
+              newEventTitle={editEventTitle}
+              onChangeTitle={setEditEventTitle}
+              newEventDate={editEventDate}
+              onChangeDate={setEditEventDate}
+              newEventTime={editEventTime}
+              onChangeTime={setEditEventTime}
+              newEventLocation={editEventLocation}
+              onChangeLocation={setEditEventLocation}
+              newEventDescription={editEventDescription}
+              onChangeDescription={setEditEventDescription}
+              onSubmit={() =>
+                handleEditEvent(
+                  selectedEventId,
+                  editEventTitle,
+                  editEventDate,
+                  editEventTime,
+                  editEventLocation,
+                  editEventDescription
+                )
+              }
+            />
+
 
             {/* Plus button to add event */}
             {isAdmin === "true" && (
