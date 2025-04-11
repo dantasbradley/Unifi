@@ -5,36 +5,36 @@ import { Ionicons } from "@expo/vector-icons";
 export interface Post {
   id: string;
   title: string;
-  time: string;
+  time: string; // original timestamp, used for sorting
+  timeFormatted: string; // user-friendly string
   content: string;
   likes: number;
   comments: number;
 }
 
+
 interface PostCardProps {
   post: Post;
+  onLike?: (post: Post) => void;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post }) => {
+
+const PostCard: React.FC<PostCardProps> = ({ post, onLike }) => {
   return (
     <View style={styles.postContainer}>
       <View style={styles.postHeader}>
         <Text style={styles.postTitle}>{post.title}</Text>
-        <Text style={styles.postTime}>{post.time}</Text>
+        <Text style={styles.postTime}>{post.timeFormatted}</Text>
       </View>
       <Text style={styles.postContent}>{post.content}</Text>
       <View style={styles.postActions}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="heart-outline" size={20} color="#fff" />
+      <TouchableOpacity style={styles.actionButton} onPress={() => onLike?.(post)}>
+          <Ionicons
+            name={post.isLikedByUser ? "heart" : "heart-outline"}
+            size={20}
+            color={post.isLikedByUser ? "#fff" : "#888"}
+          />
           <Text style={styles.actionText}>{post.likes}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="chatbubble-outline" size={20} color="#fff" />
-          <Text style={styles.actionText}>{post.comments}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="share-social-outline" size={20} color="#fff" />
-          <Text style={styles.actionText}>Share</Text>
         </TouchableOpacity>
       </View>
     </View>

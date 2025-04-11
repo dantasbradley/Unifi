@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, RefreshContr
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommunitiesContext } from "../contexts/CommunitiesContext";
+import PostCard, { Post } from "../components/ExploreComponents/PostCard";
 
 const HomeScreen = () => {
   const {
@@ -80,9 +81,14 @@ const handleFetchPostsForClub = async (clubId) => {
   console.log(`Updating posts state with new data`);
   setPosts((prevPosts) => {
     const updatedPosts = [...prevPosts, ...postsWithLikes];
-    console.log(`Updated posts state: ${JSON.stringify(updatedPosts)}`);
-    return updatedPosts;
+  
+    // Step 4: Sort by original timestamp descending (newest first)
+    const sortedPosts = updatedPosts.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+  
+    console.log(`🔄 Sorted posts (newest first): ${JSON.stringify(sortedPosts)}`);
+    return sortedPosts;
   });
+  
 };
 
 
@@ -135,24 +141,9 @@ const handleLike = async (post) => {
   }
 };
 
-  
-  
 
-  const renderPost = ({ item }) => (
-    <View style={styles.postContainer}>
-      <View style={styles.postHeader}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.postTime}>{item.time}</Text>
-      </View>
-      <Text style={styles.postContent}>{item.content}</Text>
-      <View style={styles.postActions}>
-        <TouchableOpacity style={styles.actionButton} onPress={() => handleLike(item)}>
-          <Ionicons name={item.isLikedByUser ? "heart" : "heart-outline"} size={20} color={item.isLikedByUser ? "white" : "#fff"} />
-          <Text style={styles.actionText}>{item.likes}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+const renderPost = ({ item }) => <PostCard post={item} onLike={handleLike} />;
+;
   
 
   return (
