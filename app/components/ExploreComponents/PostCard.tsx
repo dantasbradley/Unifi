@@ -1,19 +1,18 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 export interface Post {
   id: string;
   title: string;
-  time: string; // original timestamp, used for sorting
-  timeFormatted: string; // user-friendly string
+  time: string;
+  timeFormatted: string;
   content: string;
   likes: number;
   comments: number;
   clubName: string;
   clubImageUrl: string;
 }
-
 
 interface PostCardProps {
   post: Post;
@@ -25,35 +24,39 @@ interface PostCardProps {
 
 const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike, onDelete, onEdit }) => {
   return (
-    <View style={styles.postContainer}>
-      {post.clubImageUrl ? (
-          <Image source={{ uri: post.clubImageUrl }} style={styles.communityImage} />
-      ) : (
-          <Text>...</Text>
-      )}
-      <Text style={styles.postTitle}>{post.clubName}</Text>
-      <View style={styles.postHeader}>
-        <Text style={styles.postTitle}>{post.title}</Text>
-        <Text style={styles.postTime}>{post.timeFormatted}</Text>
+    <View style={styles.card}>
+      <View style={styles.header}>
+        {post.clubImageUrl ? (
+          <Image source={{ uri: post.clubImageUrl }} style={styles.clubImage} />
+        ) : (
+          <View style={styles.placeholderImage} />
+        )}
+        <View>
+          <Text style={styles.clubName}>{post.clubName}</Text>
+          <Text style={styles.time}>{post.timeFormatted}</Text>
+        </View>
       </View>
-      <Text style={styles.postContent}>{post.content}</Text>
 
-      <View style={styles.postActions}>
-        <TouchableOpacity style={styles.actionButton} onPress={onToggleLike}>
-          <Ionicons name={isLiked ? "heart" : "heart-outline"} size={20} color={isLiked ? "white" : "#fff"} />
-          <Text style={styles.actionText}>{post.likes}</Text>
+      <Text style={styles.title}>{post.title}</Text>
+      <Text style={styles.content}>{post.content}</Text>
+
+      <View style={styles.actions}>
+        <TouchableOpacity style={styles.iconButton} onPress={onToggleLike}>
+          <Ionicons name={isLiked ? "heart" : "heart-outline"} size={20} color={isLiked ? "#FF4C4C" : "#ccc"} />
+          <Text style={styles.iconText}>{post.likes}</Text>
         </TouchableOpacity>
 
         {onEdit && (
-          <TouchableOpacity style={styles.editButton} onPress={onEdit}>
-            <Ionicons name="create-outline" size={20} color="#fff" />
-            <Text style={styles.actionText}>Edit</Text>
+          <TouchableOpacity style={styles.iconButton} onPress={onEdit}>
+            <Ionicons name="create-outline" size={20} color="#ccc" />
+            <Text style={styles.iconText}>Edit</Text>
           </TouchableOpacity>
         )}
 
         {onDelete && (
           <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
-            <Text style={styles.deleteButtonText}>Delete</Text>
+            <Ionicons name="trash-outline" size={18} color="#fff" />
+            <Text style={styles.deleteText}>Delete</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -61,73 +64,90 @@ const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike, onDele
   );
 };
 
-
 const styles = StyleSheet.create({
-  postContainer: {
-    backgroundColor: "#222",
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 10,
+  card: {
+    backgroundColor: "#1C1C1E",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  communityImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 15,
-    marginRight: 10,
-  },
-  postHeader: {
+  header: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 5,
+    alignItems: "center",
+    marginBottom: 12,
   },
-  postTitle: {
+  clubImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    marginRight: 12,
+  },
+  placeholderImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    marginRight: 12,
+    backgroundColor: "#444",
+  },
+  clubName: {
     color: "#fff",
-    fontWeight: "bold",
+    fontWeight: "600",
     fontSize: 16,
   },
-  postTime: {
-    color: "#999",
-    fontSize: 14,
+  time: {
+    color: "#888",
+    fontSize: 13,
   },
-  postContent: {
+  title: {
     color: "#fff",
-    marginBottom: 10,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 6,
   },
-  postActions: {
+  content: {
+    color: "#ddd",
+    fontSize: 15,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  actions: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "flex-start",
+    alignItems: "center",
     borderTopWidth: 1,
     borderTopColor: "#333",
     paddingTop: 10,
   },
-  actionButton: {
+  iconButton: {
     flexDirection: "row",
     alignItems: "center",
+    marginRight: 20,
   },
-  actionText: {
-    color: "#fff",
-    marginLeft: 5,
+  iconText: {
+    color: "#ccc",
+    marginLeft: 6,
     fontSize: 14,
   },
   deleteButton: {
-    backgroundColor: "red",
-    marginTop: 10,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    alignSelf: "flex-end",
-  },
-  deleteButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  }  ,
-  editButton: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: 10,
-  }  
+    backgroundColor: "#e74c3c",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    marginLeft: "auto",
+  },
+  deleteText: {
+    color: "#fff",
+    marginLeft: 6,
+    fontWeight: "600",
+    fontSize: 14,
+  },
 });
 
 export default PostCard;
