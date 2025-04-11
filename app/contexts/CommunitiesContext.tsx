@@ -402,6 +402,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
           const date = new Date(event.date);  // assuming 'date' is the key holding the date string
           return {
             ...event,
+            created_at: formatDistanceToNow(new Date(event.created_at), { addSuffix: true }),
             date: date.toISOString().split("T")[0],
             clubName,
             clubImageUrl,
@@ -432,16 +433,13 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       const clubImageUrl = await fetchClubImage(`club_profile_pics/${clubId}_${clubName}`);
 
       const formattedPosts = data.map((post: any) => {
-        const parsedTime = new Date(post.created_at);
         // console.log("⏰ Parsed time:", post.time, "=>", parsedTime.toString());
       
         return {
           ...post,
-          timeFormatted: !isNaN(parsedTime.getTime())
-            ? formatDistanceToNow(parsedTime, { addSuffix: true })
-            : "Unknown time",
-            clubName,
-            clubImageUrl,
+          created_at: formatDistanceToNow(new Date(post.created_at), { addSuffix: true }),
+          clubName,
+          clubImageUrl,
         };
       });
       return formattedPosts;
@@ -467,7 +465,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       
       const formattedNotifications = data.map((notification: any) => ({
         ...notification,
-        time: formatDistanceToNow(new Date(notification.time), { addSuffix: true }),
+        created_at: formatDistanceToNow(new Date(notification.created_at), { addSuffix: true }),
         clubName,
         clubImageUrl,
       }));

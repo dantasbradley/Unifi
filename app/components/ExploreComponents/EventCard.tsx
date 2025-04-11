@@ -6,6 +6,7 @@ export interface Event {
   id: string;
   date: string;
   time: string;
+  created_at: string;
   datetime: string;
   location: string;
   title: string;
@@ -30,12 +31,15 @@ const EventCard: React.FC<EventCardProps> = ({ event, onDelete }) => {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-    {event.clubImageUrl ? (
-        <Image source={{ uri: event.clubImageUrl }} style={styles.communityImage} />
-    ) : (
-        <Text>...</Text>
-    )}
-        <Text style={styles.clubName}>{event.clubName}</Text>
+        {event.clubImageUrl ? (
+            <Image source={{ uri: event.clubImageUrl }} style={styles.communityImage} />
+        ) : (
+            <Text>...</Text>
+        )}
+        <View>
+          <Text style={styles.clubName}>{event.clubName}</Text>
+          <Text style={styles.createdAt}>{event.created_at}</Text>
+        </View>
       </View>
 
       <Text style={styles.eventTitle}>{event.title}</Text>
@@ -95,6 +99,10 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 15,
     marginRight: 10,
+  },
+  createdAt: {
+    color: "#888",
+    fontSize: 13,
   },
   header: {
     flexDirection: "row",

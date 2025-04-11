@@ -6,7 +6,6 @@ export interface Post {
   id: string;
   title: string;
   created_at: string;
-  timeFormatted: string;
   content: string;
   likes: number;
   comments: number;
@@ -33,7 +32,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike, onDele
         )}
         <View>
           <Text style={styles.clubName}>{post.clubName}</Text>
-          <Text style={styles.time}>{post.timeFormatted}</Text>
+          <Text style={styles.createdAt}>{post.created_at}</Text>
         </View>
       </View>
 
@@ -99,7 +98,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 16,
   },
-  time: {
+  createdAt: {
     color: "#888",
     fontSize: 13,
   },
