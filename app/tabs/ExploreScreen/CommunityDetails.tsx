@@ -11,36 +11,6 @@ import EditToggleButton from "../../components/ExploreComponents/EditToggleButto
 import ModifyPostModal from "../../components/ExploreComponents/ModifyPostModal";
 import ModifyEventModal from "../../components/ExploreComponents/ModifyEventModal";
 import { CommunitiesContext } from "../../contexts/CommunitiesContext";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
-
-
-const placeholderImage = require("../../../assets/images/placeholder.png");
-
-const initialEvents: Event[] = [
-  {
-    id: "1",
-    date: "02/28/2025",
-    time: "4pm",
-    datetime: "02/28/2025 @ 4pm",
-    location: "Gainesville, FL",
-    title: "Weekly book organizing",
-    description: "Sort new books into the correct area",
-    attendees: 5,
-  },
-];
-
-const initialPosts: Post[] = [
-  {
-    id: "1",
-    title: "Group Reading",
-    created_at: "8h",
-    content: "Last Tuesday, we had a huge turnout!",
-    likes: 2,
-    comments: 0,
-  },
-];
 
 export default function CommunityDetailsScreen() {
   const router = useRouter();
@@ -57,8 +27,6 @@ export default function CommunityDetailsScreen() {
     fetchEventsForClub = () => {},
     fetchClubImage = () => {},
   } = useContext(CommunitiesContext) || {};
-  
-  const communitiesContext = useContext(CommunitiesContext);
 
   const [activeTab, setActiveTab] = useState<"Bio" | "Events" | "Community">("Bio");
   const [refreshingEvents, setRefreshingEvents] = useState(false);
@@ -68,19 +36,17 @@ export default function CommunityDetailsScreen() {
   // State for Bio editing
   const [editMode, setEditMode] = useState(false);
   const [originalBioDescription, setOriginalBioDescription] = useState(""); // Store the original value
-  const [bioDescription, setBioDescription] = useState("We are a group that loves to read, meet up, etc.");
+  const [bioDescription, setBioDescription] = useState("");
   const [originalEmail, setOriginalEmail] = useState(""); // Store the original value
-  const [email, setEmail] = useState("example@gmail.com");  
+  const [email, setEmail] = useState("");  
   const [originalInsta, setOriginalInsta] = useState(""); // Store the original value
-  const [insta, setInsta] = useState("@insertHandle");
+  const [insta, setInsta] = useState("");
   const [originalLocation, setOriginalLocation] = useState("");
-  const [location, setLocation] = useState("location");
- 
-  // const [profileImage, setProfileImage] = useState<ImageSourcePropType>(placeholderImage);
+  const [location, setLocation] = useState("");
   const [imageUrl, setImageUrl] = useState("");
 
   // Events state
-  const [events, setEvents] = useState(initialEvents);
+  const [events, setEvents] = useState("");
   const [eventModalVisible, setEventModalVisible] = useState(false);
   const [newEventTitle, setNewEventTitle] = useState("");
   const [newEventDate, setNewEventDate] = useState("");
@@ -89,7 +55,7 @@ export default function CommunityDetailsScreen() {
   const [newEventDescription, setNewEventDescription] = useState("");
 
   // Posts
-  const [communityPosts, setCommunityPosts] = useState(initialPosts);
+  const [communityPosts, setCommunityPosts] = useState("");
   const [postModalVisible, setPostModalVisible] = useState(false);
   const [newPostName, setNewPostName] = useState("");
   const [newPostContent, setNewPostContent] = useState("");
@@ -143,13 +109,6 @@ export default function CommunityDetailsScreen() {
       return;
     }
   
-    console.log("🗓️ Creating Event With:");
-    console.log("   • Title:", newEventTitle);
-    console.log("   • Date:", newEventDate);
-    console.log("   • Time:", newEventTime);
-    console.log("   • Location:", newEventLocation);
-    console.log("   • Description:", newEventDescription);
-  
     try {
       const response = await fetch("http://3.85.25.255:3000/DB/events/add", {
         method: "POST",
@@ -163,25 +122,10 @@ export default function CommunityDetailsScreen() {
           club_id: id,
         }),
       });
-  
       const data = await response.json();
   
       if (response.ok) {
-        const newEvent: Event = {
-          id: data.id.toString(),
-          date: newEventDate,
-          time: newEventTime,
-          location: newEventLocation,
-          title: newEventTitle,
-          description: newEventDescription,
-          attendees: 0,
-        };
-  
-        console.log("✅ Event successfully created with ID:", data.id);
-        console.log("📅 Final Stored Date:", newEvent.date);
-        console.log("⏰ Final Stored Time:", newEvent.time);
-  
-        setEvents([...events, newEvent]);
+        await handleRefreshEvents();
         setEventModalVisible(false);
         setNewEventTitle("");
         setNewEventDate("");
@@ -215,24 +159,14 @@ export default function CommunityDetailsScreen() {
             body: JSON.stringify({
                 title: newPostName,
                 content: newPostContent,
-                filePath: "", // You might want to add file upload functionality later
-                club_id: id, // Assuming 'id' is the club's ID
+                filePath: "",
+                club_id: id,
             }),
         });
-
         const data = await response.json();
 
         if (response.ok) {
-            const newPost: Post = {
-                id: data.id.toString(),
-                title: newPostName,
-                created_at: "0h",
-                content: newPostContent,
-                likes: 0,
-                comments: 0,
-            };
-
-            setCommunityPosts([...communityPosts, newPost]);
+            await handleRefreshPosts();
             setPostModalVisible(false);
             setNewPostName("");
             setNewPostContent("");
@@ -245,7 +179,7 @@ export default function CommunityDetailsScreen() {
     }
   };
 
-  const formatEventDateTime = (dateStr, timeStr) => {
+  const formatEventDateTime = (dateStr: string, timeStr: string) => {
     console.log("🕓 Original Inputs => Date:", dateStr, "| Time:", timeStr);
   
     // Parse the time string (e.g. "16:30")

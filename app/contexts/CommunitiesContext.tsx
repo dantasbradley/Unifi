@@ -537,7 +537,6 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       if (response.ok) {
         const clubName = await fetchClubAttribute(clubId, "name");
         const clubImageUrl = await fetchClubImage(`club_profile_pics/${clubId}_${clubName}`);
-        // Format the date of each event to "YYYY-MM-DD"
         const formattedEvents = data.map((event: any) => {
           const date = new Date(event.date);  // assuming 'date' is the key holding the date string
           return {
@@ -567,13 +566,9 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       const data = await response.json();
       if (!response.ok) throw new Error("Failed to fetch posts");
       // console.log("📦 Raw post data from backend:", data);
-
       const clubName = await fetchClubAttribute(clubId, "name");
       const clubImageUrl = await fetchClubImage(`club_profile_pics/${clubId}_${clubName}`);
-
       const formattedPosts = data.map((post: any) => {
-        // console.log("⏰ Parsed time:", post.time, "=>", parsedTime.toString());
-      
         return {
           ...post,
           clubName,
