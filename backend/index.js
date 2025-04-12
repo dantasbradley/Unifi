@@ -503,6 +503,15 @@ app.post('/DB/likes/add', (req, res) => {
     const query = 'INSERT INTO test.likes (user_id, post_id) VALUES (?, ?)';
     handleInsert(res, query, [user_id, post_id], 'Like added successfully');
 });
+// === Add Attending ===
+app.post('/DB/attending/add', (req, res) => {
+    const { user_id, event_id } = req.body;
+    console.log('=== /DB/attending/add =input=', { user_id, event_id });
+    if (!validateFields({ user_id, event_id }, res)) return;
+
+    const query = 'INSERT INTO test.attending (user_id, event_id) VALUES (?, ?)';
+    handleInsert(res, query, [user_id, event_id], 'Attending added successfully');
+});
 
 
 

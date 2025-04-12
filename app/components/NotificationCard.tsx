@@ -4,7 +4,7 @@ import { CommunitiesContext } from "../contexts/CommunitiesContext";
 
 interface Notification {
   id: number;
-  title: string;
+  created_at: string;
   type: string;
   time: number;
   clubName: string;
@@ -31,7 +31,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ item, onPress }) =>
     )}
       <View style={styles.leftCol}>
         <Text style={styles.org}>{truncateText(item.clubName, 43)}</Text>
-        <Text style={styles.body}>{truncateText(item.title, 120)}</Text>
+        <Text style={styles.body}>{truncateText(item.created_at, 120)}</Text>
       </View>
       <View style={styles.rightCol}>
         <Text style={styles.type}>{item.type}</Text>

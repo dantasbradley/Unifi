@@ -65,7 +65,7 @@ const HomeScreen = () => {
     // Sort newest first
     const sortedPosts = uniquePosts.sort((a, b) => new Date(b.time) - new Date(a.time));
 
-    console.log(`✅ Final sorted, deduped posts: ${JSON.stringify(sortedPosts)}`);
+    // console.log(`✅ Final sorted, deduped posts: ${JSON.stringify(sortedPosts)}`);
     setPosts(sortedPosts);
   };
   
