@@ -552,6 +552,7 @@ export default function CommunityDetailsScreen() {
           title: updatedTitle,
           date: updatedDate,
           time: updatedTime,
+          updatedTime: updatedTime,
           location: updatedLocation,
           description: updatedDescription,
         }),
