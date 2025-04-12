@@ -14,7 +14,6 @@ export interface Event {
   description: string;
   attending: number;
   clubName: string;
-  updateTime: string,
   clubImageUrl: string;
 }
 
@@ -48,7 +47,6 @@ const EventCard: React.FC<EventCardProps> = ({ event, isAttending, onToggleAtten
         <Ionicons name="calendar-outline" size={16} color="#aaa" />
         <Text style={styles.metaText}>{event.date}</Text>
         <Text style={styles.metaText}>{event.time}</Text>
-        <Text style={styles.metaText}>formatDistanceToNow(new Date(event.updatedTime))</Text>
       </View>
 
       <View style={styles.metaRow}>

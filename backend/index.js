@@ -719,7 +719,7 @@ app.put('/DB/posts/update/:post_id', (req, res) => {
 
 app.put('/DB/events/update/:event_id', (req, res) => {
     const { event_id } = req.params;
-    const { title, date, time, updatedTime, location, description } = req.body;
+    const { title, date, time, location, description } = req.body;
   
     console.log("=== /DB/events/update/:event_id =input=", {
       event_id, title, date, time, location, description
@@ -731,11 +731,11 @@ app.put('/DB/events/update/:event_id', (req, res) => {
   
     const query = `
       UPDATE test.events
-      SET title = ?, date = ?, time = ?, updated_at = ?, location = ?, description = ?
+      SET title = ?, date = ?, time = ?, location = ?, description = ?
       WHERE id = ?
     `;
   
-    pool.query(query, [title, date, time, updatedTime, location, description, event_id], (err, result) => {
+    pool.query(query, [title, date, time, location, description, event_id], (err, result) => {
       if (err) {
         console.error("Error updating event:", err);
         return res.status(500).json({ message: 'Database error', error: err });
