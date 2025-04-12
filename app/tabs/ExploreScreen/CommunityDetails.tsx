@@ -325,24 +325,6 @@ export default function CommunityDetailsScreen() {
     console.log("isAdmin: ", isAdmin);
     setActiveTab(startTab as "Bio" | "Events" | "Community");
     handleFetchClubImage(`club_profile_pics/${id}_${name}`);
-    // fetchClubAttribute(id, "description").then((description) => {
-    //   if (description) {
-    //     setBioDescription(description);
-    //     setOriginalBioDescription(description); // Save the original value
-    //   }
-    // });
-    // fetchClubAttribute(id, "email").then((email) => {
-    //   if (email) {
-    //     setEmail(email);
-    //     setOriginalEmail(email); // Save the original value
-    //   }
-    // });
-    // fetchClubAttribute(id, "instagram").then((instagram) => {
-    //   if (instagram) {
-    //     setInsta(instagram);
-    //     setOriginalInsta(instagram); // Save the original value
-    //   }
-    // });
     loadClubAttribute(id, "description", setBioDescription, setOriginalBioDescription);
     loadClubAttribute(id, "email", setEmail, setOriginalEmail);
     loadClubAttribute(id, "instagram", setInsta, setOriginalInsta);

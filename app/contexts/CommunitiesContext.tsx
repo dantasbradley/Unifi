@@ -1,5 +1,4 @@
 import React, { createContext, useState, useEffect, ReactNode } from "react";
-import { formatDistanceToNow } from 'date-fns';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
 
@@ -513,7 +512,6 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         const date = new Date(event.date);
         return {
           ...event,
-          created_at: formatDistanceToNow(new Date(event.created_at), { addSuffix: true }),
           date: date.toISOString().split("T")[0],
           clubName,
           clubImageUrl,
@@ -544,7 +542,6 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
           const date = new Date(event.date);  // assuming 'date' is the key holding the date string
           return {
             ...event,
-            created_at: formatDistanceToNow(new Date(event.created_at), { addSuffix: true }),
             date: date.toISOString().split("T")[0],
             clubName,
             clubImageUrl,
@@ -579,7 +576,6 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       
         return {
           ...post,
-          created_at: formatDistanceToNow(new Date(post.created_at), { addSuffix: true }),
           clubName,
           clubImageUrl,
         };
@@ -607,7 +603,6 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       
       const formattedNotifications = data.map((notification: any) => ({
         ...notification,
-        created_at: formatDistanceToNow(new Date(notification.created_at), { addSuffix: true }),
         clubName,
         clubImageUrl,
       }));

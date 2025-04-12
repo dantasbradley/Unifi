@@ -1,11 +1,13 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { formatDistanceToNow } from 'date-fns';
 
 export interface Post {
   id: string;
   title: string;
   created_at: string;
+  updated_at: string;
   content: string;
   likes: number;
   comments: number;
@@ -32,7 +34,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike, onDele
         )}
         <View>
           <Text style={styles.clubName}>{post.clubName}</Text>
-          <Text style={styles.createdAt}>{post.created_at}</Text>
+          <Text style={styles.createdAt}>Posted {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</Text>
+          {post.updated_at && (
+            <Text style={styles.createdAt}>Updated {formatDistanceToNow(new Date(post.updated_at), { addSuffix: true })}</Text>
+          )}
         </View>
       </View>
 

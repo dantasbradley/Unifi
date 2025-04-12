@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { CommunitiesContext } from "../contexts/CommunitiesContext";
+import { formatDistanceToNow } from 'date-fns';
 
 interface Notification {
   id: number;
@@ -31,7 +32,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ item, onPress }) =>
     )}
       <View style={styles.leftCol}>
         <Text style={styles.org}>{truncateText(item.clubName, 43)}</Text>
-        <Text style={styles.body}>{truncateText(item.created_at, 120)}</Text>
+        <Text style={styles.body}>{truncateText(formatDistanceToNow(new Date(item.created_at), { addSuffix: true }), 120)}</Text>
       </View>
       <View style={styles.rightCol}>
         <Text style={styles.type}>{item.type}</Text>
