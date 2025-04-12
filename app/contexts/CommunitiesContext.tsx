@@ -24,6 +24,7 @@ interface CommunitiesContextType {
   updateClubAttribute: (clubId: string, attribute: string, newValue: string) => Promise<void>;
   addCommunity: (newCommunityName: string, newCommunityLocation: string) => Promise<void>;
   fetchPostsForClub: (clubId: string) => void;
+  fetchEvent: (eventID: string) => void;
   fetchEventsForClub: (clubId: string) => void;
   fetchNotificationsForClub: (clubId: string) => void;
   fetchClubImage: (filePath: any) => Promise<string>;
@@ -495,6 +496,37 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
     }
   };
 
+  const fetchEvent = async (eventId: any) => {
+    if (!eventId) {
+      console.error("Event ID is required");
+      return;
+    }
+    try {
+      const response = await fetch(`http://3.85.25.255:3000/DB/events/get/id=${eventId}`);
+      const data = await response.json();
+  
+      if (response.ok) {
+        const event = data[0];
+        const club_id = event.club_id;
+        const clubName = await fetchClubAttribute(club_id, "name");
+        const clubImageUrl = await fetchClubImage(`club_profile_pics/${club_id}_${clubName}`);
+        const date = new Date(event.date);
+        return {
+          ...event,
+          created_at: formatDistanceToNow(new Date(event.created_at), { addSuffix: true }),
+          date: date.toISOString().split("T")[0],
+          clubName,
+          clubImageUrl,
+        };
+      } else {
+        Alert.alert("Error", "Failed to fetch event.");
+      }
+    } catch (error) {
+      console.error("Error fetching event:", error);
+      Alert.alert("Error", "Could not connect to server.");
+    }
+  };
+
   const fetchEventsForClub = async (clubId: any) => {
     if (!clubId) {
       console.error("Club ID is required");
@@ -623,6 +655,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         addCommunity,
         fetchPostsForClub,
         fetchEventsForClub,
+        fetchEvent,
         fetchNotificationsForClub,
         fetchClubImage,
       }}

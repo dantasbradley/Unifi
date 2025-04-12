@@ -1,20 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, StyleSheet, RefreshControl, ScrollView, FlatList } from "react-native";
+import { View, Text, StyleSheet, RefreshControl, FlatList } from "react-native";
 import { Calendar } from "react-native-calendars";
 import XDate from "xdate";
-import EventList from "../components/EventList";
 import { CommunitiesContext } from "../contexts/CommunitiesContext";
-
-type Event = {
-  date: string,
-  title: string,
-  description: string,
-  location: string,
-  time: string
-  // organization: string,
-  // startTime: string,
-  // endTime: string
-}
+import EventCard, { Event } from "../components/ExploreComponents/EventCard";
 
 const CalendarScreen = () => {
   const today = new XDate().toDateString();
@@ -22,59 +11,74 @@ const CalendarScreen = () => {
   const [markedDate, setMarkedDate] = useState({});
   const [selectedDate, setSelectedDate] = useState<XDate | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
-
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [refreshKey, setRefreshKey] = useState(Date.now());
 
   const {
-  joinedCommunities = new Set(),
-  fetchEventsForClub = () => {}
+    attendingEvents = new Set(),
+    joinedCommunities = new Set(),
+    fetchEventsForClub = () => {},
+    fetchEvent = () => {},
+    toggleAttendEvent = () => {},
   } = useContext(CommunitiesContext) || {};
 
-  // Function to refresh the community list
+  useEffect(() => {
+    fetchJoinedCommunitiesEvents();
+  }, [joinedCommunities]);
+
+  const fetchJoinedCommunitiesEvents = async () => {
+    const communityIds = Array.from(joinedCommunities);
+    const allEventsArrays = await Promise.all(
+      communityIds.map((clubId: string) => fetchEventsForClub(clubId))
+    );
+    const allEvents = allEventsArrays.flat();
+
+    const uniqueEventMap = new Map();
+    allEvents.forEach((event) => {
+      if (!uniqueEventMap.has(event.id)) {
+        uniqueEventMap.set(event.id, event);
+      }
+    });
+
+    const uniqueEvents = Array.from(uniqueEventMap.values());
+    const sortedEvents = uniqueEvents.sort(
+      (a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
+    );
+    setEvents(sortedEvents);
+  };
+
   const handleRefresh = async () => {
-    console.log("refreshing page");
     setRefreshing(true);
-    try {
-      setRefreshKey(Date.now());
-    } catch (error) {
-      console.error("Error refreshing communities:", error);
-    }
+    await fetchJoinedCommunitiesEvents();
+    setRefreshKey(Date.now());
     setRefreshing(false);
   };
 
   useEffect(() => {
-      setEvents([]);
-      console.log("joinedCommunities changed in event list");
-      console.log("Joined clubs:", Array.from(joinedCommunities));
-      joinedCommunities.forEach(handleFetchEventsForClub);
-      // console.log("all events: ", events);
-  }, [joinedCommunities]);
-
-  const handleFetchEventsForClub = async (clubId: any) => {
-    console.log("handleFetchEventsForClub clubId: ", clubId);
-    const data = await fetchEventsForClub(clubId);
-    setEvents((prevEvents) => {
-        const uniqueEvents = new Set(prevEvents.map(event => event.id)); // Set of existing post ids
-        const newEvents = data.filter(event => !uniqueEvents.has(event.id)); // Filter out duplicates
-        return [...prevEvents, ...newEvents]; // Concatenate new posts with the existing ones
-    });
-  };
-  
-  // Update marked dates whenever events change
-  useEffect(() => {
-    handleRefresh();
     let newMarkedDates: { [key: string]: any } = {};
     events.forEach((event) => {
       newMarkedDates[event.date] = { marked: true, dotColor: "blue" };
     });
     setMarkedDate(newMarkedDates);
 
-    // Refresh selectedDate's events if it is already selected
     if (selectedDate) {
       setSelectedDate(new XDate(selectedDate.toString("yyyy-MM-dd")));
     }
   }, [events]);
+
+  useEffect(() => {
+    if (selectedDate) {
+      const dateStr = selectedDate.toString("yyyy-MM-dd");
+      const filtered = events.filter((event) => event.date === dateStr);
+      setFilteredEvents(filtered);
+    }
+  }, [selectedDate, events]);
+
+  useEffect(() => {
+    fetchJoinedCommunitiesEvents();
+  }, [attendingEvents]);
+  
 
   return (
     <View style={styles.container}>
@@ -84,38 +88,44 @@ const CalendarScreen = () => {
         hideExtraDays={true}
         enableSwipeMonths={true}
         onDayPress={(date) => {
-          setSelectedDate(new XDate(date.dateString));
-          setMarkedDate((prevMarkedDates) => {
-            const updatedMarked = { ...prevMarkedDates };
-            // Clear previous selected state
+          const xdate = new XDate(date.dateString);
+          setSelectedDate(xdate);
+
+          setMarkedDate((prev) => {
+            const updatedMarked = { ...prev };
             Object.keys(updatedMarked).forEach((d) => {
-              if (updatedMarked[d].selected) {
-                delete updatedMarked[d].selected;
-                delete updatedMarked[d].selectedColor;
-              }
+              delete updatedMarked[d].selected;
+              delete updatedMarked[d].selectedColor;
             });
-            // Add selection to the clicked date
             updatedMarked[date.dateString] = {
               ...(updatedMarked[date.dateString] || {}),
               selected: true,
-              selectedColor: 'blue',
+              selectedColor: "blue",
             };
             return updatedMarked;
           });
         }}
         markedDates={markedDate}
       />
-      <View style={styles.event}>
-        {selectedDate &&(
-          <EventList
-            key={refreshKey}
-            date={selectedDate.toString("yyyy-MM-dd")}
-            events={events}
+
+      {selectedDate && (
+        <View style={styles.eventList}>
+          <Text style={styles.dateText}>Events for {selectedDate.toString("yyyy-MM-dd")}</Text>
+          <FlatList
+            data={filteredEvents}
+            keyExtractor={(item) => item.id}
             refreshing={refreshing}
             onRefresh={handleRefresh}
+            renderItem={({ item }) => (
+              <EventCard
+                event={item}
+                isAttending={attendingEvents.has(item.id)}
+                onToggleAttend={() => toggleAttendEvent(item.id)}
+              />
+            )}
           />
-        )}
-      </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -123,22 +133,26 @@ const CalendarScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     backgroundColor: "#000",
+    alignItems: "center",
   },
   calendarContainer: {
     borderRadius: 10,
     height: 375,
     width: 300,
-    alignSelf: "center",
     marginTop: 5,
     marginBottom: 10,
   },
-  event: {
+  eventList: {
     flex: 1,
-    alignItems: "center",
-    backgroundColor: "#000",
+    width: "100%",
+    paddingHorizontal: 10,
+  },
+  dateText: {
+    fontSize: 16,
+    color: "#fff",
+    marginBottom: 8,
+    alignSelf: "center",
   },
 });
 
