@@ -2,30 +2,21 @@ import React, { useRef } from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import CustomButton from "../components/CustomButton"
 import { Link } from "expo-router";
-import { usePushNotitifcations } from "../components/usePushNotifications";
 
 const AuthScreen = ({ navigation }: any) => {
-
-  const {expoPushToken, notification} = usePushNotitifcations();
-
-  const data = JSON.stringify(notification, undefined, 2);
 
   return (
     <View style={styles.container}>
       {/* Logo */}
       {/*<Image source={require("../assets/logo.png")} style={styles.logo} /> */}
-      <Text>Token: {expoPushToken?.data ?? ""}</Text>
-      <Text>data</Text>
 
       {/* App Name */}
       <Text style={styles.appName}>UniFi</Text>
 
       {/* Login Button */}
-      <View testID="login">
       <Link href={"/screens/Login"} asChild>
         <CustomButton title="Login" onPress={() => null} />
       </Link>
-      </View>
 
 
       {/* Sign Up Button */}
