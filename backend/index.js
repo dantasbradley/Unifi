@@ -700,7 +700,7 @@ app.put('/DB/posts/update/:post_id', (req, res) => {
         return res.status(400).json({ message: 'Post ID, title, and content are required.' });
     }
 
-    const query = 'UPDATE test.posts SET title = ?, content = ? WHERE id = ?';
+    const query = 'UPDATE test.posts SET title = ?, content = ?, updated_at = NOW() WHERE id = ?';
     pool.query(query, [title, content, post_id], (err, results) => {
         if (err) {
             console.error('Error updating post:', err);
@@ -731,7 +731,7 @@ app.put('/DB/events/update/:event_id', (req, res) => {
   
     const query = `
       UPDATE test.events
-      SET title = ?, date = ?, time = ?, location = ?, description = ?
+      SET title = ?, date = ?, time = ?, location = ?, description = ?, updated_at = NOW()
       WHERE id = ?
     `;
   
