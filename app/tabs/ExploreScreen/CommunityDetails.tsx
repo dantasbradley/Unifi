@@ -50,7 +50,8 @@ export default function CommunityDetailsScreen() {
   const [eventModalVisible, setEventModalVisible] = useState(false);
   const [newEventTitle, setNewEventTitle] = useState("");
   const [newEventDate, setNewEventDate] = useState("");
-  const [newEventTime, setNewEventTime] = useState("");
+  const [newEventStartTime, setNewEventStartTime] = useState("");
+  const [newEventEndTime, setNewEventEndTime] = useState("");
   const [newEventLocation, setNewEventLocation] = useState("");
   const [newEventDescription, setNewEventDescription] = useState("");
 
@@ -104,7 +105,7 @@ export default function CommunityDetailsScreen() {
 
   // Community posts state
   const handleCreateEvent = async () => {
-    if (!newEventTitle || !newEventDate || !newEventTime || !newEventLocation || !newEventDescription) {
+    if (!newEventTitle || !newEventDate || !newEventStartTime || !newEventEndTime || !newEventLocation || !newEventDescription) {
       Alert.alert("Error", "All fields are required to create an event.");
       return;
     }
@@ -116,7 +117,8 @@ export default function CommunityDetailsScreen() {
         body: JSON.stringify({
           title: newEventTitle,
           date: newEventDate,
-          time: newEventTime,
+          start_time: newEventStartTime,
+          end_time: newEventEndTime,
           location: newEventLocation,
           description: newEventDescription,
           club_id: id,
@@ -129,11 +131,12 @@ export default function CommunityDetailsScreen() {
         setEventModalVisible(false);
         setNewEventTitle("");
         setNewEventDate("");
-        setNewEventTime("");
+        setNewEventStartTime("");
+        setNewEventEndTime("");
         setNewEventLocation("");
         setNewEventDescription("");
   
-        const datetime = formatEventDateTime(newEventDate, newEventTime);
+        const datetime = formatEventDateTime(newEventDate, newEventStartTime, newEventEndTime);
         const createMessage = `Event title: ${newEventTitle} \nWhen: ${datetime}`;
         handleCreateNotification(createMessage, "Event Created");
       } else {
@@ -180,39 +183,38 @@ export default function CommunityDetailsScreen() {
     }
   };
 
-  const formatEventDateTime = (dateStr: string, timeStr: string) => {
-    console.log("🕓 Original Inputs => Date:", dateStr, "| Time:", timeStr);
+  const formatEventDateTime = (dateStr: string, startTimeStr: string, endTimeStr: string) => {
+    console.log("🕓 Original Inputs => Date:", dateStr, "| Start Time:", startTimeStr, "| End Time:", endTimeStr);
   
-    // Parse the time string (e.g. "16:30")
-    let [hours, minutes] = timeStr.split(':').map(Number);
-    console.log("🔍 Parsed Time => Hours:", hours, "| Minutes:", minutes);
-  
-    // Create a new Date object from the date string
+    // Parse date parts
     const dateParts = dateStr.split('-').length === 3 ? dateStr.split('-') : dateStr.split('/');
     const [year, month, day] = dateParts.length === 3 && dateParts[0].length === 4
       ? [parseInt(dateParts[0]), parseInt(dateParts[1]), parseInt(dateParts[2])]
       : [parseInt(dateParts[2]), parseInt(dateParts[0]), parseInt(dateParts[1])];
   
-    const dateTime = new Date(year, month - 1, day, hours, minutes);
-    console.log("📆 Combined DateTime (before -4h):", dateTime.toString());
+    // Helper to convert time string and shift
+    const convertAndShiftTime = (timeStr: string): string => {
+      let [hours, minutes] = timeStr.split(':').map(Number);
+      const time = new Date(year, month - 1, day, hours, minutes);
+      time.setHours(time.getHours() - 4); // shift 4 hours back
+      const h = time.getHours();
+      const m = time.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const formattedHour = (h % 12 || 12).toString();
+      const formattedMinutes = m.toString().padStart(2, '0');
+      return `${formattedHour}:${formattedMinutes} ${ampm}`;
+    };
   
-    // Subtract 4 hours
-    dateTime.setHours(dateTime.getHours() - 4);
-    console.log("⏪ Adjusted DateTime (-4 hours):", dateTime.toString());
+    const shiftedStart = convertAndShiftTime(startTimeStr);
+    const shiftedEnd = convertAndShiftTime(endTimeStr);
   
-    // Convert to 12-hour format
-    const displayHours = dateTime.getHours();
-    const ampm = displayHours >= 12 ? 'PM' : 'AM';
-    const formattedHours = displayHours % 12 || 12;
-    const formattedMinutes = dateTime.getMinutes().toString().padStart(2, '0');
-  
-    const formattedDate = `${dateTime.getMonth() + 1}/${dateTime.getDate()}/${dateTime.getFullYear().toString().slice(-2)}`;
-    const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
-    const finalString = `${formattedDate} @ ${formattedTime}`;
+    const formattedDate = `${day}/${month}/${year}`;
+    const finalString = `${formattedDate} at ${shiftedStart}-${shiftedEnd}`;
   
     console.log("✅ Final Formatted DateTime:", finalString);
     return finalString;
   };
+  
   
   
   
@@ -734,8 +736,10 @@ export default function CommunityDetailsScreen() {
               onChangeTitle={setNewEventTitle}
               newEventDate={newEventDate}
               onChangeDate={setNewEventDate}
-              newEventTime={newEventTime}
-              onChangeTime={setNewEventTime}
+              newEventStartTime={newEventStartTime}
+              onChangeStartTime={setNewEventStartTime}
+              newEventEndTime={newEventEndTime}
+              onChangeEndTime={setNewEventEndTime}
               newEventLocation={newEventLocation}
               onChangeLocation={setNewEventLocation}
               newEventDescription={newEventDescription}
