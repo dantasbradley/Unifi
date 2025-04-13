@@ -398,7 +398,6 @@ export default function CommunityDetailsScreen() {
   
               if (response.ok) {
                 setCommunityPosts((prev) => prev.filter((post) => post.id !== postId));
-                Alert.alert("Deleted", "Post successfully deleted.");
               } else {
                 Alert.alert("Error", result.message || "Failed to delete post.");
               }
@@ -445,8 +444,8 @@ export default function CommunityDetailsScreen() {
             post.id === postId ? { ...post, title: updatedTitle, content: updatedContent } : post
           )
         );
+        await handleRefreshPosts();
         setEditPostModalVisible(false);
-        Alert.alert("Success", "Post updated successfully.");
       } else {
         Alert.alert("Error", data.message || "Failed to update post.");
       }
@@ -494,8 +493,8 @@ export default function CommunityDetailsScreen() {
               : e
           )
         );
+        await handleRefreshEvents();
         setEditEventModalVisible(false);
-        Alert.alert("Success", "Event updated successfully.");
         const formattedDateTime = formatEventDateTime(updatedDate, updatedTime);
         const updateMessage = `Event title: ${updatedTitle} \nWhen: ${formattedDateTime}`;
         handleCreateNotification(updateMessage, "Event Updated");
@@ -638,7 +637,6 @@ export default function CommunityDetailsScreen() {
                             const result = await response.json();
 
                             if (response.ok) {
-                              Alert.alert("Deleted", "The club was deleted successfully.");
                               router.replace("/tabs/ExploreScreen"); // Go back to home or previous screen
                             } else {
                               Alert.alert("Error", result.message || "Failed to delete club.");
@@ -669,6 +667,7 @@ export default function CommunityDetailsScreen() {
             <EventCard
               event={item}
               isAttending={attendingEvents.has(item.id)}
+              isAdmin={isAdmin === "true"}
               onToggleAttend={() => toggleAttendEvent(item.id)}
               onDelete={isAdmin === "true" ? () => {
                 Alert.alert(
@@ -690,7 +689,6 @@ export default function CommunityDetailsScreen() {
                             const datetime = formatEventDateTime(item.date, item.time);
                             const deleteMessage = `Event title: ${item.title} \nWhen: ${datetime}`;
                             handleCreateNotification(deleteMessage, "Event Deleted");
-                            Alert.alert("Deleted", "Event successfully deleted.");
                           } else {
                             Alert.alert("Error", result.message || "Failed to delete event.");
                           }
