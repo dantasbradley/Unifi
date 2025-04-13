@@ -131,11 +131,11 @@ const Login = () => {
           onPress={handleLogin}
           disabled={loading}
         >
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginText}>Login</Text>}
+          {loading ? <ActivityIndicator color="#fff" testID="Activity Indicator"/> : <Text style={styles.loginText}>Login</Text>}
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.push("/screens/resetEmail")}>
-          <Text style={styles.forgotPassword}>Forgot password?</Text>
+          <Text style={styles.forgotPassword} testID="Forgot Password Button">Forgot password?</Text>
         </TouchableOpacity>
       </View>
 
