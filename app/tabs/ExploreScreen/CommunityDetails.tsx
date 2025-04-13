@@ -134,7 +134,8 @@ export default function CommunityDetailsScreen() {
         setNewEventDescription("");
   
         const datetime = formatEventDateTime(newEventDate, newEventTime);
-        handleCreateNotification(datetime, "New Event");
+        const createMessage = `Event title: ${newEventTitle} \nWhen: ${datetime}`;
+        handleCreateNotification(createMessage, "Event Created");
       } else {
         Alert.alert("Error", data.message || "Failed to create event.");
       }
@@ -496,7 +497,7 @@ export default function CommunityDetailsScreen() {
         setEditEventModalVisible(false);
         Alert.alert("Success", "Event updated successfully.");
         const formattedDateTime = formatEventDateTime(updatedDate, updatedTime);
-        const updateMessage = `📆 Updated: ${updatedTitle} – ${formattedDateTime}`;
+        const updateMessage = `Event title: ${updatedTitle} \nWhen: ${formattedDateTime}`;
         handleCreateNotification(updateMessage, "Event Updated");
       } else {
         Alert.alert("Error", data.message || "Failed to update event.");
@@ -686,8 +687,10 @@ export default function CommunityDetailsScreen() {
                           const result = await response.json();
                           if (response.ok) {
                             setEvents((prevEvents) => prevEvents.filter((e) => e.id !== item.id));
+                            const datetime = formatEventDateTime(item.date, item.time);
+                            const deleteMessage = `Event title: ${item.title} \nWhen: ${datetime}`;
+                            handleCreateNotification(deleteMessage, "Event Deleted");
                             Alert.alert("Deleted", "Event successfully deleted.");
-                            handleCreateNotification(item.title, "Event Deleted");
                           } else {
                             Alert.alert("Error", result.message || "Failed to delete event.");
                           }
