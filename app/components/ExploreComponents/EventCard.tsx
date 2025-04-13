@@ -55,12 +55,13 @@ const EventCard: React.FC<EventCardProps> = ({ event, isAttending, onToggleAtten
     const shiftedStart = convertAndShiftTime(startTimeStr);
     const shiftedEnd = convertAndShiftTime(endTimeStr);
   
-    const formattedDate = `${day}/${month}/${year}`;
+    const formattedDate = `${month}/${day}/${year}`;
     const finalString = `${formattedDate} at ${shiftedStart}-${shiftedEnd}`;
   
     console.log("✅ Final Formatted DateTime:", finalString);
     return finalString;
   };
+  
 
 
   return (

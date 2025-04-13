@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import {View, Text, TextInput, StyleSheet, TouchableOpacity, Platform, KeyboardAvoidingView, FlatList, 
-TouchableWithoutFeedback, Keyboard } from "react-native";
+TouchableWithoutFeedback, Keyboard, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -70,12 +70,23 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   };
 
   const handleCreate = () => {
-    if (!newEventTitle || !newEventDate || !newEventTime || !newEventLocation || !newEventDescription) {
-      alert("Please fill in all the fields before creating the event.");
+    if (!newEventTitle || !newEventDate || !newEventStartTime || !newEventEndTime || !newEventLocation || !newEventDescription) {
+      Alert.alert("Missing Fields", "Please fill in all the fields before creating the event.");
       return;
     }
+
+    const start = new Date(`${newEventDate}T${newEventStartTime}`);
+    const end = new Date(`${newEventDate}T${newEventEndTime}`);
+    const now = new Date();
+
+    if (end <= start) {
+      Alert.alert("Invalid End Time", "End time must be after start time.");
+      return;
+    }
+
     onCreate();
   };
+
 
   if (!visible) return null;
 

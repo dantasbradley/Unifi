@@ -208,12 +208,13 @@ export default function CommunityDetailsScreen() {
     const shiftedStart = convertAndShiftTime(startTimeStr);
     const shiftedEnd = convertAndShiftTime(endTimeStr);
   
-    const formattedDate = `${day}/${month}/${year}`;
+    const formattedDate = `${month}/${day}/${year}`;
     const finalString = `${formattedDate} at ${shiftedStart}-${shiftedEnd}`;
   
     console.log("✅ Final Formatted DateTime:", finalString);
     return finalString;
   };
+  
   
   
   
@@ -688,7 +689,7 @@ export default function CommunityDetailsScreen() {
                           const result = await response.json();
                           if (response.ok) {
                             setEvents((prevEvents) => prevEvents.filter((e) => e.id !== item.id));
-                            const datetime = formatEventDateTime(item.date, item.time);
+                            const datetime = formatEventDateTime(item.date, item.start_time, item.end_time);
                             const deleteMessage = `Event title: ${item.title} \nWhen: ${datetime}`;
                             handleCreateNotification(deleteMessage, "Event Deleted");
                           } else {
