@@ -22,12 +22,13 @@ export interface Event {
 interface EventCardProps {
   event: Event;
   isAttending: boolean;
+  isAdmin: boolean;
   onToggleAttend: () => void;
   onDelete?: () => void;
   onEdit?: () => void;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, isAttending, onToggleAttend, onDelete, onEdit }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, isAttending, onToggleAttend, onDelete, onEdit, isAdmin }) => {
 
   const formatEventDateTime = (dateStr: string, startTimeStr: string, endTimeStr: string) => {
     console.log("🕓 Original Inputs => Date:", dateStr, "| Start Time:", startTimeStr, "| End Time:", endTimeStr);
@@ -100,14 +101,16 @@ const EventCard: React.FC<EventCardProps> = ({ event, isAttending, onToggleAtten
       <Text style={styles.description}>{event.description}</Text>
 
       <View style={styles.buttonRow}>
+        {isAdmin === false && (
         <TouchableOpacity
           style={[styles.attendButton, isAttending && styles.attending]}
           onPress={onToggleAttend}
-        >
+          >
           <Text style={[styles.attendText, isAttending && styles.attendingText]}>
             {isAttending ? "Attending" : "Attend"}
           </Text>
         </TouchableOpacity>
+        )}
 
         {onDelete && (
           <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
