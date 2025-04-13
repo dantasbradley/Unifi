@@ -330,6 +330,18 @@ app.get('/S3/get/image', async (req, res) => {
         }
     }
 });
+async function s3FileExists(key, bucket) {
+    try {
+        const command = new HeadObjectCommand({ Bucket: bucket, Key: key });
+        await s3.send(command);
+        return true;
+    } catch (err) {
+        if (err.name === 'NotFound') {
+            return false;
+        }
+        throw err; // Throw if other error (e.g., bad permissions)
+    }
+}
 async function deleteFileFromS3(key, bucket) {
     const command = new DeleteObjectCommand({
         Bucket: bucket,
@@ -701,9 +713,15 @@ app.delete('/DB/clubs/delete/:club_id', async (req, res) => {
     try {
         if (clubPfpPath) {
             try {
-                await deleteFileFromS3(clubPfpPath, bucketName);
+                const exists = await s3FileExists(clubPfpPath, bucketName);
+                if (exists) {
+                    await deleteFileFromS3(clubPfpPath, bucketName);
+                    console.log('Deleted club profile picture from S3.');
+                } else {
+                    console.log('No profile picture found in S3 to delete.');
+                }
             } catch (err) {
-                console.warn('Could not delete club PFP from S3. Continuing with DB delete.');
+                console.warn('Error checking/deleting S3 file. Proceeding with DB delete.', err);
             }
         }
 
