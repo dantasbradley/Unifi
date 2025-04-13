@@ -48,7 +48,10 @@ const NotificationScreen: React.FC<NotificationProps> = ({ profile }) => {
         setNotifications((prevNotifs) => {
             const uniqueNotifs = new Set(prevNotifs.map((notif) => notif.id));
             const newNotifs = data.filter((notif) => !uniqueNotifs.has(notif.id));
-            return [...prevNotifs, ...newNotifs];
+            const combined = [...prevNotifs, ...newNotifs];
+            // Sort by created_at descending (newest first)
+            combined.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            return combined;
         });
     };
 
