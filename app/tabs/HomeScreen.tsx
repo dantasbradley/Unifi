@@ -58,17 +58,17 @@ const HomeScreen = () => {
             style={styles.actionButton}
             onPress={() => handleLike(item.id)}
           >
-            <Ionicons name="heart-outline" size={20} color="#fff" />
+            <Ionicons name="heart-outline" size={20} color="#000000" />
             <Text style={styles.actionText}>{item.likes}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="chatbubble-outline" size={20} color="#fff" />
+            <Ionicons name="chatbubble-outline" size={20} color="#000000" />
             <Text style={styles.actionText}>{item.comments}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="share-social-outline" size={20} color="#fff" />
+            <Ionicons name="share-social-outline" size={20} color="#000000" />
             <Text style={styles.actionText}>Share</Text>
           </TouchableOpacity>
         </View>
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   postContainer: {
-    backgroundColor: "#70A9A1",
+    backgroundColor: "#ffffff",
     padding: 15,
     borderRadius: 8,
     marginBottom: 10,
@@ -108,14 +108,14 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   userName: {
-    color: "#fff",
+    color: "#000000",
     fontWeight: "bold",
   },
   postTime: {
     color: "#999",
   },
   postContent: {
-    color: "#fff",
+    color: "#000000",
     marginBottom: 10,
     lineHeight: 20,
   },
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   actionText: {
-    color: "#fff",
+    color: "#000000",
     marginLeft: 5,
   },
 });

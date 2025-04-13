@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
         flex: 1
     },
     notification: {
-        backgroundColor: "#70A9A1",
+        backgroundColor: "#ffffff",
         borderBottomWidth: 1,
         borderBottomColor: "gray",
         borderTopWidth: 1,
@@ -151,13 +151,13 @@ const styles = StyleSheet.create({
     },
     org: {
         fontWeight: "bold",
-        color: "white",
+        color: "#40798C",
         textAlign: "left",
         fontSize: 16,
         marginBottom: 2
     },
     type: {
-        color: "white",
+        color: "black",
         textAlign: "right"
     },
     toc: {
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
         textAlign: "right"
     },
     body: {
-        color: "white",
+        color: "black",
         textAlign: "left",
         fontSize: 14,
         marginTop: 2

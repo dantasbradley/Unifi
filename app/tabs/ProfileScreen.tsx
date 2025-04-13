@@ -22,8 +22,8 @@ const ProfileScreen = () => {
     // Define dynamic styles based on editMode
     const getInputStyle = () => ({
         flex: 1,
-        backgroundColor: editMode ? '#fff' : '#70A9A1', // White when editing, black otherwise
-        color: editMode ? '#000' : '#fff', // Black text when editing, white otherwise
+        backgroundColor: editMode ? '#fff' : '#5A5A5A', // White when editing, black otherwise
+        color: editMode ? '#000000' : '#fff', // Black text when editing, white otherwise
         padding: 12,
         borderRadius: 5,
     });
@@ -243,9 +243,16 @@ const ProfileScreen = () => {
                 
                 {/* Input container for Email */}
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Email:</Text>
-                    <Text style={styles.input}>{email}</Text>
-                </View>
+                <Text style={styles.label}>Email:</Text>
+                <TextInput 
+                    style={getInputStyle()}
+                    value={email}
+                    editable={editMode}
+                    onChangeText={setEmail}
+                    placeholder="Email"
+                    placeholderTextColor={editMode ? '#aaa' : '#eee'}
+                />
+            </View>
                 
                 {/* Notifications Section */}
                 <Text style={styles.sectionHeader}>Notifications</Text>
@@ -325,8 +332,8 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
-        backgroundColor: '#70A9A1',
-        color: '#fff',
+        backgroundColor: '#ffffff',
+        color: '#000000',
         padding: 12,
         borderRadius: 5,
     },
