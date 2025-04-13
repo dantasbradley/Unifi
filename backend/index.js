@@ -419,23 +419,24 @@ app.post('/DB/clubs/add', (req, res) => {
 });
 // === Add Event ===
 app.post('/DB/events/add', (req, res) => {
-    const { title, date, time, location, description, club_id } = req.body;
+    const { title, date, start_time, end_time, location, description, club_id } = req.body;
 
     console.log('=== 📥 /DB/events/add =input=');
     console.log('   • Title:', title);
     console.log('   • Date:', date);
-    console.log('   • Time:', time);
+    console.log('   • Start Time:', start_time);
+    console.log('   • Start Time:', end_time);
     console.log('   • Location:', location);
     console.log('   • Description:', description);
     console.log('   • Club ID:', club_id);
 
-    if (!validateFields({ title, date, time, location, description, club_id }, res)) return;
+    if (!validateFields({ title, date, start_time, end_time, location, description, club_id }, res)) return;
 
-    const query = 'INSERT INTO test.events (title, date, time, location, description, club_id) VALUES (?, ?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO test.events (title, date, start_time, end_time, location, description, club_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
     
     console.log('📦 Inserting event into database...');
     
-    handleInsert(res, query, [title, date, time, location, description, club_id], 'Event added successfully');
+    handleInsert(res, query, [title, date, start_time, end_time, location, description, club_id], 'Event added successfully');
 });
 
 // === Add Post ===
@@ -719,23 +720,23 @@ app.put('/DB/posts/update/:post_id', (req, res) => {
 
 app.put('/DB/events/update/:event_id', (req, res) => {
     const { event_id } = req.params;
-    const { title, date, time, location, description } = req.body;
+    const { title, date, start_time, end_time, location, description } = req.body;
   
     console.log("=== /DB/events/update/:event_id =input=", {
-      event_id, title, date, time, location, description
+      event_id, title, date, start_time, end_time, location, description
     });
   
-    if (!event_id || !title || !date || !time || !location || !description) {
+    if (!event_id || !title || !date || !start_time || !end_time|| !location || !description) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
   
     const query = `
       UPDATE test.events
-      SET title = ?, date = ?, time = ?, location = ?, description = ?, updated_at = NOW()
+      SET title = ?, date = ?, start_time = ?, end_time=?, location = ?, description = ?, updated_at = NOW()
       WHERE id = ?
     `;
   
-    pool.query(query, [title, date, time, location, description, event_id], (err, result) => {
+    pool.query(query, [title, date, start_time, end_time, location, description, event_id], (err, result) => {
       if (err) {
         console.error("Error updating event:", err);
         return res.status(500).json({ message: 'Database error', error: err });
