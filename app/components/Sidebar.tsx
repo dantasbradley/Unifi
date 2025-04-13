@@ -5,7 +5,6 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommunitiesContext } from "../contexts/CommunitiesContext";
 import { useMemo } from "react";
-import CommunityItem from "../components/SidebarCommunity";
 import CommunityCard from "../components/ExploreComponents/CommunityCard";
 import { router } from "expo-router";
 import CreateCommunityModal from "./ExploreComponents/CreateCommunityModal";
@@ -25,8 +24,6 @@ const Sidebar = () => {
   const sidebarWidth = 350;
   const translateX = new Animated.Value(isSidebarOpen ? 0 : -sidebarWidth);
   const [filter, setFilter] = useState("admin");
-
-  // const imageUrl = "https://via.placeholder.com/50"; // Placeholder image URL
 
   const [newCommunityName, setNewCommunityName] = useState("");
   const [newCommunityLocation, setNewCommunityLocation] = useState("");

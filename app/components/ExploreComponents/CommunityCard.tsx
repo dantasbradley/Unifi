@@ -37,7 +37,7 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
         {community.imageUrl ? (
             <Image source={{ uri: community.imageUrl }} style={styles.communityImage} />
         ) : (
-            <Text>Loading image...</Text>
+            <Image source={placeholderImage} style={styles.communityImage} />
         )}
         <View style={styles.textContainer}>
           <Text style={styles.communityName}>{community.name}</Text>
