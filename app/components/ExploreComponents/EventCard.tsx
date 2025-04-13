@@ -6,7 +6,8 @@ import { formatDistanceToNow } from 'date-fns';
 export interface Event {
   id: string;
   date: string;
-  time: string;
+  start_time: string;
+  end_time: string;
   created_at: string;
   updated_at: string;
   datetime: string;
@@ -29,39 +30,38 @@ interface EventCardProps {
 
 const EventCard: React.FC<EventCardProps> = ({ event, isAttending, onToggleAttend, onDelete, onEdit, isAdmin }) => {
 
-  const formatEventDateTime = (dateStr: string, timeStr: string) => {
-    console.log("🕓 Original Inputs => Date:", dateStr, "| Time:", timeStr);
+  const formatEventDateTime = (dateStr: string, startTimeStr: string, endTimeStr: string) => {
+    console.log("🕓 Original Inputs => Date:", dateStr, "| Start Time:", startTimeStr, "| End Time:", endTimeStr);
   
-    // Parse the time string (e.g. "16:30")
-    let [hours, minutes] = timeStr.split(':').map(Number);
-    console.log("🔍 Parsed Time => Hours:", hours, "| Minutes:", minutes);
-  
-    // Create a new Date object from the date string
+    // Parse date parts
     const dateParts = dateStr.split('-').length === 3 ? dateStr.split('-') : dateStr.split('/');
     const [year, month, day] = dateParts.length === 3 && dateParts[0].length === 4
       ? [parseInt(dateParts[0]), parseInt(dateParts[1]), parseInt(dateParts[2])]
       : [parseInt(dateParts[2]), parseInt(dateParts[0]), parseInt(dateParts[1])];
   
-    const dateTime = new Date(year, month - 1, day, hours, minutes);
-    console.log("📆 Combined DateTime (before -4h):", dateTime.toString());
+    // Helper to convert time string and shift
+    const convertAndShiftTime = (timeStr: string): string => {
+      let [hours, minutes] = timeStr.split(':').map(Number);
+      const time = new Date(year, month - 1, day, hours, minutes);
+      time.setHours(time.getHours() - 4); // shift 4 hours back
+      const h = time.getHours();
+      const m = time.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const formattedHour = (h % 12 || 12).toString();
+      const formattedMinutes = m.toString().padStart(2, '0');
+      return `${formattedHour}:${formattedMinutes} ${ampm}`;
+    };
   
-    // Subtract 4 hours
-    dateTime.setHours(dateTime.getHours() - 4);
-    console.log("⏪ Adjusted DateTime (-4 hours):", dateTime.toString());
+    const shiftedStart = convertAndShiftTime(startTimeStr);
+    const shiftedEnd = convertAndShiftTime(endTimeStr);
   
-    // Convert to 12-hour format
-    const displayHours = dateTime.getHours();
-    const ampm = displayHours >= 12 ? 'PM' : 'AM';
-    const formattedHours = displayHours % 12 || 12;
-    const formattedMinutes = dateTime.getMinutes().toString().padStart(2, '0');
-  
-    const formattedDate = `${dateTime.getMonth() + 1}/${dateTime.getDate()}/${dateTime.getFullYear().toString().slice(-2)}`;
-    const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
-    const finalString = `${formattedDate} @ ${formattedTime}`;
+    const formattedDate = `${month}/${day}/${year}`;
+    const finalString = `${formattedDate} at ${shiftedStart}-${shiftedEnd}`;
   
     console.log("✅ Final Formatted DateTime:", finalString);
     return finalString;
   };
+  
 
 
   return (
@@ -85,7 +85,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, isAttending, onToggleAtten
 
       <View style={styles.metaRow}>
         <Ionicons name="calendar-outline" size={16} color="#aaa" />
-        <Text style={styles.metaText}>{formatEventDateTime(event.date, event.time)}</Text>
+        <Text style={styles.metaText}>{formatEventDateTime(event.date, event.start_time, event.end_time)}</Text>
         {/* <Text style={styles.metaText}>{event.time}</Text> */}
       </View>
 

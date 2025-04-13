@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import {View, Text, TextInput, StyleSheet, TouchableOpacity, Platform, KeyboardAvoidingView, FlatList, 
-TouchableWithoutFeedback, Keyboard } from "react-native";
+TouchableWithoutFeedback, Keyboard, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -13,8 +13,10 @@ interface AddEventModalProps {
   onChangeTitle: (value: string) => void;
   newEventDate: string;
   onChangeDate: (value: string) => void;
-  newEventTime: string;
-  onChangeTime: (value: string) => void;
+  newEventStartTime: string;
+  onChangeStartTime: (value: string) => void;
+  newEventEndTime: string;
+  onChangeEndTime: (value: string) => void;
   newEventLocation: string;
   onChangeLocation: (value: string) => void;
   newEventDescription: string;
@@ -29,8 +31,10 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   onChangeTitle,
   newEventDate,
   onChangeDate,
-  newEventTime,
-  onChangeTime,
+  newEventStartTime,
+  onChangeStartTime,
+  newEventEndTime,
+  onChangeEndTime,
   newEventLocation,
   onChangeLocation,
   newEventDescription,
@@ -39,7 +43,8 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
 }) => {
   const initialDate = newEventDate && !isNaN(Date.parse(newEventDate)) ? new Date(newEventDate) : new Date();
   const [date, setDate] = useState(initialDate);
-  const [time, setTime] = useState(new Date());
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date());
   const googlePlacesRef = useRef(null);
 
   const handleDateChange = (event, selectedDate) => {
@@ -48,10 +53,16 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
     onChangeDate(currentDate.toISOString().split("T")[0]);
   };
 
-  const handleTimeChange = (event, selectedTime) => {
-    const currentTime = selectedTime || time;
-    setTime(currentTime);
-    onChangeTime(currentTime.toISOString().split("T")[1].substr(0, 8));
+  const handleStartTimeChange = (event, selectedTime) => {
+    const currentTime = selectedTime || startTime;
+    setStartTime(currentTime);
+    onChangeStartTime(currentTime.toISOString().split("T")[1].substr(0, 8));
+  };
+
+  const handleEndTimeChange = (event, selectedTime) => {
+    const currentTime = selectedTime || endTime;
+    setEndTime(currentTime);
+    onChangeEndTime(currentTime.toISOString().split("T")[1].substr(0, 8));
   };
 
   const handleLocationSelect = (data) => {
@@ -59,12 +70,23 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   };
 
   const handleCreate = () => {
-    if (!newEventTitle || !newEventDate || !newEventTime || !newEventLocation || !newEventDescription) {
-      alert("Please fill in all the fields before creating the event.");
+    if (!newEventTitle || !newEventDate || !newEventStartTime || !newEventEndTime || !newEventLocation || !newEventDescription) {
+      Alert.alert("Missing Fields", "Please fill in all the fields before creating the event.");
       return;
     }
+
+    const start = new Date(`${newEventDate}T${newEventStartTime}`);
+    const end = new Date(`${newEventDate}T${newEventEndTime}`);
+    const now = new Date();
+
+    if (end <= start) {
+      Alert.alert("Invalid End Time", "End time must be after start time.");
+      return;
+    }
+
     onCreate();
   };
+
 
   if (!visible) return null;
 
@@ -80,14 +102,24 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         maximumDate={new Date(2300, 12, 31)}
       />
     )},
-    { id: "time", label: "Time", component: (
+    { id: "start_time", label: "Start Time", component: (
       <DateTimePicker
         testID="timePicker"
-        value={time}
+        value={startTime}
         mode="time"
         display="default"
         is24Hour={false}
-        onChange={handleTimeChange}
+        onChange={handleStartTimeChange}
+      />
+    )},
+    { id: "end_time", label: "End Time", component: (
+      <DateTimePicker
+        testID="timePicker"
+        value={endTime}
+        mode="time"
+        display="default"
+        is24Hour={false}
+        onChange={handleEndTimeChange}
       />
     )},
     { id: "location", label: "Location", component: (
