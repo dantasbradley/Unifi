@@ -10,7 +10,7 @@ const axios = require('axios');
 
 // const s3 = new AWS.S3();
 
-const { S3, S3Client, ListObjectsCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand} = require('@aws-sdk/client-s3');
+const { S3, S3Client, ListObjectsCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, DeleteObjectCommand} = require('@aws-sdk/client-s3');
 const { getSignedUrl: getSignedUrlAws } = require('@aws-sdk/s3-request-presigner');
 const s3Client = new S3({});
 const s3 = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
@@ -330,6 +330,33 @@ app.get('/S3/get/image', async (req, res) => {
         }
     }
 });
+async function deleteFileFromS3(key, bucket) {
+    const command = new DeleteObjectCommand({
+        Bucket: bucket,
+        Key: key,
+    });
+
+    try {
+        await s3.send(command);
+        console.log(`Deleted ${key} from ${bucket}`);
+        return { success: true };
+    } catch (err) {
+        console.error('Error deleting file from S3:', err);
+        throw err;
+    }
+}
+// app.delete('/S3/delete/file', async (req, res) => {
+//     const { filePath } = req.query;
+//     const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
+//     console.log('=== /S3/delete/file =input= filePath:', filePath);
+
+//     try {
+//         await deleteFileFromS3(filePath, bucketName);
+//         res.json({ success: true, message: `File ${filePath} deleted.` });
+//     } catch (err) {
+//         res.status(500).json({ success: false, error: 'Failed to delete file', details: err });
+//     }
+// });
 
 app.get('/validate-location', async (req, res) => {
     const input = req.query.location;
@@ -664,13 +691,23 @@ app.get('/DB/posts/get', async (req, res) => {
 
 app.delete('/DB/clubs/delete/:club_id', async (req, res) => {
     const club_id = req.params.club_id;
+    const { clubPfpPath } = req.query;
+    const bucketName = process.env.S3_BUCKET_NAME || 'bucket-unify';
 
     if (!club_id) {
         return res.status(400).json({ message: 'Club ID is required.' });
     }
 
-    try{
-        // Then, delete the club itself
+    try {
+        if (clubPfpPath) {
+            try {
+                await deleteFileFromS3(clubPfpPath, bucketName);
+            } catch (err) {
+                console.warn('Could not delete club PFP from S3. Continuing with DB delete.');
+            }
+        }
+
+        // Then, delete the club itself from the DB
         const deleteClubQuery = 'DELETE FROM test.clubs WHERE id = ?';
         pool.query(deleteClubQuery, [club_id], (err, result) => {
             if (err) {
@@ -682,7 +719,7 @@ app.delete('/DB/clubs/delete/:club_id', async (req, res) => {
             }
 
             console.log(`Club with id ${club_id} deleted.`);
-            res.json({ message: 'Club deleted successfully', club_id });
+            res.json({ message: 'Club and profile picture deleted successfully', club_id });
         });
 
     } catch (error) {
