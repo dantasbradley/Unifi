@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
 interface ModifyEventModalProps {
   visible: boolean;
@@ -19,7 +20,7 @@ interface ModifyEventModalProps {
   onCreate: () => void;
 }
 
-const AddEventModal: React.FC<ModifyEventModalProps> = ({
+const ModifyEventModal: React.FC<ModifyEventModalProps> = ({
   visible,
   onClose,
   newEventTitle,
@@ -37,19 +38,19 @@ const AddEventModal: React.FC<ModifyEventModalProps> = ({
   const initialDate = newEventDate && !isNaN(Date.parse(newEventDate)) ? new Date(newEventDate) : new Date();
   const [date, setDate] = useState(initialDate);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [time, setTime] = useState(new Date());  // Use current time as initial state or parse newEventTime if it's provided.
+  const [time, setTime] = useState(new Date());
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setShowDatePicker(true);
     setDate(currentDate);
-    onChangeDate(currentDate.toISOString().split('T')[0]);  // Format the date to YYYY-MM-DD
+    onChangeDate(currentDate.toISOString().split('T')[0]);
   };
 
   const handleTimeChange = (event, selectedTime) => {
     const currentTime = selectedTime || time;
     setTime(currentTime);
-    onChangeTime(currentTime.toISOString().split('T')[1].substr(0, 8)); // Format the time to HH:mm:ss
+    onChangeTime(currentTime.toISOString().split('T')[1].substr(0, 8));
   };
 
   if (!visible) return null;
@@ -60,7 +61,7 @@ const AddEventModal: React.FC<ModifyEventModalProps> = ({
         <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
           <Ionicons name="close" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.modalTitle}>Add New Event</Text>
+        <Text style={styles.modalTitle}>Edit Event</Text>
 
         <Text style={styles.modalLabel}>Title:</Text>
         <TextInput
@@ -73,36 +74,43 @@ const AddEventModal: React.FC<ModifyEventModalProps> = ({
 
         <Text style={styles.modalLabel}>Date:</Text>
         <View style={styles.pickerContainer}>
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode="date"
-          display="default"
-          onChange={handleDateChange}
-          maximumDate={new Date(2300, 12, 31)}
-        />
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={date}
+            mode="date"
+            display="default"
+            onChange={handleDateChange}
+            maximumDate={new Date(2300, 12, 31)}
+          />
         </View>
 
         <Text style={styles.modalLabel}>Time:</Text>
-        <View style={styles.pickerContainer}></View>
         <View style={styles.pickerContainer}>
-        <DateTimePicker
-          testID="timePicker"
-          value={time}
-          mode="time"
-          display="default"
-          is24Hour={false}  // Optional: change this based on your locale preferences
-          onChange={handleTimeChange}
-        />
+          <DateTimePicker
+            testID="timePicker"
+            value={time}
+            mode="time"
+            display="default"
+            is24Hour={false}
+            onChange={handleTimeChange}
+          />
         </View>
 
         <Text style={styles.modalLabel}>Location:</Text>
-        <TextInput
-          style={styles.modalInput}
+        <GooglePlacesAutocomplete
           placeholder="e.g. Gainesville, FL"
-          placeholderTextColor="#aaa"
-          value={newEventLocation}
-          onChangeText={onChangeLocation}
+          onPress={(data, details = null) => {
+            onChangeLocation(data.description);
+          }}
+          query={{
+            key: "AIzaSyA5DukSRaMR1oJNR81YxttQsVRmJeFb-Bw",
+            language: 'en',
+          }}
+          fetchDetails={true}
+          styles={{
+            textInput: styles.modalInput,
+            container: { flex: 0 },
+          }}
         />
 
         <Text style={styles.modalLabel}>Description:</Text>
@@ -116,7 +124,7 @@ const AddEventModal: React.FC<ModifyEventModalProps> = ({
 
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.createButton} onPress={onCreate}>
-            <Text style={styles.createButtonText}>Edit Event</Text>
+            <Text style={styles.createButtonText}>Save Changes</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -136,22 +144,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   pickerContainer: {
-    width: "100%",  // Take full width of the modal container
-    alignItems: "center",  // Center align the date and time pickers
+    width: "100%",
+    alignItems: "center",
     marginBottom: 20,
-  },
-  modalText: {
-    backgroundColor: "#fff",
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-    color: "#000",
   },
   modalContainer: {
     backgroundColor: "#000",
     padding: 20,
     borderRadius: 10,
-    width: "80%",
+    width: "85%",
   },
   modalTitle: {
     color: "#fff",
@@ -170,12 +171,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     color: "#000",
-  },
-  dateText: {
-    color: "#000",
-  },
-  calendarIcon: {
-    color: "#000", // Adjust this color as needed
   },
   buttonRow: {
     flexDirection: "row",
@@ -197,7 +192,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 10,
     left: 10,
-  }
+  },
 });
 
-export default AddEventModal;
+export default ModifyEventModal;
