@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, RefreshControl } from "react-native";
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, RefreshControl, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
@@ -11,6 +11,8 @@ import EditToggleButton from "../../components/ExploreComponents/EditToggleButto
 import ModifyPostModal from "../../components/ExploreComponents/ModifyPostModal";
 import ModifyEventModal from "../../components/ExploreComponents/ModifyEventModal";
 import { CommunitiesContext } from "../../contexts/CommunitiesContext";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import 'react-native-get-random-values';
 
 export default function CommunityDetailsScreen() {
   const router = useRouter();
@@ -46,9 +48,10 @@ export default function CommunityDetailsScreen() {
   const [originalLocation, setOriginalLocation] = useState("");
   const [location, setLocation] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const googlePlacesRef = useRef(null);
 
   // Events state
-  const [events, setEvents] = useState("");
+  const [events, setEvents] = useState([]);
   const [eventModalVisible, setEventModalVisible] = useState(false);
   const [newEventTitle, setNewEventTitle] = useState("");
   const [newEventDate, setNewEventDate] = useState("");
@@ -58,7 +61,7 @@ export default function CommunityDetailsScreen() {
   const [newEventDescription, setNewEventDescription] = useState("");
 
   // Posts
-  const [communityPosts, setCommunityPosts] = useState("");
+  const [communityPosts, setCommunityPosts] = useState([]);
   const [postModalVisible, setPostModalVisible] = useState(false);
   const [newPostName, setNewPostName] = useState("");
   const [newPostContent, setNewPostContent] = useState("");
@@ -227,16 +230,6 @@ export default function CommunityDetailsScreen() {
     return finalString;
   };
   
-  
-  
-  
-  
-
-
-
-
-
-  
   const getTabColor = (tabName: string) => (activeTab === tabName ? "#fff" : "#999");
 
   // Toggle edit mode and save changes when toggling off
@@ -268,8 +261,6 @@ export default function CommunityDetailsScreen() {
       console.log(`No changes detected in ${field}.`);
     }
   };
-
-
 
   useEffect(() => {
     console.log("isAdmin: ", isAdmin);
@@ -349,8 +340,6 @@ export default function CommunityDetailsScreen() {
     setRefreshingPosts(false);
   };
   
-
-
   const handleFetchClubImage = async (filePath : any) => {
     const imageUrl = await fetchClubImage(`club_profile_pics/${id}_${name}`);
     setImageUrl(imageUrl); 
@@ -474,7 +463,12 @@ export default function CommunityDetailsScreen() {
     console.log("Attempting to edit event...");
     console.log("   • eventId:", eventId);
     console.log("   • updatedTitle:", updatedTitle);
-  
+    console.log("   • updatedDate:", updatedDate);
+    console.log("   • updatedStartTime:", updatedStartTime);
+    console.log("   • updatedEndTime:", updatedEndTime);
+    console.log("   • updatedLocation:", updatedLocation);
+    console.log("   • updatedDescription:", updatedDescription);
+
     try {
       const response = await fetch(`http://3.85.25.255:3000/DB/events/update/${eventId}`, {
         method: "PUT",
@@ -483,7 +477,7 @@ export default function CommunityDetailsScreen() {
           title: updatedTitle,
           date: updatedDate,
           start_time: updatedStartTime,
-          end_Time: updatedEndTime,
+          end_time: updatedEndTime,
           location: updatedLocation,
           description: updatedDescription,
         }),
@@ -504,13 +498,13 @@ export default function CommunityDetailsScreen() {
         setEvents((prevEvents) =>
           prevEvents.map((e) =>
             e.id === eventId
-              ? { ...e, title: updatedTitle, date: updatedDate, start_time: updatedStartTime, end_time: updateEndTime, location: updatedLocation, description: updatedDescription }
+              ? { ...e, title: updatedTitle, date: updatedDate, start_time: updatedStartTime, end_time: updatedEndTime, location: updatedLocation, description: updatedDescription }
               : e
           )
         );
         await handleRefreshEvents();
         setEditEventModalVisible(false);
-        const formattedDateTime = formatEventDateTime(updatedDate, updatedStartTime, updateEndTime);
+        const formattedDateTime = formatEventDateTime(updatedDate, updatedStartTime, updatedEndTime);
         const updateMessage = `Event title: ${updatedTitle} \nWhen: ${formattedDateTime}`;
         handleCreateNotification(updateMessage, "Event Updated");
       } else {
@@ -526,170 +520,171 @@ export default function CommunityDetailsScreen() {
     <View style={styles.container}>
       {/* Header Section */}
       {isAdmin && (
-      <View style={styles.header}>
-        {/* Back Arrow */}
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color="#fff" />
-        </TouchableOpacity>
-
-        {/* Community Name in Header */}
-        <Text style={styles.headerTitle}>{name}</Text>
-
-        {/* Tabs Row (Bio, Events, Community) */}
-        <View style={styles.tabsRow}>
-          <TouchableOpacity onPress={() => setActiveTab("Bio")} style={styles.tabButton}>
-            <Text style={[styles.tabText, { color: getTabColor("Bio") }]}>Bio</Text>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()}>
+            <Ionicons name="chevron-back" size={24} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setActiveTab("Events")} style={styles.tabButton}>
-            <Text style={[styles.tabText, { color: getTabColor("Events") }]}>Events</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setActiveTab("Community")} style={styles.tabButton}>
-            <Text style={[styles.tabText, { color: getTabColor("Community") }]}>Community</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      )}
-
-      {/* Main Content */}
-      <View style={styles.contentArea}>
-        {activeTab === "Bio" && (
-          <View>
-            {/* Bio Header with Edit Button */}
-            {isAdmin === "true" && (
-              <View style={styles.bioHeader}>
-                <EditToggleButton 
-                  editMode={editMode}
-                  onPress={toggleEditMode}
-                  style={styles.editButton}
-                />
-              </View>
-            )}
-            {/* <View style={styles.bioHeader}>
-              <EditToggleButton 
-                editMode={editMode}
-                onPress={toggleEditMode}
-                style={styles.editButton}
-              />
-            </View> */}
-
-            {/* Profile Image */}
-            <TouchableOpacity onPress={handleChangeImage}>
-              {/* <Image source={profileImage} style={styles.largeImage} /> */}
-              {imageUrl ? (
-                  <Image source={{ uri: imageUrl }} style={styles.largeImage} />
-              ) : (
-                  <Text>Loading image...</Text>
-              )}
-              {/* <Image source={{ uri: imageUrl }} style={{ width: 200, height: 200 }} /> */}
-
-              {editMode && <Text style={styles.changeImageText}>Change Image</Text>}
+          <Text style={styles.headerTitle}>{name}</Text>
+          <View style={styles.tabsRow}>
+            <TouchableOpacity onPress={() => setActiveTab("Bio")} style={styles.tabButton}>
+              <Text style={[styles.tabText, { color: getTabColor("Bio") }]}>Bio</Text>
             </TouchableOpacity>
-
-            {/* Description */}
-            <Text style={styles.sectionTitle}>Description</Text>
-            {editMode ? (
-              <TextInput
-                style={[styles.sectionText, styles.input]}
-                value={bioDescription}
-                onChangeText={setBioDescription}
-                multiline
-              />
-            ) : (
-              <Text style={styles.sectionText}>{bioDescription}</Text>
-            )}
-
-            {/* Contact Information */}
-            <Text style={styles.sectionTitle}>Contact Information</Text>
-            {editMode ? (
-              <>
-                <TextInput
-                  style={[styles.sectionText, styles.input]}
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="Email"
-                  placeholderTextColor="#aaa"
-                />
-                <TextInput
-                  style={[styles.sectionText, styles.input]}
-                  value={insta}
-                  onChangeText={setInsta}
-                  placeholder="Instagram"
-                  placeholderTextColor="#aaa"
-                />
-                <TextInput
-                  style={[styles.sectionText, styles.input]}
-                  value={location}
-                  onChangeText={setLocation}
-                  placeholder="Location"
-                  placeholderTextColor="#aaa"
-                />
-              </>
-            ) : (
-              <>
-                <Text style={styles.sectionText}>Email: {email}</Text>
-                <Text style={styles.sectionText}>Insta: {insta}</Text>
-                <Text style={styles.sectionText}>Location: {location}</Text>
-              </>
-            )}
-            {isAdmin === "true" && (
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => {
-                  Alert.alert(
-                    "Delete Club",
-                    "Are you sure you want to permanently delete this club?",
-                    [
-                      { text: "Cancel", style: "cancel" },
-                      {
-                        text: "Delete",
-                        style: "destructive",
-                        onPress: async () => {
-                          try {
-                            const encodedPfpPath = encodeURIComponent(`club_profile_pics/${id}_${name}`);
-                            const response = await fetch(`http://3.85.25.255:3000/DB/clubs/delete/${id}?clubPfpPath=${encodedPfpPath}`, {
-                              method: 'DELETE',
-                            });
-
-                            const result = await response.json();
-
-                            if (response.ok) {
-                              router.replace("/tabs/ExploreScreen"); // Go back to home or previous screen
-                            } else {
-                              Alert.alert("Error", result.message || "Failed to delete club.");
-                            }
-                          } catch (err) {
-                            console.error("Delete error:", err);
-                            Alert.alert("Error", "Could not connect to server.");
-                          }
-                        }
-                      }
-                    ]
-                  );
-                }}
-              >
-                <Text style={styles.deleteButtonText}>Delete Club</Text>
-              </TouchableOpacity>
-            )}
-
+            <TouchableOpacity onPress={() => setActiveTab("Events")} style={styles.tabButton}>
+              <Text style={[styles.tabText, { color: getTabColor("Events") }]}>Events</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setActiveTab("Community")} style={styles.tabButton}>
+              <Text style={[styles.tabText, { color: getTabColor("Community") }]}>Community</Text>
+            </TouchableOpacity>
           </View>
-        )}
-
-        {activeTab === "Events" && (
-          <View style={{ flex: 1 }}>
+        </View>
+      )}
+  
+      {/* Bio Tab */}
+      {activeTab === "Bio" && (
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            style={{ flex: 1 }}
+          >
             <FlatList
-          data={events}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <EventCard
-              event={item}
-              isAttending={attendingEvents.has(item.id)}
-              isAdmin={isAdmin === "true"}
-              onToggleAttend={() => toggleAttendEvent(item.id)}
-              onDelete={isAdmin === "true" ? () => {
-                Alert.alert(
-                  "Delete Event",
-                  `Are you sure you want to delete "${item.title}"?`,
-                  [
+              data={[]}
+              renderItem={null}
+              ListHeaderComponent={
+                <View style={styles.contentArea}>
+                  {isAdmin === "true" && (
+                    <View style={styles.bioHeader}>
+                      <EditToggleButton 
+                        editMode={editMode}
+                        onPress={toggleEditMode}
+                        style={styles.editButton}
+                      />
+                    </View>
+                  )}
+  
+                  <TouchableOpacity onPress={handleChangeImage}>
+                    {imageUrl ? (
+                      <Image source={{ uri: imageUrl }} style={styles.largeImage} />
+                    ) : (
+                      <Text>Loading image...</Text>
+                    )}
+                    {editMode && <Text style={styles.changeImageText}>Change Image</Text>}
+                  </TouchableOpacity>
+  
+                  <Text style={styles.sectionTitle}>Description</Text>
+                  {editMode ? (
+                    <TextInput
+                      style={[styles.sectionText, styles.input]}
+                      value={bioDescription}
+                      onChangeText={setBioDescription}
+                      multiline
+                    />
+                  ) : (
+                    <Text style={styles.sectionText}>{bioDescription}</Text>
+                  )}
+  
+                  <Text style={styles.sectionTitle}>Contact Information</Text>
+                  {editMode ? (
+                    <>
+                      <TextInput
+                        style={[styles.sectionText, styles.input]}
+                        value={email}
+                        onChangeText={setEmail}
+                        placeholder="Email"
+                        placeholderTextColor="#aaa"
+                      />
+                      <TextInput
+                        style={[styles.sectionText, styles.input]}
+                        value={insta}
+                        onChangeText={setInsta}
+                        placeholder="Instagram"
+                        placeholderTextColor="#aaa"
+                      />
+                      <GooglePlacesAutocomplete
+                        ref={googlePlacesRef}
+                        placeholder="Location"
+                        onPress={(data, details = null) => {
+                          setLocation(data.description);
+                        }}
+                        query={{
+                          key: "AIzaSyA5DukSRaMR1oJNR81YxttQsVRmJeFb-Bw",
+                          language: "en",
+                          types: "geocode",
+                        }}
+                        fetchDetails={true}
+                        styles={{
+                          textInput: styles.input,
+                          listView: { backgroundColor: "#fff", zIndex: 1000 },
+                        }}
+                        debounce={300}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Text style={styles.sectionText}>Email: {email}</Text>
+                      <Text style={styles.sectionText}>Insta: {insta}</Text>
+                      <Text style={styles.sectionText}>Location: {location}</Text>
+                    </>
+                  )}
+  
+                  {isAdmin === "true" && (
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => {
+                        Alert.alert(
+                          "Delete Club",
+                          "Are you sure you want to permanently delete this club?",
+                          [
+                            { text: "Cancel", style: "cancel" },
+                            {
+                              text: "Delete",
+                              style: "destructive",
+                              onPress: async () => {
+                                try {
+                                  const encodedPfpPath = encodeURIComponent(`club_profile_pics/${id}_${name}`);
+                                  const response = await fetch(`http://3.85.25.255:3000/DB/clubs/delete/${id}?clubPfpPath=${encodedPfpPath}`, {
+                                    method: 'DELETE',
+                                  });
+                                  const result = await response.json();
+                                  if (response.ok) {
+                                    router.replace("/tabs/ExploreScreen");
+                                  } else {
+                                    Alert.alert("Error", result.message || "Failed to delete club.");
+                                  }
+                                } catch (err) {
+                                  console.error("Delete error:", err);
+                                  Alert.alert("Error", "Could not connect to server.");
+                                }
+                              }
+                            }
+                          ]
+                        );
+                      }}
+                    >
+                      <Text style={styles.deleteButtonText}>Delete Club</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              }
+              keyboardShouldPersistTaps="handled"
+            />
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      )}
+  
+      {/* Events Tab */}
+      {activeTab === "Events" && (
+        <View style={{ flex: 1 }}>
+          <FlatList
+            data={events}
+            keyExtractor={(item) => item.id?.toString()}
+            renderItem={({ item }) => (
+              <EventCard
+                event={item}
+                isAttending={attendingEvents.has(item.id)}
+                isAdmin={isAdmin === "true"}
+                onToggleAttend={() => toggleAttendEvent(item.id)}
+                onDelete={isAdmin === "true" ? () => {
+                  Alert.alert("Delete Event", `Delete "${item.title}"?`, [
                     { text: "Cancel", style: "cancel" },
                     {
                       text: "Delete",
@@ -701,179 +696,146 @@ export default function CommunityDetailsScreen() {
                           });
                           const result = await response.json();
                           if (response.ok) {
-                            setEvents((prevEvents) => prevEvents.filter((e) => e.id !== item.id));
+                            setEvents((prev) => prev.filter((e) => e.id !== item.id));
                             const datetime = formatEventDateTime(item.date, item.start_time, item.end_time);
-                            const deleteMessage = `Event title: ${item.title} \nWhen: ${datetime}`;
-                            handleCreateNotification(deleteMessage, "Event Deleted");
-                          } else {
-                            Alert.alert("Error", result.message || "Failed to delete event.");
+                            handleCreateNotification(`Event title: ${item.title} \nWhen: ${datetime}`, "Event Deleted");
                           }
                         } catch (err) {
-                          console.error("Delete error:", err);
+                          console.error("Error:", err);
                           Alert.alert("Error", "Could not connect to server.");
                         }
                       }
                     }
-                  ]
-                );
-              } : undefined}
-          
-              onEdit={
-                isAdmin === "true"
-                  ? () => {
-                      setSelectedEventId(item.id);
-                      setEditEventTitle(item.title);
-                      setEditEventDate(item.date);
-                      setEditEventStartTime(item.start_time);
-                      setEditEventEndTime(item.end_time);
-                      setEditEventLocation(item.location);
-                      setEditEventDescription(item.description);
-                      setEditEventModalVisible(true);
-                    }
-                  : undefined
-              }              
-            />
-          )}
-          
-          style={{ marginTop: 10 }}
-          refreshControl={
-            <RefreshControl refreshing={refreshingEvents} onRefresh={handleRefreshEvents} />
-          }
-        />
-
-
-            <AddEventModal
-              visible={eventModalVisible}
-              onClose={() => setEventModalVisible(false)}
-              newEventTitle={newEventTitle}
-              onChangeTitle={setNewEventTitle}
-              newEventDate={newEventDate}
-              onChangeDate={setNewEventDate}
-              newEventStartTime={newEventStartTime}
-              onChangeStartTime={setNewEventStartTime}
-              newEventEndTime={newEventEndTime}
-              onChangeEndTime={setNewEventEndTime}
-              newEventLocation={newEventLocation}
-              onChangeLocation={setNewEventLocation}
-              newEventDescription={newEventDescription}
-              onChangeDescription={setNewEventDescription}
-              onCreate={handleCreateEvent}
-            />
-            <ModifyEventModal
-              visible={editEventModalVisible}
-              onClose={() => setEditEventModalVisible(false)}
-              newEventTitle={editEventTitle}
-              onChangeTitle={setEditEventTitle}
-              newEventDate={editEventDate}
-              onChangeDate={setEditEventDate}
-              newEventStartTime={editEventStartTime}
-              onChangeStartTime={setEditEventStartTime}
-              newEventEndTime={editEventEndTime}
-              onChangeEndTime={setEditEventEndTime}
-              newEventLocation={editEventLocation}
-              onChangeLocation={setEditEventLocation}
-              newEventDescription={editEventDescription}
-              onChangeDescription={setEditEventDescription}
-              onCreate={() => {
-                if (selectedEventId) {
-                  handleEditEvent(
-                    selectedEventId,
-                    editEventTitle,
-                    editEventDate,
-                    editEventStartTime,
-                    editEventEndTime,
-                    editEventLocation,
-                    editEventDescription
-                  );
+                  ]);
+                } : undefined}
+                onEdit={
+                  isAdmin === "true"
+                    ? () => {
+                        setSelectedEventId(item.id);
+                        setEditEventTitle(item.title);
+                        setEditEventDate(item.date);
+                        setEditEventStartTime(item.start_time);
+                        setEditEventEndTime(item.end_time);
+                        setEditEventLocation(item.location);
+                        setEditEventDescription(item.description);
+                        setEditEventModalVisible(true);
+                      }
+                    : undefined
                 }
-              }}
-            />
-
-
-
-            {/* Plus button to add event */}
-            {isAdmin === "true" && (
-              <TouchableOpacity style={styles.addButton} onPress={() => setEventModalVisible(true)}>
-                <Ionicons name="add" size={32} color="black" />
-              </TouchableOpacity>
+              />
             )}
-            {/* <TouchableOpacity style={styles.addButton} onPress={() => setEventModalVisible(true)}>
-              <Ionicons name="add" size={32} color="black" />
-            </TouchableOpacity> */}
-          </View>
-        )}
-
-        {activeTab === "Community" && (
-          <View style={{ flex: 1 }}>
-            <FlatList
-              data={communityPosts}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <View style={{ marginBottom: 10 }}>
-                  <PostCard
-                    post={item}
-                    isLiked={likedPosts.has(item.id)}
-                    onToggleLike={() => toggleLikePost(item.id)}
-                    onDelete={isAdmin === "true" ? () => handleDeletePost(item.id) : undefined}
-                    onEdit={
-                      isAdmin === "true"
-                        ? () => {
-                            setSelectedPostId(item.id);
-                            setEditPostTitle(item.title);
-                            setEditPostContent(item.content);
-                            setEditPostModalVisible(true);
-                          }
-                        : undefined
-                    }
-                  />
-
-                </View>
-                
-              )}
-              
-              style={{ marginTop: 10 }}
-              refreshControl={
-                <RefreshControl refreshing={refreshingPosts} onRefresh={handleRefreshPosts} />
-              }
-            />
-            <AddPostModal
-              visible={postModalVisible}
-              onClose={() => setPostModalVisible(false)}
-              newPostName={newPostName}
-              onChangeName={setNewPostName}
-              newPostContent={newPostContent}
-              onChangeContent={setNewPostContent}
-              onCreate={handleCreatePost}
-            />
-            <ModifyPostModal
-                visible={editPostModalVisible}
-                onClose={() => setEditPostModalVisible(false)}
-                newPostName={editPostTitle}
-                onChangeName={setEditPostTitle}
-                newPostContent={editPostContent}
-                onChangeContent={setEditPostContent}
-                onSubmit={() => {
-                  if (selectedPostId) {
-                    handleEditPost(selectedPostId, editPostTitle, editPostContent);
-                  }
-                }}
-                isEdit={true}
-            />
-
-            {/* Plus button to add post */}
-            {isAdmin === "true" && (
-              <TouchableOpacity style={styles.addButton} onPress={() => setPostModalVisible(true)}>
-                <Ionicons name="add" size={32} color="black" />
-              </TouchableOpacity>
+            refreshControl={<RefreshControl refreshing={refreshingEvents} onRefresh={handleRefreshEvents} />}
+          />
+  
+          {/* Add + Modify Event Modals */}
+          <AddEventModal
+            visible={eventModalVisible}
+            onClose={() => setEventModalVisible(false)}
+            newEventTitle={newEventTitle}
+            onChangeTitle={setNewEventTitle}
+            newEventDate={newEventDate}
+            onChangeDate={setNewEventDate}
+            newEventStartTime={newEventStartTime}
+            onChangeStartTime={setNewEventStartTime}
+            newEventEndTime={newEventEndTime}
+            onChangeEndTime={setNewEventEndTime}
+            newEventLocation={newEventLocation}
+            onChangeLocation={setNewEventLocation}
+            newEventDescription={newEventDescription}
+            onChangeDescription={setNewEventDescription}
+            onCreate={handleCreateEvent}
+          />
+          <ModifyEventModal
+            visible={editEventModalVisible}
+            onClose={() => setEditEventModalVisible(false)}
+            newEventTitle={editEventTitle}
+            onChangeTitle={setEditEventTitle}
+            newEventDate={editEventDate}
+            onChangeDate={setEditEventDate}
+            newEventStartTime={editEventStartTime}
+            onChangeStartTime={setEditEventStartTime}
+            newEventEndTime={editEventEndTime}
+            onChangeEndTime={setEditEventEndTime}
+            newEventLocation={editEventLocation}
+            onChangeLocation={setEditEventLocation}
+            newEventDescription={editEventDescription}
+            onChangeDescription={setEditEventDescription}
+            onCreate={() => selectedEventId && handleEditEvent(
+              selectedEventId,
+              editEventTitle,
+              editEventDate,
+              editEventStartTime,
+              editEventEndTime,
+              editEventLocation,
+              editEventDescription
             )}
-            {/* <TouchableOpacity style={styles.addButton} onPress={() => setPostModalVisible(true)}>
+          />
+  
+          {isAdmin === "true" && (
+            <TouchableOpacity style={styles.addButton} onPress={() => setEventModalVisible(true)}>
               <Ionicons name="add" size={32} color="black" />
-            </TouchableOpacity> */}
-          </View>
-        )}
-      </View>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+  
+      {/* Community Tab */}
+      {activeTab === "Community" && (
+        <View style={{ flex: 1 }}>
+          <FlatList
+            data={communityPosts}
+            keyExtractor={(item) => item.id?.toString()}
+            renderItem={({ item }) => (
+              <PostCard
+                post={item}
+                isLiked={likedPosts.has(item.id)}
+                onToggleLike={() => toggleLikePost(item.id)}
+                onDelete={isAdmin === "true" ? () => handleDeletePost(item.id) : undefined}
+                onEdit={
+                  isAdmin === "true"
+                    ? () => {
+                        setSelectedPostId(item.id);
+                        setEditPostTitle(item.title);
+                        setEditPostContent(item.content);
+                        setEditPostModalVisible(true);
+                      }
+                    : undefined
+                }
+              />
+            )}
+            refreshControl={<RefreshControl refreshing={refreshingPosts} onRefresh={handleRefreshPosts} />}
+          />
+  
+          <AddPostModal
+            visible={postModalVisible}
+            onClose={() => setPostModalVisible(false)}
+            newPostName={newPostName}
+            onChangeName={setNewPostName}
+            newPostContent={newPostContent}
+            onChangeContent={setNewPostContent}
+            onCreate={handleCreatePost}
+          />
+          <ModifyPostModal
+            visible={editPostModalVisible}
+            onClose={() => setEditPostModalVisible(false)}
+            newPostName={editPostTitle}
+            onChangeName={setEditPostTitle}
+            newPostContent={editPostContent}
+            onChangeContent={setEditPostContent}
+            onSubmit={() => selectedPostId && handleEditPost(selectedPostId, editPostTitle, editPostContent)}
+            isEdit={true}
+          />
+  
+          {isAdmin === "true" && (
+            <TouchableOpacity style={styles.addButton} onPress={() => setPostModalVisible(true)}>
+              <Ionicons name="add" size={32} color="black" />
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
     </View>
   );
+  
 }
 
 const styles = StyleSheet.create({
