@@ -633,7 +633,8 @@ export default function CommunityDetailsScreen() {
                         style: "destructive",
                         onPress: async () => {
                           try {
-                            const response = await fetch(`http://3.85.25.255:3000/DB/clubs/delete/${id}`, {
+                            const encodedPfpPath = encodeURIComponent(`club_profile_pics/${id}_${name}`);
+                            const response = await fetch(`http://3.85.25.255:3000/DB/clubs/delete/${id}?clubPfpPath=${encodedPfpPath}`, {
                               method: 'DELETE',
                             });
 
