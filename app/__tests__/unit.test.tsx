@@ -7,6 +7,8 @@ import { ReactTestInstance } from "react-test-renderer";
 import { press } from "@testing-library/react-native/build/user-event/press";
 import SignUp from "../screens/SignUp";
 import Toast from "react-native-toast-message";
+import VerifyEmail from "../screens/resetEmail";
+import Verification from "../screens/Verification";
 
 jest.mock("@react-native-async-storage/async-storage", () => {
     require('@react-native-async-storage/async-storage/jest/async-storage-mock');
@@ -69,8 +71,6 @@ describe("Front End Tests", () => {
             render(<Login/>);
 
             const loginButton = screen.getByText("Login");
-            const emailField = screen.getByPlaceholderText("Enter your email");
-            const passwordField = screen.getByPlaceholderText("Enter your password");
 
             fireEvent.press(loginButton);
             
@@ -159,7 +159,94 @@ describe("Front End Tests", () => {
 
             expect(await screen.findByText("Success")).toBeTruthy();
         })
+        
+        it("Navigate to resetEmail page when Forgot Password button clicked", () => {
+            renderRouter({ index: jest.fn(() => <Login/>), '/screens/resetEmail': jest.fn(() => <VerifyEmail/>)});
 
+            fireEvent.press(screen.getByText("Forgot password?"));
+
+            expect(screen).toHavePathname("/screens/resetEmail");
+        })
+
+    })
+
+    // Reset Email Page Tests
+    describe("Reset Email Page Tests", () => {
+
+        let fetchMock = jest.spyOn(global, "fetch").mockImplementation(jest.fn());
+
+        beforeEach(() => {
+            jest.clearAllMocks();
+        })
+
+        it("Default components render correctly", () => {
+            render(<VerifyEmail/>);
+
+            expect(screen.getByText("Email")).toBeOnTheScreen();
+            expect(screen.getByPlaceholderText("Enter your email")).toBeOnTheScreen();
+            expect(screen.getByText("Send Verification")).toBeOnTheScreen();
+            expect(screen.queryByRole("Toast")).not.toBeOnTheScreen();
+        })
+
+        it("Toast message renders correctly when email field is empty", async () => {
+            render(<VerifyEmail/>);
+
+            const button = screen.getByText("Send Verification");
+
+            fireEvent.press(button);
+
+            expect(await screen.findByText("Missing Email")).toBeTruthy();
+        })
+
+        it("Toast message renders correctly when email can't be verified", async () =>{
+            fetchMock.mockReturnValueOnce(Promise.resolve({ok: false, json: () => Promise.resolve({})} as Response));
+
+            render(<VerifyEmail/>);
+
+            const button = screen.getByText("Send Verification");
+            const email = screen.getByPlaceholderText("Enter your email");
+
+            await userEvent.type(email, "test");
+            fireEvent.press(button);
+
+            expect(await screen.findByText("Verification Failed")).toBeTruthy();
+        })
+
+        it("Toast message renders correctly when email is verified", async () => {
+            fetchMock.mockReturnValueOnce(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+
+            render(<VerifyEmail/>);
+
+            const button = screen.getByText("Send Verification");
+            const email = screen.getByPlaceholderText("Enter your email");
+
+            await userEvent.type(email, "test");
+            fireEvent.press(button);
+
+            expect(await screen.findByText("Verification Sent")).toBeTruthy();
+        })
+
+        // This test is a work in progress
+        it("Navigate to Reset Password Page", async () => {
+            fetchMock.mockReturnValueOnce(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+            jest.spyOn(global, "encodeURIComponent").mockReturnValueOnce("test");
+
+            jest.useFakeTimers();
+
+            renderRouter({'/screens/resetEmail': jest.fn(() => <VerifyEmail/>), '/screens/resetPassword?email=test': jest.fn(() => <Verification/>)}, {initialUrl: '/screens/resetEmail'});
+
+            expect(screen).toHavePathname("/screens/resetEmail");
+
+            const button = screen.getByText("Send Verification");
+            const email = screen.getByPlaceholderText("Enter your email");
+
+            await userEvent.type(email, "test");
+            fireEvent.press(button);
+
+            jest.advanceTimersByTime(1500);
+
+            expect(screen).toHavePathname("/screens/resetPassword?email=test");
+        }) 
     })
 })
 
