@@ -336,12 +336,10 @@ async function s3FileExists(key, bucket) {
         await s3.send(command);
         return true;
     } catch (err) {
-        console.log('Error checking S3 file existence:', err);
-        console.log('Error checking S3 file existence:', err.name);
         if (err.name === 'NotFound') {
             return false;
         }
-        throw err; // Throw if other error (e.g., bad permissions)
+        throw err;
     }
 }
 async function deleteFileFromS3(key, bucket) {
