@@ -773,6 +773,39 @@ app.put('/DB/posts/update/:post_id', (req, res) => {
 });
 
 
+// app.put('/DB/events/update/:event_id', (req, res) => {
+//     const { event_id } = req.params;
+//     const { title, date, start_time, end_time, location, description } = req.body;
+  
+//     console.log("=== /DB/events/update/:event_id =input=", {
+//       event_id, title, date, start_time, end_time, location, description
+//     });
+  
+//     if (!event_id || !title || !date || !start_time || !end_time|| !location || !description) {
+//       return res.status(400).json({ message: 'All fields are required.' });
+//     }
+  
+//     const query = `
+//       UPDATE test.events
+//       SET title = ?, date = ?, start_time = ?, end_time=?, location = ?, description = ?, updated_at = NOW()
+//       WHERE id = ?
+//     `;
+  
+//     pool.query(query, [title, date, start_time, end_time, location, description, event_id], (err, result) => {
+//       if (err) {
+//         console.error("Error updating event:", err);
+//         return res.status(500).json({ message: 'Database error', error: err });
+//       }
+  
+//       if (result.affectedRows === 0) {
+//         return res.status(404).json({ message: 'No event found with the provided ID.' });
+//       }
+  
+//       console.log(`✅ Event with ID ${event_id} updated.`);
+//       res.json({ message: "Event updated successfully", event_id });
+//     });
+//   });
+
 app.put('/DB/events/update/:event_id', (req, res) => {
     const { event_id } = req.params;
     const { title, date, start_time, end_time, location, description } = req.body;
@@ -781,19 +814,33 @@ app.put('/DB/events/update/:event_id', (req, res) => {
       event_id, title, date, start_time, end_time, location, description
     });
   
-    if (!event_id || !title || !date || !start_time || !end_time|| !location || !description) {
-      return res.status(400).json({ message: 'All fields are required.' });
+    // Collect missing fields
+    const missingFields = [];
+    if (!event_id) missingFields.push('event_id');
+    if (!title) missingFields.push('title');
+    if (!date) missingFields.push('date');
+    if (!start_time) missingFields.push('start_time');
+    if (!end_time) missingFields.push('end_time');
+    if (!location) missingFields.push('location');
+    if (!description) missingFields.push('description');
+  
+    if (missingFields.length > 0) {
+      console.warn(`❌ Missing fields in /DB/events/update/:event_id: ${missingFields.join(', ')}`);
+      return res.status(400).json({
+        message: 'Missing required fields.',
+        missing: missingFields
+      });
     }
   
     const query = `
       UPDATE test.events
-      SET title = ?, date = ?, start_time = ?, end_time=?, location = ?, description = ?, updated_at = NOW()
+      SET title = ?, date = ?, start_time = ?, end_time = ?, location = ?, description = ?, updated_at = NOW()
       WHERE id = ?
     `;
   
     pool.query(query, [title, date, start_time, end_time, location, description, event_id], (err, result) => {
       if (err) {
-        console.error("Error updating event:", err);
+        console.error("❌ Error updating event:", err);
         return res.status(500).json({ message: 'Database error', error: err });
       }
   
@@ -805,6 +852,7 @@ app.put('/DB/events/update/:event_id', (req, res) => {
       res.json({ message: "Event updated successfully", event_id });
     });
   });
+  
   
 
 app.delete('/DB/events/delete/:event_id', async (req, res) => {
