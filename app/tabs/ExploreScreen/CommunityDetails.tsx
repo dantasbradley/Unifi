@@ -72,7 +72,8 @@ export default function CommunityDetailsScreen() {
 
   const [editEventTitle, setEditEventTitle] = useState("");
   const [editEventDate, setEditEventDate] = useState("");
-  const [editEventTime, setEditEventTime] = useState("");
+  const [editEventStartTime, setEditEventStartTime] = useState("");
+  const [editEventEndTime, setEditEventEndTime] = useState("");
   const [editEventLocation, setEditEventLocation] = useState("");
   const [editEventDescription, setEditEventDescription] = useState("");
 
@@ -458,7 +459,7 @@ export default function CommunityDetailsScreen() {
     }
   };
 
-  const handleEditEvent = async (eventId, updatedTitle, updatedDate, updatedTime, updatedLocation, updatedDescription) => {
+  const handleEditEvent = async (eventId, updatedTitle, updatedDate, updatedStartTime, updatedEndTime, updatedLocation, updatedDescription) => {
     console.log("Attempting to edit event...");
     console.log("   • eventId:", eventId);
     console.log("   • updatedTitle:", updatedTitle);
@@ -470,8 +471,8 @@ export default function CommunityDetailsScreen() {
         body: JSON.stringify({
           title: updatedTitle,
           date: updatedDate,
-          time: updatedTime,
-          updatedTime: updatedTime,
+          start_time: updatedStartTime,
+          end_Time: updatedEndTime,
           location: updatedLocation,
           description: updatedDescription,
         }),
@@ -492,13 +493,13 @@ export default function CommunityDetailsScreen() {
         setEvents((prevEvents) =>
           prevEvents.map((e) =>
             e.id === eventId
-              ? { ...e, title: updatedTitle, date: updatedDate, time: updatedTime, location: updatedLocation, description: updatedDescription }
+              ? { ...e, title: updatedTitle, date: updatedDate, start_time: updatedStartTime, end_time: updateEndTime, location: updatedLocation, description: updatedDescription }
               : e
           )
         );
         await handleRefreshEvents();
         setEditEventModalVisible(false);
-        const formattedDateTime = formatEventDateTime(updatedDate, updatedTime);
+        const formattedDateTime = formatEventDateTime(updatedDate, updatedStartTime, updateEndTime);
         const updateMessage = `Event title: ${updatedTitle} \nWhen: ${formattedDateTime}`;
         handleCreateNotification(updateMessage, "Event Updated");
       } else {
@@ -711,7 +712,8 @@ export default function CommunityDetailsScreen() {
                       setSelectedEventId(item.id);
                       setEditEventTitle(item.title);
                       setEditEventDate(item.date);
-                      setEditEventTime(item.time);
+                      setEditEventStartTime(item.start_time);
+                      setEditEventEndTime(item.end_time);
                       setEditEventLocation(item.location);
                       setEditEventDescription(item.description);
                       setEditEventModalVisible(true);
@@ -752,8 +754,10 @@ export default function CommunityDetailsScreen() {
               onChangeTitle={setEditEventTitle}
               newEventDate={editEventDate}
               onChangeDate={setEditEventDate}
-              newEventTime={editEventTime}
-              onChangeTime={setEditEventTime}
+              newEventStartTime={editEventStartTime}
+              onChangeStartTime={setEditEventStartTime}
+              newEventEndTime={editEventEndTime}
+              onChangeEndTime={setEditEventEndTime}
               newEventLocation={editEventLocation}
               onChangeLocation={setEditEventLocation}
               newEventDescription={editEventDescription}
@@ -764,7 +768,8 @@ export default function CommunityDetailsScreen() {
                     selectedEventId,
                     editEventTitle,
                     editEventDate,
-                    editEventTime,
+                    editEventStartTime,
+                    editEventEndTime,
                     editEventLocation,
                     editEventDescription
                   );
