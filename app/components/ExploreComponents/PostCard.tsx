@@ -13,6 +13,7 @@ export interface Post {
   comments: number;
   clubName: string;
   clubImageUrl: string;
+  postImageUrl: string;
 }
 
 interface PostCardProps {
@@ -24,6 +25,7 @@ interface PostCardProps {
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike, onDelete, onEdit }) => {
+  console.log("PostCard rendered with postImageUrl:", post.postImageUrl);
   return (
     <View style={styles.card}>
       <View style={styles.header}>
@@ -42,6 +44,9 @@ const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike, onDele
       </View>
 
       <Text style={styles.title}>{post.title}</Text>
+      {post.postImageUrl && (
+          <Image source={{ uri: post.postImageUrl }} style={styles.postImage} />
+      )}
       <Text style={styles.content}>{post.content}</Text>
 
       <View style={styles.actions}>
@@ -91,6 +96,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginRight: 12,
   },
+  postImage: {
+    width: "100%",
+    aspectRatio: 1,
+    borderRadius: 10,
+    marginBottom: 12,
+    backgroundColor: "#222",
+  },
+  
   placeholderImage: {
     width: 48,
     height: 48,

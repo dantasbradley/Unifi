@@ -180,12 +180,12 @@ export default function CommunityDetailsScreen() {
         const data = await response.json();
 
         if (response.ok) {
-            await handleRefreshPosts();
             console.log("Message result:", data.message);
             if (imageUri) {
               console.log("uploading image: ", data.filePath);
-              uploadImage(imageUri, data.filePath);
+              await uploadImage(data.filePath, imageUri);
             }
+            await handleRefreshPosts();
             setPostModalVisible(false);
             setNewPostName("");
             setNewPostContent("");

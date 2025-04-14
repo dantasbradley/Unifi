@@ -1,5 +1,13 @@
-import React from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 
 interface AddPostModalProps {
@@ -9,7 +17,7 @@ interface AddPostModalProps {
   onChangeName: (value: string) => void;
   newPostContent: string;
   onChangeContent: (value: string) => void;
-  onCreate: () => void;
+  onCreate: (imageUri: string | null) => void; // Pass selected image URI to parent if needed
 }
 
 const AddPostModal: React.FC<AddPostModalProps> = ({
@@ -21,14 +29,44 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
   onChangeContent,
   onCreate,
 }) => {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   if (!visible) return null;
+
+  const handleImagePick = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      alert("Permission is required to access photos.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+  };
+
+  const handleCreate = () => {
+    onCreate(selectedImage); // Pass selected image or null to parent
+  };
 
   return (
     <View style={styles.modalOverlay}>
       <View style={styles.modalContainer}>
-      <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
+        <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
           <Ionicons name="close" size={24} color="#fff" />
         </TouchableOpacity>
+
         <Text style={styles.modalTitle}>Add New Post</Text>
 
         <Text style={styles.modalLabel}>Title:</Text>
@@ -49,8 +87,21 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
           onChangeText={onChangeContent}
         />
 
+        <TouchableOpacity style={styles.uploadButton} onPress={handleImagePick}>
+          <Text style={styles.uploadButtonText}>📷 Upload Photo (Optional)</Text>
+        </TouchableOpacity>
+
+        {selectedImage && (
+          <View style={styles.previewContainer}>
+            <Image source={{ uri: selectedImage }} style={styles.previewImage} />
+            <TouchableOpacity onPress={handleRemoveImage}>
+              <Text style={styles.removeText}>❌ Remove</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.createButton} onPress={onCreate}>
+          <TouchableOpacity style={styles.createButton} onPress={handleCreate}>
             <Text style={styles.createButtonText}>Create</Text>
           </TouchableOpacity>
         </View>
@@ -94,9 +145,33 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: "#000",
   },
+  uploadButton: {
+    backgroundColor: "#333",
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+  },
+  uploadButtonText: {
+    color: "#fff",
+    textAlign: "center",
+  },
+  previewContainer: {
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  previewImage: {
+    width: 200,
+    height: 120,
+    borderRadius: 10,
+    marginBottom: 5,
+  },
+  removeText: {
+    color: "#f66",
+    fontWeight: "bold",
+  },
   buttonRow: {
     flexDirection: "row",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   createButton: {
     backgroundColor: "#fff",
@@ -113,7 +188,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 10,
     left: 10,
-  }
+  },
 });
 
 export default AddPostModal;
