@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, RefreshControl } from "react-native";
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, RefreshControl, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
@@ -11,6 +11,8 @@ import EditToggleButton from "../../components/ExploreComponents/EditToggleButto
 import ModifyPostModal from "../../components/ExploreComponents/ModifyPostModal";
 import ModifyEventModal from "../../components/ExploreComponents/ModifyEventModal";
 import { CommunitiesContext } from "../../contexts/CommunitiesContext";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import 'react-native-get-random-values';
 
 export default function CommunityDetailsScreen() {
   const router = useRouter();
@@ -44,6 +46,7 @@ export default function CommunityDetailsScreen() {
   const [originalLocation, setOriginalLocation] = useState("");
   const [location, setLocation] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const googlePlacesRef = useRef(null);
 
   // Events state
   const [events, setEvents] = useState("");
@@ -540,127 +543,140 @@ export default function CommunityDetailsScreen() {
       )}
 
       {/* Main Content */}
-      <View style={styles.contentArea}>
-        {activeTab === "Bio" && (
-          <View>
-            {/* Bio Header with Edit Button */}
-            {isAdmin === "true" && (
-              <View style={styles.bioHeader}>
-                <EditToggleButton 
-                  editMode={editMode}
-                  onPress={toggleEditMode}
-                  style={styles.editButton}
-                />
-              </View>
-            )}
-            {/* <View style={styles.bioHeader}>
-              <EditToggleButton 
-                editMode={editMode}
-                onPress={toggleEditMode}
-                style={styles.editButton}
-              />
-            </View> */}
+      
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+        >
+          {activeTab === "Bio" && (
+            <FlatList
+              ListHeaderComponent={
+                <View style={styles.contentArea}>
+                  {isAdmin === "true" && (
+                    <View style={styles.bioHeader}>
+                      <EditToggleButton 
+                        editMode={editMode}
+                        onPress={toggleEditMode}
+                        style={styles.editButton}
+                      />
+                    </View>
+                  )}
 
-            {/* Profile Image */}
-            <TouchableOpacity onPress={handleChangeImage}>
-              {/* <Image source={profileImage} style={styles.largeImage} /> */}
-              {imageUrl ? (
-                  <Image source={{ uri: imageUrl }} style={styles.largeImage} />
-              ) : (
-                  <Text>Loading image...</Text>
-              )}
-              {/* <Image source={{ uri: imageUrl }} style={{ width: 200, height: 200 }} /> */}
+                  <TouchableOpacity onPress={handleChangeImage}>
+                    {imageUrl ? (
+                      <Image source={{ uri: imageUrl }} style={styles.largeImage} />
+                    ) : (
+                      <Text>Loading image...</Text>
+                    )}
+                    {editMode && <Text style={styles.changeImageText}>Change Image</Text>}
+                  </TouchableOpacity>
 
-              {editMode && <Text style={styles.changeImageText}>Change Image</Text>}
-            </TouchableOpacity>
+                  <Text style={styles.sectionTitle}>Description</Text>
+                  {editMode ? (
+                    <TextInput
+                      style={[styles.sectionText, styles.input]}
+                      value={bioDescription}
+                      onChangeText={setBioDescription}
+                      multiline
+                    />
+                  ) : (
+                    <Text style={styles.sectionText}>{bioDescription}</Text>
+                  )}
 
-            {/* Description */}
-            <Text style={styles.sectionTitle}>Description</Text>
-            {editMode ? (
-              <TextInput
-                style={[styles.sectionText, styles.input]}
-                value={bioDescription}
-                onChangeText={setBioDescription}
-                multiline
-              />
-            ) : (
-              <Text style={styles.sectionText}>{bioDescription}</Text>
-            )}
+                  <Text style={styles.sectionTitle}>Contact Information</Text>
+                  {editMode ? (
+                    <>
+                      <TextInput
+                        style={[styles.sectionText, styles.input]}
+                        value={email}
+                        onChangeText={setEmail}
+                        placeholder="Email"
+                        placeholderTextColor="#aaa"
+                      />
+                      <TextInput
+                        style={[styles.sectionText, styles.input]}
+                        value={insta}
+                        onChangeText={setInsta}
+                        placeholder="Instagram"
+                        placeholderTextColor="#aaa"
+                      />
+                      <GooglePlacesAutocomplete
+                        ref={googlePlacesRef}
+                        placeholder="Location"
+                        onPress={(data, details = null) => {
+                          setLocation(data.description);
+                        }}
+                        query={{
+                          key: "AIzaSyA5DukSRaMR1oJNR81YxttQsVRmJeFb-Bw",
+                          language: "en",
+                          types: "geocode",
+                        }}
+                        fetchDetails={true}
+                        styles={{
+                          textInput: styles.input,
+                          listView: { backgroundColor: "#fff", zIndex: 1000 },
+                        }}
+                        debounce={300}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Text style={styles.sectionText}>Email: {email}</Text>
+                      <Text style={styles.sectionText}>Insta: {insta}</Text>
+                      <Text style={styles.sectionText}>Location: {location}</Text>
+                    </>
+                  )}
 
-            {/* Contact Information */}
-            <Text style={styles.sectionTitle}>Contact Information</Text>
-            {editMode ? (
-              <>
-                <TextInput
-                  style={[styles.sectionText, styles.input]}
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="Email"
-                  placeholderTextColor="#aaa"
-                />
-                <TextInput
-                  style={[styles.sectionText, styles.input]}
-                  value={insta}
-                  onChangeText={setInsta}
-                  placeholder="Instagram"
-                  placeholderTextColor="#aaa"
-                />
-                <TextInput
-                  style={[styles.sectionText, styles.input]}
-                  value={location}
-                  onChangeText={setLocation}
-                  placeholder="Location"
-                  placeholderTextColor="#aaa"
-                />
-              </>
-            ) : (
-              <>
-                <Text style={styles.sectionText}>Email: {email}</Text>
-                <Text style={styles.sectionText}>Insta: {insta}</Text>
-                <Text style={styles.sectionText}>Location: {location}</Text>
-              </>
-            )}
-            {isAdmin === "true" && (
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => {
-                  Alert.alert(
-                    "Delete Club",
-                    "Are you sure you want to permanently delete this club?",
-                    [
-                      { text: "Cancel", style: "cancel" },
-                      {
-                        text: "Delete",
-                        style: "destructive",
-                        onPress: async () => {
-                          try {
-                            const response = await fetch(`http://3.85.25.255:3000/DB/clubs/delete/${id}`, {
-                              method: 'DELETE',
-                            });
+                  {isAdmin === "true" && (
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => {
+                        Alert.alert(
+                          "Delete Club",
+                          "Are you sure you want to permanently delete this club?",
+                          [
+                            { text: "Cancel", style: "cancel" },
+                            {
+                              text: "Delete",
+                              style: "destructive",
+                              onPress: async () => {
+                                try {
+                                  const response = await fetch(`http://3.85.25.255:3000/DB/clubs/delete/${id}`, {
+                                    method: 'DELETE',
+                                  });
 
-                            const result = await response.json();
+                                  const result = await response.json();
 
-                            if (response.ok) {
-                              router.replace("/tabs/ExploreScreen"); // Go back to home or previous screen
-                            } else {
-                              Alert.alert("Error", result.message || "Failed to delete club.");
+                                  if (response.ok) {
+                                    router.replace("/tabs/ExploreScreen");
+                                  } else {
+                                    Alert.alert("Error", result.message || "Failed to delete club.");
+                                  }
+                                } catch (err) {
+                                  console.error("Delete error:", err);
+                                  Alert.alert("Error", "Could not connect to server.");
+                                }
+                              }
                             }
-                          } catch (err) {
-                            console.error("Delete error:", err);
-                            Alert.alert("Error", "Could not connect to server.");
-                          }
-                        }
-                      }
-                    ]
-                  );
-                }}
-              >
-                <Text style={styles.deleteButtonText}>Delete Club</Text>
-              </TouchableOpacity>
-            )}
+                          ]
+                        );
+                      }}
+                    >
+                      <Text style={styles.deleteButtonText}>Delete Club</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              }
+              data={[]} // Required to avoid FlatList errors
+              renderItem={null}
+              keyboardShouldPersistTaps="handled"
+            />
+          )}
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+      
 
-          </View>
-        )}
 
         {activeTab === "Events" && (
           <View style={{ flex: 1 }}>
@@ -860,7 +876,6 @@ export default function CommunityDetailsScreen() {
           </View>
         )}
       </View>
-    </View>
   );
 }
 
