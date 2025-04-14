@@ -584,67 +584,56 @@ export default function CommunityDetailsScreen() {
                     <Text style={styles.sectionText}>{bioDescription}</Text>
                   )}
 
-                  <Text style={styles.sectionTitle}>Contact Information</Text>
-                  {editMode ? (
-                    <>
-                      <TextInput
-                        style={[styles.sectionText, styles.input]}
-                        value={email}
-                        onChangeText={setEmail}
-                        placeholder="Email"
-                        placeholderTextColor="#aaa"
-                      />
-                      <TextInput
-                        style={[styles.sectionText, styles.input]}
-                        value={insta}
-                        onChangeText={setInsta}
-                        placeholder="Instagram"
-                        placeholderTextColor="#aaa"
-                      />
-                      <GooglePlacesAutocomplete
-                        ref={googlePlacesRef}
-                        placeholder="Location"
-                        onPress={(data, details = null) => {
-                          setLocation(data.description);
-                        }}
-                        query={{
-                          key: "AIzaSyA5DukSRaMR1oJNR81YxttQsVRmJeFb-Bw",
-                          language: "en",
-                          types: "geocode",
-                        }}
-                        fetchDetails={true}
-                        styles={{
-                          textInput: styles.input,
-                          listView: { backgroundColor: "#fff", zIndex: 1000 },
-                        }}
-                        debounce={300}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Text style={styles.sectionText}>Email: {email}</Text>
-                      <Text style={styles.sectionText}>Insta: {insta}</Text>
-                      <Text style={styles.sectionText}>Location: {location}</Text>
-                    </>
-                  )}
-
-                  {isAdmin === "true" && (
-                    <TouchableOpacity
-                      style={styles.deleteButton}
-                      onPress={() => {
-                        Alert.alert(
-                          "Delete Club",
-                          "Are you sure you want to permanently delete this club?",
-                          [
-                            { text: "Cancel", style: "cancel" },
-                            {
-                              text: "Delete",
-                              style: "destructive",
-                              onPress: async () => {
-                                try {
-                                  const response = await fetch(`http://3.85.25.255:3000/DB/clubs/delete/${id}`, {
-                                    method: 'DELETE',
-                                  });
+            {/* Contact Information */}
+            <Text style={styles.sectionTitle}>Contact Information</Text>
+            {editMode ? (
+              <>
+                <TextInput
+                  style={[styles.sectionText, styles.input]}
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="Email"
+                  placeholderTextColor="#aaa"
+                />
+                <TextInput
+                  style={[styles.sectionText, styles.input]}
+                  value={insta}
+                  onChangeText={setInsta}
+                  placeholder="Instagram"
+                  placeholderTextColor="#aaa"
+                />
+                <TextInput
+                  style={[styles.sectionText, styles.input]}
+                  value={location}
+                  onChangeText={setLocation}
+                  placeholder="Location"
+                  placeholderTextColor="#aaa"
+                />
+              </>
+            ) : (
+              <>
+                <Text style={styles.sectionText}>Email: {email}</Text>
+                <Text style={styles.sectionText}>Insta: {insta}</Text>
+                <Text style={styles.sectionText}>Location: {location}</Text>
+              </>
+            )}
+            {isAdmin === "true" && (
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => {
+                  Alert.alert(
+                    "Delete Club",
+                    "Are you sure you want to permanently delete this club?",
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: "Delete",
+                        style: "destructive",
+                        onPress: async () => {
+                          try {
+                            const response = await fetch(`http://3.85.25.255:3000/DB/clubs/delete/${id}`, {
+                              method: 'DELETE',
+                            });
 
                                   const result = await response.json();
 
