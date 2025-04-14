@@ -466,7 +466,7 @@ export default function CommunityDetailsScreen() {
           title: updatedTitle,
           date: updatedDate,
           start_time: updatedStartTime,
-          end_Time: updatedEndTime,
+          end_time: updatedEndTime,
           location: updatedLocation,
           description: updatedDescription,
         }),
