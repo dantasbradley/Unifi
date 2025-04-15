@@ -816,19 +816,13 @@ app.put('/DB/posts/update/:post_id', (req, res) => {
         return res.status(400).json({ message: 'Post ID, title, and content are required.' });
     }
 
-    // Base query and parameters
-    let query = 'UPDATE test.posts SET title = ?, content = ?, updated_at = NOW()';
-    const params = [title, content];
 
-    // If filePath is provided, update it too
-    if (filePath) {
-        const newFilePath = `post_images/${post_id}_${title}`;
-        query += ', filePath = ?';
-        params.push(newFilePath);
-    }
-
-    query += ' WHERE id = ?';
-    params.push(post_id);
+    const query = `
+        UPDATE test.posts
+        SET title = ?, content = ?, updated_at = NOW(), filePath = ?
+        WHERE id = ?
+    `;
+    const params = [title, content, filePath, post_id];
 
     pool.query(query, params, (err, results) => {
         if (err) {
@@ -844,7 +838,7 @@ app.put('/DB/posts/update/:post_id', (req, res) => {
         return res.json({
             message: 'Post updated successfully',
             post_id,
-            ...(filePath && { filePath: `post_images/${post_id}_${title}` })
+            filePath
         });
     });
 });
