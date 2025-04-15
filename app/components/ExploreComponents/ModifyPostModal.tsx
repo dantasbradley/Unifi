@@ -1,5 +1,13 @@
-import React from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 
 interface ModifyPostModalProps {
@@ -9,7 +17,8 @@ interface ModifyPostModalProps {
   onChangeName: (value: string) => void;
   newPostContent: string;
   onChangeContent: (value: string) => void;
-  onSubmit: () => void;
+  onSubmit: (imageUri: string | null) => void;
+  existingImageUri?: string | null;
   isEdit?: boolean;
 }
 
@@ -21,9 +30,45 @@ const ModifyPostModal: React.FC<ModifyPostModalProps> = ({
   newPostContent,
   onChangeContent,
   onSubmit,
+  existingImageUri = null,
   isEdit = false,
 }) => {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (existingImageUri && visible) {
+      setSelectedImage(existingImageUri);
+    }
+  }, [existingImageUri, visible]);
+
   if (!visible) return null;
+
+  const handleImagePick = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      alert("Permission is required to access photos.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+  };
+
+  const handleSubmit = () => {
+    onSubmit(selectedImage);
+  };
 
   return (
     <View style={styles.modalOverlay}>
@@ -52,8 +97,21 @@ const ModifyPostModal: React.FC<ModifyPostModalProps> = ({
           onChangeText={onChangeContent}
         />
 
+        <TouchableOpacity style={styles.uploadButton} onPress={handleImagePick}>
+          <Text style={styles.uploadButtonText}>📷 {selectedImage ? "Change Photo" : "Upload Photo (Optional)"}</Text>
+        </TouchableOpacity>
+
+        {selectedImage && (
+          <View style={styles.previewContainer}>
+            <Image source={{ uri: selectedImage }} style={styles.previewImage} />
+            <TouchableOpacity onPress={handleRemoveImage}>
+              <Text style={styles.removeText}>❌ Remove</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.createButton} onPress={onSubmit}>
+          <TouchableOpacity style={styles.createButton} onPress={handleSubmit}>
             <Text style={styles.createButtonText}>{isEdit ? "Update" : "Create"}</Text>
           </TouchableOpacity>
         </View>
@@ -96,6 +154,30 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     color: "#000",
+  },
+  uploadButton: {
+    backgroundColor: "#333",
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+  },
+  uploadButtonText: {
+    color: "#fff",
+    textAlign: "center",
+  },
+  previewContainer: {
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  previewImage: {
+    width: 200,
+    height: 120,
+    borderRadius: 10,
+    marginBottom: 5,
+  },
+  removeText: {
+    color: "#f66",
+    fontWeight: "bold",
   },
   buttonRow: {
     flexDirection: "row",

@@ -68,6 +68,7 @@ export default function CommunityDetailsScreen() {
 
   const [editPostModalVisible, setEditPostModalVisible] = useState(false);
   const [editPostTitle, setEditPostTitle] = useState("");
+  const [editPostImageUri, setEditPostImageUri] = useState("");
   const [editPostContent, setEditPostContent] = useState("");
   const [selectedPostId, setSelectedPostId] = useState(null);
 
@@ -426,19 +427,25 @@ export default function CommunityDetailsScreen() {
     );
   };
 
-  const handleEditPost = async (postId, updatedTitle, updatedContent) => {
+  const handleEditPost = async (postId, updatedTitle, updatedContent, imageUri: string | null) => {
     console.log("Attempting to edit post...");
     console.log("   • postId:", postId);
     console.log("   • updatedTitle:", updatedTitle);
     console.log("   • updatedContent:", updatedContent);
+    console.log("   • imageUri:", imageUri);
   
     try {
+      let filePath = "";
+      if (imageUri) {
+        filePath = "yes";
+      }
       const response = await fetch(`http://3.85.25.255:3000/DB/posts/update/${postId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: updatedTitle,
           content: updatedContent,
+          filePath, 
         }),
       });
   
@@ -454,11 +461,10 @@ export default function CommunityDetailsScreen() {
       }
   
       if (response.ok) {
-        setCommunityPosts((prevPosts) =>
-          prevPosts.map((post) =>
-            post.id === postId ? { ...post, title: updatedTitle, content: updatedContent } : post
-          )
-        );
+        if (imageUri) {
+          console.log("uploading image: ", data.filePath);
+          await uploadImage(data.filePath, imageUri);
+        }
         await handleRefreshPosts();
         setEditPostModalVisible(false);
       } else {
@@ -843,6 +849,7 @@ export default function CommunityDetailsScreen() {
                         setSelectedPostId(item.id);
                         setEditPostTitle(item.title);
                         setEditPostContent(item.content);
+                        setEditPostImageUri(item.filePath);
                         setEditPostModalVisible(true);
                       }
                     : undefined
@@ -868,7 +875,11 @@ export default function CommunityDetailsScreen() {
             onChangeName={setEditPostTitle}
             newPostContent={editPostContent}
             onChangeContent={setEditPostContent}
-            onSubmit={() => selectedPostId && handleEditPost(selectedPostId, editPostTitle, editPostContent)}
+            onSubmit={(imageUri) =>
+              selectedPostId &&
+              handleEditPost(selectedPostId, editPostTitle, editPostContent, imageUri)
+            }
+            existingImageUri={editPostImageUri}
             isEdit={true}
           />
   
