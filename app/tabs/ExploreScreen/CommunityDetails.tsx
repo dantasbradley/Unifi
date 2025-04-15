@@ -28,6 +28,8 @@ export default function CommunityDetailsScreen() {
     fetchPostsForClub = () => {},
     fetchEventsForClub = () => {},
     fetchClubImage = () => {},
+    fetchPostImage = () => {},
+    uploadImage = () => {},
   } = useContext(CommunitiesContext) || {};
 
   const [activeTab, setActiveTab] = useState<"Bio" | "Events" | "Community">("Bio");
@@ -165,26 +167,35 @@ export default function CommunityDetailsScreen() {
   
 
   // Return white color if tab is active, else gray
-  const handleCreatePost = async () => {
+  const handleCreatePost = async (imageUri: string | null) => {
     if (!newPostName || !newPostContent) {
         Alert.alert("Error", "Title and content are required.");
         return;
     }
 
     try {
+        let filePath = "";
+        if (imageUri) {
+          filePath = "yes";
+        }
         const response = await fetch("http://3.85.25.255:3000/DB/posts/add", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 title: newPostName,
                 content: newPostContent,
-                filePath: "",
+                filePath,
                 club_id: id,
             }),
         });
         const data = await response.json();
 
         if (response.ok) {
+            console.log("Message result:", data.message);
+            if (imageUri) {
+              console.log("uploading image: ", data.filePath);
+              await uploadImage(data.filePath, imageUri);
+            }
             await handleRefreshPosts();
             setPostModalVisible(false);
             setNewPostName("");
@@ -345,7 +356,7 @@ export default function CommunityDetailsScreen() {
     setImageUrl(imageUrl); 
   };
 
-  const uploadImage = async (filePath : any, imageUri : any) => {
+  const uploadClubImage = async (filePath : any, imageUri : any) => {
     try {
         console.log("filePath: ", filePath);
         const response = await fetch(`http://3.85.25.255:3000/S3/get/upload-signed-url?filePath=${encodeURIComponent(filePath)}`);
@@ -379,7 +390,7 @@ export default function CommunityDetailsScreen() {
     });
 
     if (!result.canceled) {
-        uploadImage(`club_profile_pics/${id}_${name}`, result.assets[0].uri);
+        uploadClubImage(`club_profile_pics/${id}_${name}`, result.assets[0].uri);
     }
   };
 

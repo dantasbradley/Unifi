@@ -27,6 +27,8 @@ interface CommunitiesContextType {
   fetchEventsForClub: (clubId: string) => void;
   fetchNotificationsForClub: (clubId: string) => void;
   fetchClubImage: (filePath: any) => Promise<string>;
+  fetchPostImage: (filePath: any) => Promise<any>;
+  uploadImage: (filePath: any, imageUri: any) => Promise<void>;
 }
 
 export const CommunitiesContext = createContext<CommunitiesContextType | null>(null);
@@ -568,13 +570,16 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       // console.log("📦 Raw post data from backend:", data);
       const clubName = await fetchClubAttribute(clubId, "name");
       const clubImageUrl = await fetchClubImage(`club_profile_pics/${clubId}_${clubName}`);
-      const formattedPosts = data.map((post: any) => {
+      const formattedPosts = await Promise.all(data.map(async (post: any) => {
+        console.log("Post filepath:", post.filePath);
+        const postImageUrl = await fetchPostImage(post.filePath);
         return {
           ...post,
           clubName,
           clubImageUrl,
+          postImageUrl,
         };
-      });
+      }));
       return formattedPosts;
     } catch (error) {
       console.error("Error fetching posts for club:", error);
@@ -620,6 +625,40 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         console.error("Failed to fetch image:", error);
     }
   };
+  const fetchPostImage = async (filePath : any) => {
+    console.log("fetchPostImage, filePath: ", filePath);
+    if (filePath) {
+      try {
+        const response = await fetch(
+            `http://3.85.25.255:3000/S3/get/image?filePath=${encodeURIComponent(filePath)}&defaultPath=${encodeURIComponent(filePath)}`
+        );
+        const data = await response.json();
+        return data.url;
+      } catch (error) {
+        console.error("Failed to fetch image:", error);
+      }
+    }
+    else {
+      console.log("This post doesn't contain an image");
+      return null;
+    }
+  };
+  const uploadImage = async (filePath : any, imageUri : any) => {
+    try {
+        console.log("upload image, filePath: ", filePath);
+        const response = await fetch(`http://3.85.25.255:3000/S3/get/upload-signed-url?filePath=${encodeURIComponent(filePath)}`);
+        const { url } = await response.json();
+        const blob = await (await fetch(imageUri)).blob();
+        // Use the pre-signed URL to upload the blob
+        const uploadResponse = await fetch(url, {
+            method: 'PUT',
+            body: blob,
+        });
+    } catch (error) {
+        console.error('Failed to upload image:', error);
+        alert('Upload failed!');
+    }
+  };
 
   return (
     <CommunitiesContext.Provider
@@ -648,6 +687,8 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         fetchEvent,
         fetchNotificationsForClub,
         fetchClubImage,
+        fetchPostImage,
+        uploadImage,
       }}
     >
       {children}

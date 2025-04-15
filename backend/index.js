@@ -484,8 +484,34 @@ app.post('/DB/posts/add', (req, res) => {
     console.log('=== /DB/posts/add =input=', { title, content, filePath, club_id });
     if (!validateFields({ title, content, club_id }, res)) return;
 
-    const query = 'INSERT INTO test.posts (title, content, filePath, club_id) VALUES (?, ?, ?, ?)';
-    handleInsert(res, query, [title, content, filePath, club_id], 'Post added successfully');
+    const insertQuery = 'INSERT INTO test.posts (title, content, filePath, club_id) VALUES (?, ?, ?, ?)';
+    const insertParams = [title, content, filePath, club_id];
+
+    pool.query(insertQuery, insertParams, (insertError, insertResults) => {
+        if (insertError) {
+            console.error('Error executing insert:', insertError);
+            return res.status(500).json({ message: 'Database error', error: insertError });
+        }
+
+        const postId = insertResults.insertId;
+        console.log('Post added with ID:', postId);
+
+        // Check if we need to update filePath
+        if (filePath) {
+            const newFilePath = `post_images/${postId}_${title}`;
+            const updateQuery = 'UPDATE test.posts SET filePath = ? WHERE id = ?';
+            pool.query(updateQuery, [newFilePath, postId], (updateError) => {
+                if (updateError) {
+                    console.error('Error updating filePath:', updateError);
+                    return res.status(500).json({ message: 'Database error (update)', error: updateError });
+                }
+                console.log('filePath updated to:', newFilePath);
+                return res.status(201).json({ message: 'Post added and filePath updated', id: postId, filePath: newFilePath});
+            });
+        } else {
+            return res.status(201).json({ message: 'Post added successfully', id: postId });
+        }
+    });
 });
 
 app.delete('/DB/posts/delete/:post_id', async (req, res) => {
