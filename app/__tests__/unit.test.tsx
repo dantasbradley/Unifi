@@ -9,6 +9,8 @@ import SignUp from "../screens/SignUp";
 import Toast from "react-native-toast-message";
 import VerifyEmail from "../screens/resetEmail";
 import Verification from "../screens/Verification";
+import { router } from "expo-router";
+import { push } from "expo-router/build/global-state/routing";
 
 jest.mock("@react-native-async-storage/async-storage", () => {
     require('@react-native-async-storage/async-storage/jest/async-storage-mock');
@@ -226,12 +228,11 @@ describe("Front End Tests", () => {
             expect(await screen.findByText("Verification Sent")).toBeTruthy();
         })
 
-        // This test is a work in progress
         it("Navigate to Reset Password Page", async () => {
+            jest.useFakeTimers();
+            const encodingMock = jest.spyOn(global, "encodeURIComponent").mockImplementation((x: any) => x)
             fetchMock.mockReturnValueOnce(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
             jest.spyOn(global, "encodeURIComponent").mockReturnValueOnce("test");
-
-            jest.useFakeTimers();
 
             renderRouter({'/screens/resetEmail': jest.fn(() => <VerifyEmail/>), '/screens/resetPassword?email=test': jest.fn(() => <Verification/>)}, {initialUrl: '/screens/resetEmail'});
 
@@ -243,9 +244,11 @@ describe("Front End Tests", () => {
             await userEvent.type(email, "test");
             fireEvent.press(button);
 
-            jest.advanceTimersByTime(1500);
+            jest.advanceTimersByTimeAsync(1000);
 
-            expect(screen).toHavePathname("/screens/resetPassword?email=test");
+            await waitFor(async () => {
+                expect(screen).toHavePathnameWithParams("/screens/resetPassword?email=test");
+            })
         }) 
     })
 })
