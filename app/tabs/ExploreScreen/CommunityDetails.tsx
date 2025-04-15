@@ -85,29 +85,40 @@ export default function CommunityDetailsScreen() {
 
 
 
-  const handleCreateNotification = async (newTitle : any, newType : any) => {
-    if (!newTitle || !newType) {
-      console.log('All fields are required');
-      return res.status(400).json({ message: 'All fields are required.' });
+  const handleCreateNotification = async (eventTitle: string, changeType: string, modifiedFields?: string[]) => {
+    if (!eventTitle || !changeType) {
+      console.log("Missing title or change type.");
+      return;
     }
+  
+    // Compose dynamic title based on fields changed
+    const fieldsText = modifiedFields && modifiedFields.length > 0 
+      ? `Modified: ${modifiedFields.join(", ")}`
+      : "";
+  
+    const fullTitle = `${eventTitle} — ${changeType}${fieldsText ? ` | ${fieldsText}` : ""}`;
+  
     try {
-        const response = await fetch("http://3.85.25.255:3000/DB/notifications/add", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                title: newTitle,
-                type: newType,
-                club_id: id,
-            }),
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error("Failed to create notification");
-        console.log("Notification created: ", data);
+      const response = await fetch("http://3.85.25.255:3000/DB/notifications/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: fullTitle,
+          type: changeType,
+          club_id: id,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) throw new Error("Failed to create notification");
+      console.log("✅ Notification created:", data);
     } catch (error) {
-        console.error("Error creating notification:", error);
-        Alert.alert("Error", "Could not connect to server.");
+      console.error("❌ Error creating notification:", error);
+      Alert.alert("Error", "Could not connect to server.");
     }
   };
+  
 
   // Community posts state
   const handleCreateEvent = async () => {
@@ -459,6 +470,19 @@ export default function CommunityDetailsScreen() {
     }
   };
 
+  const formatToAmPm = (timeStr: string) => {
+    if (!timeStr) return "";
+    const [hour, minute] = timeStr.split(":").map(Number);
+    const date = new Date();
+    date.setHours(hour, minute || 0);
+    const hours = date.getHours();
+    const formattedHour = hours % 12 || 12;
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const formattedMinutes = date.getMinutes().toString().padStart(2, '0');
+    return `${formattedHour}:${formattedMinutes} ${ampm}`;
+  };
+  
+
   const handleEditEvent = async (eventId, updatedTitle, updatedDate, updatedStartTime, updatedEndTime, updatedLocation, updatedDescription) => {
     console.log("Attempting to edit event...");
     console.log("   • eventId:", eventId);
@@ -506,7 +530,29 @@ export default function CommunityDetailsScreen() {
         setEditEventModalVisible(false);
         const formattedDateTime = formatEventDateTime(updatedDate, updatedStartTime, updatedEndTime);
         const updateMessage = `Event title: ${updatedTitle} \nWhen: ${formattedDateTime}`;
-        handleCreateNotification(updateMessage, "Event Updated");
+        
+        const original = events.find(e => e.id === eventId);
+        console.log("📌 Original Event:", original);
+        const changes = [];
+
+        if (updatedTitle !== original?.title) changes.push(`Title → ${updatedTitle}`);
+        if (updatedDate !== original?.date) {
+          changes.push(`Date: ${original?.date} → ${updatedDate}`);
+        }
+        if (updatedStartTime !== original?.start_time) {
+          changes.push(`Start Time: ${formatToAmPm(original?.start_time)} → ${formatToAmPm(updatedStartTime)}`);
+        }
+        if (updatedEndTime !== original?.end_time) {
+          changes.push(`End Time: ${formatToAmPm(original?.end_time)} → ${formatToAmPm(updatedEndTime)}`);
+        }
+        
+        
+
+        if (updatedLocation !== original?.location) changes.push(`Location → ${updatedLocation}`);
+        if (updatedDescription !== original?.description) changes.push(`Description Changed`);
+        
+        handleCreateNotification(updatedTitle, "Event Updated", changes);
+
       } else {
         Alert.alert("Error", data.message || "Failed to update event.");
       }
