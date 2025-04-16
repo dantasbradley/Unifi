@@ -8,7 +8,7 @@ import { press } from "@testing-library/react-native/build/user-event/press";
 import SignUp from "../screens/SignUp";
 import Toast from "react-native-toast-message";
 import VerifyEmail from "../screens/resetEmail";
-import Verification from "../screens/Verification";
+import Verification from "../screens/resetPassword";
 import { router } from "expo-router";
 import { push } from "expo-router/build/global-state/routing";
 
@@ -17,6 +17,8 @@ jest.mock("@react-native-async-storage/async-storage", () => {
 })
 
 describe("Front End Tests", () => {
+
+    let fetchMock = jest.spyOn(global, "fetch").mockImplementation(jest.fn());
 
     // Auth Page Tests
     describe("Auth Screen Tests", () => {
@@ -175,8 +177,6 @@ describe("Front End Tests", () => {
     // Reset Email Page Tests
     describe("Reset Email Page Tests", () => {
 
-        let fetchMock = jest.spyOn(global, "fetch").mockImplementation(jest.fn());
-
         beforeEach(() => {
             jest.clearAllMocks();
         })
@@ -250,6 +250,118 @@ describe("Front End Tests", () => {
                 expect(screen).toHavePathnameWithParams("/screens/resetPassword?email=test");
             })
         }) 
+    })
+
+    describe("Reset Password Page Tests", () => {
+
+        beforeEach(() => {
+            jest.clearAllMocks();
+        })
+
+        it("Default text and buttons render correctly", () => {
+            renderRouter({index: jest.fn(() => <Verification/>)});
+
+            expect(screen.getByPlaceholderText("Enter the code sent to your email")).toBeOnTheScreen();
+            expect(screen.getByPlaceholderText("Enter new password")).toBeOnTheScreen();
+            expect(screen.getByPlaceholderText("Confirm new password")).toBeOnTheScreen();
+            expect(screen.getByText("Reset Password")).toBeOnTheScreen();
+        })
+
+        describe("Toast message renders correctly when fields are empty", () => {
+
+            it("All fields empty", async () => {
+                render(<Verification/>);
+
+                const button = screen.getByText("Reset Password");
+                fireEvent.press(button);
+
+                expect(await screen.findByText("Missing Fields")).toBeTruthy();
+            })
+
+            it("Verification code empty", async () => {
+                render(<Verification/>);
+
+                const password = screen.getByPlaceholderText("Enter new password");
+                const confirmation = screen.getByPlaceholderText("Confirm new password");
+                const button = screen.getByText("Reset Password");
+
+                await userEvent.type(password, "test");
+                await userEvent.type(confirmation, "test");
+
+                fireEvent.press(button);
+
+                expect(await screen.findByText("Missing Fields")).toBeTruthy();
+            })
+
+            it("Verification code and confirmation field empty", async () => {
+                render(<Verification/>);
+
+                const password = screen.getByPlaceholderText("Enter new password");
+                const button = screen.getByText("Reset Password");
+
+                await userEvent.type(password, "test");
+
+                fireEvent.press(button);
+
+                expect(await screen.findByText("Missing Fields")).toBeTruthy();
+            })
+
+            it("Verification code and password field empty", async () => {
+                render(<Verification/>);
+
+                const confirmation = screen.getByPlaceholderText("Confirm new password");
+                const button = screen.getByText("Reset Password");
+
+                await userEvent.type(confirmation, "test");
+
+                fireEvent.press(button);
+
+                expect(await screen.findByText("Missing Fields")).toBeTruthy();
+            })
+
+            it("Password field empty", async () => {
+                render(<Verification/>);
+
+                const verification = screen.getByPlaceholderText("Enter the code sent to your email");
+                const confirmation = screen.getByPlaceholderText("Confirm new password");
+                const button = screen.getByText("Reset Password");
+
+                await userEvent.type(verification, "test");
+                await userEvent.type(confirmation, "test");
+
+                fireEvent.press(button);
+
+                expect(await screen.findByText("Missing Fields")).toBeTruthy();
+            })
+
+            it("Password and confirmation field empty", async () => {
+                render(<Verification/>);
+
+                const verification = screen.getByPlaceholderText("Enter the code sent to your email");
+                const button = screen.getByText("Reset Password");
+
+                await userEvent.type(verification, "test");
+
+                fireEvent.press(button);
+
+                expect(await screen.findByText("Missing Fields")).toBeTruthy();
+            })
+
+            it("Confirmation field empty", async () => {
+                render(<Verification/>);
+
+                const verification = screen.getByPlaceholderText("Enter the code sent to your email");
+                const password = screen.getByPlaceholderText("Enter new password");
+                const button = screen.getByText("Reset Password");
+
+                await userEvent.type(verification, "test");
+                await userEvent.type(password, "test");
+
+                fireEvent.press(button);
+
+                expect(await screen.findByText("Missing Fields")).toBeTruthy();
+            })
+        })
     })
 })
 
