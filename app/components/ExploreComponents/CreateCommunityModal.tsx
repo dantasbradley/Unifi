@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import CustomButton from "./JoinButton";
 
 interface CreateCommunityModalProps {
@@ -42,12 +43,23 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
         />
 
         <Text style={styles.modalText}>Location:</Text>
-        <TextInput
-          style={styles.modalInput}
+        <GooglePlacesAutocomplete
           placeholder="Enter community location"
-          placeholderTextColor="#aaa"
           value={newCommunityLocation}
           onChangeText={onChangeLocation}
+          onPress={(data, details = null) => {
+            // The details parameter contains full information about the selected place.
+            onChangeLocation(data.description); // Only the location name is used here.
+          }}
+          query={{
+            key: "AIzaSyA5DukSRaMR1oJNR81YxttQsVRmJeFb-Bw",
+            language: "en",
+          }}
+          fetchDetails={true}
+          styles={{
+            textInput: styles.modalInput,
+            container: { flex: 0, width: "100%" },
+          }}
         />
 
         <View style={styles.modalButtonRow}>

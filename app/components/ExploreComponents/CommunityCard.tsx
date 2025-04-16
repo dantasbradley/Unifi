@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CustomButton from "./JoinButton"; 
@@ -11,11 +11,13 @@ export interface Community {
   description: string;
   membersCount: string;
   location: string;
+  imageUrl: string;
 }
 
 interface CommunityCardProps {
   community: Community;
   isJoined: boolean;
+  isAdmin: boolean;
   onToggleJoin: () => void;
   onPress: () => void;
 }
@@ -25,11 +27,18 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
   isJoined,
   onToggleJoin,
   onPress,
+  isAdmin,
 }) => {
+
   return (
     <View style={styles.cardContainer}>
       <TouchableOpacity style={styles.infoContainer} onPress={onPress} activeOpacity={0.8}>
-        <Image source={placeholderImage} style={styles.communityImage} />
+        {/* <Image source={placeholderImage} style={styles.communityImage} /> */}
+        {community.imageUrl ? (
+            <Image source={{ uri: community.imageUrl }} style={styles.communityImage} />
+        ) : (
+            <Image source={placeholderImage} style={styles.communityImage} />
+        )}
         <View style={styles.textContainer}>
           <Text style={styles.communityName}>{community.name}</Text>
           <View style={styles.secondLine}>
@@ -40,7 +49,9 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
           </View>
         </View>
       </TouchableOpacity>
-      <CustomButton title={isJoined ? "Joined" : "Join"} onPress={onToggleJoin} />
+      {isAdmin === false && (
+        <CustomButton title={isJoined ? "Joined" : "Join"} onPress={onToggleJoin} />
+      )}
     </View>
   );
 };

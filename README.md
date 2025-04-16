@@ -11,7 +11,11 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install @react-navigation/native
    npm install @react-navigation/stack
    npm install react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated react-native-vector-icons
-
+   npm install date-fns
+   npm install @react-native-community/datetimepicker
+   npm install axios
+   npm install react-native-google-places-autocomplete
+   npm install react-native-get-random-values
    ```
 
 2. Start the app

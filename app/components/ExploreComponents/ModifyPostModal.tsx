@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,26 +10,36 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 
-interface AddPostModalProps {
+interface ModifyPostModalProps {
   visible: boolean;
   onClose: () => void;
   newPostName: string;
   onChangeName: (value: string) => void;
   newPostContent: string;
   onChangeContent: (value: string) => void;
-  onCreate: (imageUri: string | null) => void; // Pass selected image URI to parent if needed
+  onSubmit: (imageUri: string | null) => void;
+  existingImageUri?: string | null;
+  isEdit?: boolean;
 }
 
-const AddPostModal: React.FC<AddPostModalProps> = ({
+const ModifyPostModal: React.FC<ModifyPostModalProps> = ({
   visible,
   onClose,
   newPostName,
   onChangeName,
   newPostContent,
   onChangeContent,
-  onCreate,
+  onSubmit,
+  existingImageUri = null,
+  isEdit = false,
 }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (existingImageUri && visible) {
+      setSelectedImage(existingImageUri);
+    }
+  }, [existingImageUri, visible]);
 
   if (!visible) return null;
 
@@ -56,8 +66,8 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
     setSelectedImage(null);
   };
 
-  const handleCreate = () => {
-    onCreate(selectedImage); // Pass selected image or null to parent
+  const handleSubmit = () => {
+    onSubmit(selectedImage);
   };
 
   return (
@@ -67,7 +77,7 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
           <Ionicons name="close" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text style={styles.modalTitle}>Add New Post</Text>
+        <Text style={styles.modalTitle}>{isEdit ? "Edit Post" : "Add New Post"}</Text>
 
         <Text style={styles.modalLabel}>Title:</Text>
         <TextInput
@@ -81,14 +91,14 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
         <Text style={styles.modalLabel}>Content:</Text>
         <TextInput
           style={styles.modalInput}
-          placeholder="Describe the event..."
+          placeholder="Describe the post..."
           placeholderTextColor="#aaa"
           value={newPostContent}
           onChangeText={onChangeContent}
         />
 
         <TouchableOpacity style={styles.uploadButton} onPress={handleImagePick}>
-          <Text style={styles.uploadButtonText}>📷 Upload Photo (Optional)</Text>
+          <Text style={styles.uploadButtonText}>📷 {selectedImage ? "Change Photo" : "Upload Photo (Optional)"}</Text>
         </TouchableOpacity>
 
         {selectedImage && (
@@ -101,8 +111,8 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
         )}
 
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.createButton} onPress={handleCreate}>
-            <Text style={styles.createButtonText}>Create</Text>
+          <TouchableOpacity style={styles.createButton} onPress={handleSubmit}>
+            <Text style={styles.createButtonText}>{isEdit ? "Update" : "Create"}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -191,4 +201,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddPostModal;
+export default ModifyPostModal;

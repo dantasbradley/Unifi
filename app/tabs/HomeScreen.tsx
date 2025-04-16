@@ -1,88 +1,99 @@
-import React, { useState } from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState, useEffect, useContext } from "react";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, RefreshControl } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommunitiesContext } from "../contexts/CommunitiesContext";
+import PostCard, { Post } from "../components/ExploreComponents/PostCard";
 
 const HomeScreen = () => {
-  // Sample data; replace later with data from communities
-  const [posts, setPosts] = useState([
-    {
-      id: "1",
-      user: "Coding Club",
-      time: "10h",
-      content: "Today, we have yet another day of coding...",
-      likes: 824,
-      comments: 0,
-    },
-    {
-      id: "2",
-      user: "Baking Society",
-      time: "2d",
-      content: "Today we are learning how to bake a tie-dye pizza for the local elementary school.",
-      likes: 592,
-      comments: 0,
-    },
-    {
-      id: "3",
-      user: "Art Enthusiasts",
-      time: "3d",
-      content: "Everyone can use a little art to brighten their day. Come join us as we teach seniors the basics of pottery at the local nursing home!",
-      likes: 0,
-      comments: 0,
-    },
-  ]);
+  const {
+    likedPosts = new Set(),
+    toggleLikePost = () => {},
+    joinedCommunities = new Set(),
+    fetchPostsForClub = () => {},
+  } = useContext(CommunitiesContext) || {};
 
-  // Function to "like" a post
-  const handleLike = (postId) => {
-    setPosts((currentPosts) =>
-      currentPosts.map((post) =>
-        post.id === postId ? { ...post, likes: post.likes + 1 } : post
-      )
-    );
+  const [posts, setPosts] = useState([]);
+  // const [joinedCommunities, setJoinedCommunities] = useState(new Set());
+
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(Date.now());
+  // Function to refresh the community posts
+  const handleRefresh = async () => {
+    console.log("refreshing home screen");
+    setRefreshing(true);
+    try {
+      setPosts([]);
+      await fetchJoinedCommunitiesPosts(); 
+      setRefreshKey(Date.now()); // 👈 Forces FlatList to refresh
+    } catch (error) {
+      console.error("Error refreshing communities:", error);
+    }
+    setRefreshing(false);
   };
 
-  const renderPost = ({ item }) => {
-    return (
-      <View style={styles.postContainer}>
-        {/* Header: user name and time */}
-        <View style={styles.postHeader}>
-          <Text style={styles.userName}>{item.user}</Text>
-          <Text style={styles.postTime}>{item.time}</Text>
-        </View>
+  useEffect(() => {
+    setPosts([]);
+    fetchJoinedCommunitiesPosts();
+  }, [joinedCommunities]);
 
-        {/* Content */}
-        <Text style={styles.postContent}>{item.content}</Text>
+  useEffect(() => {
+    fetchJoinedCommunitiesPosts();
+  }, [likedPosts]);
 
-        {/* Actions row (like, comment, share) */}
-        <View style={styles.postActions}>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => handleLike(item.id)}
-          >
-            <Ionicons name="heart-outline" size={20} color="#fff" />
-            <Text style={styles.actionText}>{item.likes}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="chatbubble-outline" size={20} color="#fff" />
-            <Text style={styles.actionText}>{item.comments}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="share-social-outline" size={20} color="#fff" />
-            <Text style={styles.actionText}>Share</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+  const fetchJoinedCommunitiesPosts = async () => {
+    console.log("Fetching posts for joined communities");
+    const communityIds = Array.from(joinedCommunities);
+    // Fetch posts for all clubs in parallel
+    const allPostsArrays = await Promise.all(
+      communityIds.map(async (clubId: string) => {
+        console.log(`Fetching posts for club: ${clubId}`);
+        return fetchPostsForClub(clubId);
+      })
     );
+
+    // Flatten the array of arrays
+    const allPosts = allPostsArrays.flat();
+    // Deduplicate based on post.id
+    const uniquePostsMap = new Map();
+    allPosts.forEach((post) => {
+      if (!uniquePostsMap.has(post.id)) {
+        uniquePostsMap.set(post.id, post);
+      }
+    });
+    const uniquePosts = Array.from(uniquePostsMap.values());
+    // Sort newest first
+    const sortedPosts = uniquePosts.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+    // console.log(`✅ Final sorted, deduped posts: ${JSON.stringify(sortedPosts)}`);
+    setPosts(sortedPosts);
   };
+  
 
   return (
     <View style={styles.container}>
-      {/* Feed */}
       <FlatList
+        key={refreshKey}
         data={posts}
         keyExtractor={(item) => item.id}
-        renderItem={renderPost}
+        renderItem={({ item }) => (
+          <PostCard
+            post={item}
+            isLiked={likedPosts.has(item.id)}
+            onToggleLike={() => toggleLikePost(item.id)}
+          />
+        )}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>
+              This page shows the events and posts of your following communities.
+            </Text>
+            <Text style={styles.emptyText}>Go to the explore page to follow some communities.</Text>
+          </View>
+        }
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
       />
     </View>
   );
@@ -107,7 +118,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 5,
   },
-  userName: {
+  title: {
     color: "#fff",
     fontWeight: "bold",
   },
@@ -133,5 +144,17 @@ const styles = StyleSheet.create({
   actionText: {
     color: "#fff",
     marginLeft: 5,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  emptyText: {
+    color: "#fff",
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 5,
   },
 });
