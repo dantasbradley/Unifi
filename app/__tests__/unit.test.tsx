@@ -3,14 +3,9 @@ import { fireEvent, render, userEvent, waitFor } from "@testing-library/react-na
 import { renderRouter, screen } from 'expo-router/testing-library';
 import AuthScreen from "../screens/AuthScreen";
 import Login from "../screens/Login";
-import { ReactTestInstance } from "react-test-renderer";
-import { press } from "@testing-library/react-native/build/user-event/press";
 import SignUp from "../screens/SignUp";
-import Toast from "react-native-toast-message";
 import VerifyEmail from "../screens/resetEmail";
 import Verification from "../screens/resetPassword";
-import { router } from "expo-router";
-import { push } from "expo-router/build/global-state/routing";
 
 jest.mock("@react-native-async-storage/async-storage", () => {
     require('@react-native-async-storage/async-storage/jest/async-storage-mock');
@@ -248,7 +243,7 @@ describe("Front End Tests", () => {
 
             await waitFor(async () => {
                 expect(screen).toHavePathnameWithParams("/screens/resetPassword?email=test");
-            })
+            });
         }) 
     })
 
@@ -361,6 +356,85 @@ describe("Front End Tests", () => {
 
                 expect(await screen.findByText("Missing Fields")).toBeTruthy();
             })
+        })
+
+        it("Toast message renders correctly when passwords mismatch", async () => {
+            render(<Verification/>);
+
+            const verification = screen.getByPlaceholderText("Enter the code sent to your email");
+            const password = screen.getByPlaceholderText("Enter new password");
+            const confirmation = screen.getByPlaceholderText("Confirm new password");
+            const button = screen.getByText("Reset Password");
+
+            await userEvent.type(verification, "test");
+            await userEvent.type(password, "test");
+            await userEvent.type(confirmation, "teehee");
+
+            fireEvent.press(button);
+
+            expect(await screen.findByText("Passwords Do Not Match")).toBeTruthy();
+        })
+
+        it("Toast message renders correctly when password successfully reset", async () => {
+            fetchMock.mockReturnValueOnce(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+
+            render(<Verification/>);
+
+            const verification = screen.getByPlaceholderText("Enter the code sent to your email");
+            const password = screen.getByPlaceholderText("Enter new password");
+            const confirmation = screen.getByPlaceholderText("Confirm new password");
+            const button = screen.getByText("Reset Password");
+
+            await userEvent.type(verification, "test");
+            await userEvent.type(password, "test");
+            await userEvent.type(confirmation, "test");
+
+            fireEvent.press(button);
+
+            expect(await screen.findByText("Password Reset Successful")).toBeTruthy();
+        })
+
+        it("Toast message renders correctly when response status is not ok", async () => {
+            fetchMock.mockReturnValueOnce(Promise.resolve({ok: false, json: () => Promise.resolve({message: "Test Error Message"})} as Response));
+
+            render(<Verification/>);
+
+            const verification = screen.getByPlaceholderText("Enter the code sent to your email");
+            const password = screen.getByPlaceholderText("Enter new password");
+            const confirmation = screen.getByPlaceholderText("Confirm new password");
+            const button = screen.getByText("Reset Password");
+
+            await userEvent.type(verification, "test");
+            await userEvent.type(password, "test");
+            await userEvent.type(confirmation, "test");
+
+            fireEvent.press(button);
+
+            expect(await screen.findByText("Test Error Message")).toBeTruthy();
+        })
+
+        it("Navigate to Login Page after completing reset", async () => {
+            jest.useFakeTimers();
+            fetchMock.mockReturnValueOnce(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+
+            renderRouter({ 'screens/resetPassword': jest.fn(() => <Verification/>,), 'screens/Login': jest.fn(() => <Login/>) }, { initialUrl: 'screens/resetPassword' });
+
+            const verification = screen.getByPlaceholderText("Enter the code sent to your email");
+            const password = screen.getByPlaceholderText("Enter new password");
+            const confirmation = screen.getByPlaceholderText("Confirm new password");
+            const button = screen.getByText("Reset Password");
+
+            await userEvent.type(verification, "test");
+            await userEvent.type(password, "test");
+            await userEvent.type(confirmation, "test");
+
+            fireEvent.press(button);
+
+            jest.advanceTimersByTimeAsync(1000);
+
+            await waitFor(async () => {
+                expect(screen).toHavePathname("/screens/Login");
+            });
         })
     })
 })
