@@ -27,8 +27,8 @@ export default function TabLayout() {
             headerTitle: "",
             headerStyle: {
               backgroundColor: "#DAD7CD",
-              borderBottomWidth: 1,
-              borderBottomColor: "#588157",
+              borderBottomWidth: 0.75,
+              borderBottomColor: "#344E41",
               elevation: 4,
             },
             headerTitleStyle: { color: "#588157" },
@@ -37,8 +37,8 @@ export default function TabLayout() {
               backgroundColor: "#DAD7CD",
               height: 88,
               paddingBottom: 12,
-              borderTopWidth: 1,
-              borderTopColor: "#588157",
+              borderTopWidth: 0.75,
+              borderTopColor: "#344E41",
               elevation: 4,
             },
             tabBarItemStyle: {
