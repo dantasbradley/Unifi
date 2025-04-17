@@ -25,7 +25,7 @@ const HomeScreen = () => {
     try {
       setPosts([]);
       await fetchJoinedCommunitiesPosts(); 
-      setRefreshKey(Date.now()); // 👈 Forces FlatList to refresh
+      setRefreshKey(Date.now());
     } catch (error) {
       console.error("Error refreshing communities:", error);
     }
@@ -65,10 +65,8 @@ const HomeScreen = () => {
     // Sort newest first
     const sortedPosts = uniquePosts.sort((a, b) => new Date(b.time) - new Date(a.time));
 
-    // console.log(`✅ Final sorted, deduped posts: ${JSON.stringify(sortedPosts)}`);
     setPosts(sortedPosts);
   };
-  
 
   return (
     <View style={styles.container}>
@@ -104,11 +102,11 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#DAD7CD",
     padding: 10,
   },
   postContainer: {
-    backgroundColor: "#222",
+    backgroundColor: "#A3B18A",
     padding: 15,
     borderRadius: 8,
     marginBottom: 10,
@@ -119,14 +117,14 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   title: {
-    color: "#fff",
+    color: "#344E41",
     fontWeight: "bold",
   },
   postTime: {
-    color: "#999",
+    color: "#588157",
   },
   postContent: {
-    color: "#fff",
+    color: "#344E41",
     marginBottom: 10,
     lineHeight: 20,
   },
@@ -142,7 +140,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   actionText: {
-    color: "#fff",
+    color: "#344E41",
     marginLeft: 5,
   },
   emptyContainer: {
@@ -152,7 +150,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   emptyText: {
-    color: "#fff",
+    color: "#344E41",
     fontSize: 16,
     textAlign: "center",
     marginBottom: 5,

@@ -22,14 +22,29 @@ export default function TabLayout() {
         screenOptions={({ route }) => ({
           headerShown: true,
           headerTitle: "",
-          headerStyle: { backgroundColor: "black" },
+          headerStyle: {
+            backgroundColor: "#DAD7CD",
+            borderBottomWidth: 1,
+            borderBottomColor: "#A3B18A",
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 4,
+          },
           headerTitleStyle: { color: "white" },
 
           tabBarStyle: {
-            backgroundColor: "black",
+            backgroundColor: "#DAD7CD",
             height: 95,
             paddingBottom: 15,
-            borderTopWidth: 0,
+            borderTopWidth: 1,
+            borderTopColor: "#A3B18A",
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.05,
+            shadowRadius: 4,
+            elevation: 4,
           },
           tabBarItemStyle: {
             height: 95,
@@ -54,7 +69,7 @@ export default function TabLayout() {
                   style={{
                     width: 34,
                     height: 34,
-                    tintColor: focused ? "white" : "gray",
+                    tintColor: focused ? "#2A3C2A" : "#5F7756",
                   }}
                 />
               </View>
