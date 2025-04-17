@@ -20,7 +20,6 @@
 //   return (
 //     <CommunitiesProvider>
 //       <View style={styles.container}>
-//         {/* 👇 Only render Sidebar on HomeScreen */}
 //         {isHomeScreen && <Sidebar />}
 
 //         <Tabs

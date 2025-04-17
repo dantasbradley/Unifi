@@ -5,7 +5,7 @@ const transformPackages = [
     "@expo",
     "expo",
     "expo-asset",
-    "expo-constants", // ✅ NEW
+    "expo-constants", 
     "expo-router",
     "expo-modules-core",
     "react-native-google-places-autocomplete",
