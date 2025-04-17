@@ -171,7 +171,7 @@ export default function TabLayout() {
             headerLeft: () =>
               route.name === "HomeScreen" ? (
                 <TouchableOpacity onPress={toggleSidebar} style={styles.hamburger}>
-                  <Image source={menuIcon} style={{ width: 24, height: 24 }} />
+                  <Image source={menuIcon} style={{ width: 24, height: 24}} />
                 </TouchableOpacity>
               ) : null,
           })}

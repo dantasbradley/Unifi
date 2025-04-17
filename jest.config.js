@@ -1,17 +1,26 @@
-module.exports = {
-    preset: 'jest-expo',
+const transformPackages = [
+    "react-native",
+    "@react-native",
+    "@react-navigation",
+    "@expo",
+    "expo",
+    "expo-asset",
+    "expo-constants", // ✅ NEW
+    "expo-router",
+    "expo-modules-core",
+    "react-native-google-places-autocomplete",
+    "uuid"
+  ];
+  
+  module.exports = {
+    preset: "jest-expo",
+    setupFiles: ["./jestSetup.js"],
     transform: {
-      '^.+\\.[jt]sx?$': 'babel-jest',
+      "^.+\\.[jt]sx?$": "babel-jest"
     },
     transformIgnorePatterns: [
-      'node_modules/(?!(expo|expo-font|expo-asset|expo-router|expo-modules-core|react-native|@react-native|@expo|@react-navigation)/)',
+      `node_modules/(?!((${transformPackages.join("|")})/))`
     ],
-    setupFilesAfterEnv: [],
-    moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-    testPathIgnorePatterns: ['/node_modules/', '/app-example/'],
-    moduleNameMapper: {
-      '^@/(.*)$': '<rootDir>/app/$1',
-      '\\.(jpg|jpeg|png|gif|webp|svg|ttf|otf|woff|woff2|eot)$': '<rootDir>/__mocks__/fileMock.js',
-    },
+    moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"]
   };
   

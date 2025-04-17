@@ -2,6 +2,7 @@
   "name": "react-native-unifi",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "private": true,
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -19,9 +20,9 @@
     "@react-navigation/native": "^7.0.14",
     "@react-navigation/stack": "^7.1.1",
     "@types/xdate": "^0.8.35",
+    "axios": "^1.8.4",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
-    "axios": "^1.8.4",
     "date-fns": "^4.1.0",
     "expo": "~52.0.27",
     "expo-blur": "~14.0.2",
@@ -71,7 +72,6 @@
     "react-test-renderer": "18.3.1",
     "typescript": "^5.7.3"
   },
-  "private": true,
   "description": "This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).",
   "repository": {
     "type": "git",
