@@ -22,10 +22,12 @@ const ProfileScreen = () => {
     // Define dynamic styles based on editMode
     const getInputStyle = () => ({
         flex: 1,
-        backgroundColor: editMode ? '#fff' : '#000', // White when editing, black otherwise
-        color: editMode ? '#000' : '#fff', // Black text when editing, white otherwise
+        backgroundColor: editMode ? '#D3D3D3' : '#fff', // Grey when editing, white otherwise
+        //color: editMode ? '#000' : '#000', // Changes text when editing
         padding: 12,
         borderRadius: 5,
+        borderWidth: 0.1,
+        borderColor: '#000',
     });
 
     useEffect(() => {
@@ -240,11 +242,11 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000',
+        backgroundColor: '#DAD7CD',
         padding: 20,
     },
     header: {
-        backgroundColor: '#000',
+        backgroundColor: '#344E41',
         paddingVertical: 20,
         paddingHorizontal: 20,
         borderBottomWidth: 1,
@@ -271,7 +273,7 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     sectionHeader: {
-        color: '#fff',
+        color: '#344E41',
         fontWeight: 'bold',
         fontSize: 18,
         marginTop: 20,
@@ -284,16 +286,18 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     label: {
-        color: '#fff',
+        color: '#344E41',
         marginRight: 10,
         width: 100,  // Fixed width for alignment
     },
     input: {
         flex: 1,
-        backgroundColor: '#000',
-        color: '#fff',
+        backgroundColor: '#fff',
+        color: '#344E41',
         padding: 12,
         borderRadius: 5,
+        borderWidth: 0.1,
+        borderColor: '#000',
     },
     imageContainer: {
         justifyContent: 'center',
@@ -316,7 +320,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
     uploadButton: {
-        backgroundColor: '#d3d3d3',
+        backgroundColor: '#A3B18A',
         padding: 10,
         borderRadius: 5,
         alignItems: 'center',
@@ -336,7 +340,7 @@ const styles = StyleSheet.create({
         marginVertical: 5,
     },
     notificationText: {
-        color: '#fff',
+        color: '#344E41',
         flex: 1,
         marginRight: 10,
     },

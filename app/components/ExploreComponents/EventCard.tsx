@@ -131,7 +131,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, isAttending, onToggleAtten
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#3A5A40",
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,

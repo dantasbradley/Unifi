@@ -133,7 +133,7 @@ const CalendarScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#DAD7CD",
     alignItems: "center",
   },
   calendarContainer: {
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 16,
-    color: "#fff",
+    color: "#344E41",
     marginBottom: 8,
     alignSelf: "center",
   },

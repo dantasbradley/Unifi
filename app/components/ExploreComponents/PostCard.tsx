@@ -75,7 +75,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike, onDele
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#1C1C1E",
+    backgroundColor: "#3A5A40",
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,

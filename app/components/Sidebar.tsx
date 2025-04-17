@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#344E41",
     padding: 15,
   },
   regularAddButton: {

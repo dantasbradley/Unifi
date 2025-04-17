@@ -78,7 +78,7 @@ const NotificationScreen: React.FC<NotificationProps> = ({ profile }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#000",
+    backgroundColor: "#DAD7CD",
     flexDirection: "column",
     alignItems: "stretch",
     justifyContent: "center",

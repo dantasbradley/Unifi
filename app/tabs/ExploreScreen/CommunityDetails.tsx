@@ -898,12 +898,12 @@ export default function CommunityDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#DAD7CD",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#000",
+    backgroundColor: "#344E41",
     paddingHorizontal: 10,
     paddingVertical: 12,
   },
@@ -943,13 +943,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    color: "#fff",
+    color: "#344E41",
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 5,
   },
   sectionText: {
-    color: "#fff",
+    color: "#344E41",
     marginBottom: 15,
   },
   input: {
