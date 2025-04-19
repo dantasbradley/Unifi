@@ -6,6 +6,9 @@ import Login from "../screens/Login";
 import SignUp from "../screens/SignUp";
 import VerifyEmail from "../screens/resetEmail";
 import Verification from "../screens/resetPassword";
+import HomeScreen from "../tabs/HomeScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorageMock from '@react-native-async-storage/async-storage/jest/async-storage-mock';
 
 jest.mock("@react-native-async-storage/async-storage", () => {
     require('@react-native-async-storage/async-storage/jest/async-storage-mock');
@@ -166,6 +169,29 @@ describe("Front End Tests", () => {
 
             expect(screen).toHavePathname("/screens/resetEmail");
         })
+
+        // it("Navigate to Home Page after successful login", async () => {
+        //     AsyncStorageMock.setItem = jest.fn(() => Promise.resolve());
+        //     jest.useFakeTimers();
+        //     fetchMock.mockReturnValueOnce(Promise.resolve({ok: true, json: () => Promise.resolve({ cognitoSub: "test" })} as Response));
+
+        //     renderRouter({ 'screens/Login': jest.fn(() => <Login/>), 'tabs/HomeScreen': jest.fn(() => <HomeScreen/>) }, { initialUrl: 'screens/Login' });
+
+        //     const loginButton = screen.getByText("Login");
+        //     const emailField = screen.getByPlaceholderText("Enter your email");
+        //     const passwordField = screen.getByPlaceholderText("Enter your password");
+
+        //     await userEvent.type(emailField, "test1");
+        //     await userEvent.type(passwordField, "test2");
+
+        //     fireEvent.press(loginButton);
+
+        //     jest.advanceTimersByTime(1000);
+            
+        //     await waitFor(async () => {
+        //         expect(screen).toHavePathname("tabs/HomeScreen");
+        //     });
+        // })
 
     })
 
