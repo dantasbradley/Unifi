@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform, Alert, ScrollView } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform, Alert, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -85,95 +85,104 @@ const ModifyEventModal: React.FC<ModifyEventModalProps> = ({
   };
 
   if (!visible) return null;
-
+  
   return (
-    <View style={styles.modalOverlay}>
-      <View style={styles.modalContainer}>
-        <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
-          <Ionicons name="close" size={24} color="#111111" />
-        </TouchableOpacity>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.modalOverlay}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.modalContainer}>
+          <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
+            <Ionicons name="close" size={24} color="#111111" />
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.postButton} onPress={handleCreate}>
-          <Text style={styles.postButtonText}>Save</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.postButton} onPress={handleCreate}>
+            <Text style={styles.postButtonText}>Save</Text>
+          </TouchableOpacity>
 
-        <Text style={styles.modalTitle}>Edit Event</Text>
+          <Text style={styles.modalTitle}>Edit Event</Text>
 
-        <ScrollView contentContainerStyle={styles.scrollViewContent} keyboardShouldPersistTaps="handled">
-          <Text style={styles.modalLabel}>Title:</Text>
-          <TextInput
-            style={styles.modalInput}
-            placeholder="e.g. Book Drive"
-            placeholderTextColor="#aaa"
-            value={newEventTitle}
-            onChangeText={onChangeTitle}
-          />
-
-          <Text style={styles.modalLabel}>Date:</Text>
-          <View style={styles.pickerContainer}>
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={date}
-              mode="date"
-              display="default"
-              onChange={handleDateChange}
-              maximumDate={new Date(2300, 12, 31)}
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <Text style={styles.modalLabel}>Title:</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="e.g. Book Drive"
+              placeholderTextColor="#aaa"
+              value={newEventTitle}
+              onChangeText={onChangeTitle}
             />
-          </View>
 
-          <Text style={styles.modalLabel}>Start Time:</Text>
-          <View style={styles.pickerContainer}>
-            <DateTimePicker
-              testID="timePicker"
-              value={start_time}
-              mode="time"
-              display="default"
-              is24Hour={false}
-              onChange={handleTimeStartChange}
+            <Text style={styles.modalLabel}>Date:</Text>
+            <View style={styles.pickerContainer}>
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={date}
+                mode="date"
+                display="default"
+                onChange={handleDateChange}
+                maximumDate={new Date(2300, 12, 31)}
+              />
+            </View>
+
+            <Text style={styles.modalLabel}>Start Time:</Text>
+            <View style={styles.pickerContainer}>
+              <DateTimePicker
+                testID="timePicker"
+                value={start_time}
+                mode="time"
+                display="default"
+                is24Hour={false}
+                onChange={handleTimeStartChange}
+              />
+            </View>
+
+            <Text style={styles.modalLabel}>End Time:</Text>
+            <View style={styles.pickerContainer}>
+              <DateTimePicker
+                testID="timePicker"
+                value={end_time}
+                mode="time"
+                display="default"
+                is24Hour={false}
+                onChange={handleTimeEndChange}
+              />
+            </View>
+
+            <Text style={styles.modalLabel}>Location:</Text>
+            <GooglePlacesAutocomplete
+              placeholder="e.g. Gainesville, FL"
+              onPress={(data, details = null) => {
+                onChangeLocation(data.description);
+              }}
+              query={{
+                key: "AIzaSyA5DukSRaMR1oJNR81YxttQsVRmJeFb-Bw",
+                language: 'en',
+              }}
+              fetchDetails={true}
+              styles={{
+                textInput: styles.modalInput,
+                container: { flex: 0 },
+              }}
             />
-          </View>
 
-          <Text style={styles.modalLabel}>End Time:</Text>
-          <View style={styles.pickerContainer}>
-            <DateTimePicker
-              testID="timePicker"
-              value={end_time}
-              mode="time"
-              display="default"
-              is24Hour={false}
-              onChange={handleTimeEndChange}
+            <Text style={styles.modalLabel}>Description:</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Describe the event..."
+              placeholderTextColor="#aaa"
+              value={newEventDescription}
+              onChangeText={onChangeDescription}
             />
-          </View>
 
-          <Text style={styles.modalLabel}>Location:</Text>
-          <GooglePlacesAutocomplete
-            placeholder="e.g. Gainesville, FL"
-            onPress={(data, details = null) => {
-              onChangeLocation(data.description);
-            }}
-            query={{
-              key: "AIzaSyA5DukSRaMR1oJNR81YxttQsVRmJeFb-Bw",
-              language: 'en',
-            }}
-            fetchDetails={true}
-            styles={{
-              textInput: styles.modalInput,
-              container: { flex: 0 },
-            }}
-          />
-
-          <Text style={styles.modalLabel}>Description:</Text>
-          <TextInput
-            style={styles.modalInput}
-            placeholder="Describe the event..."
-            placeholderTextColor="#aaa"
-            value={newEventDescription}
-            onChangeText={onChangeDescription}
-          />
-
-        </ScrollView>
-      </View>
-    </View>
+          </ScrollView>
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -227,6 +236,9 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     paddingBottom: 30,
+  },
+  scrollContainer: {
+    paddingBottom: 100,
   },
   postButton: {
     position: "absolute",
