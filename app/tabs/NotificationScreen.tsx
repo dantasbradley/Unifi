@@ -20,14 +20,14 @@ const NotificationScreen: React.FC<NotificationProps> = ({ profile }) => {
     const [refreshKey, setRefreshKey] = useState(Date.now());
 
     const handleRefresh = async () => {
-        console.log("refreshing home screen");
+        console.log("Refreshing notification screen");
         setRefreshing(true);
         try {
             setNotifications([]);
             await fetchJoinedCommunitiesNotifications();
             setRefreshKey(Date.now());
         } catch (error) {
-            console.error("Error refreshing communities:", error);
+            console.error("Error refreshing community notifications:", error);
         }
         setRefreshing(false);
     };
@@ -38,13 +38,11 @@ const NotificationScreen: React.FC<NotificationProps> = ({ profile }) => {
     }, [joinedCommunities]);
 
     const fetchJoinedCommunitiesNotifications = async () => {
-        console.log("Joined clubs:", Array.from(joinedCommunities));
         joinedCommunities.forEach(handleFetchNotificationsForClub);
     };
 
     const handleFetchNotificationsForClub = async (clubId: any) => {
         const data = await fetchNotificationsForClub(clubId);
-        console.log("Fetched Notifs: ", data);
         setNotifications((prevNotifs) => {
             const uniqueNotifs = new Set(prevNotifs.map((notif) => notif.id));
             const newNotifs = data.filter((notif) => !uniqueNotifs.has(notif.id));

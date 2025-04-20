@@ -14,18 +14,18 @@ const HomeScreen = () => {
   } = useContext(CommunitiesContext) || {};
 
   const [posts, setPosts] = useState([]);
-  // const [joinedCommunities, setJoinedCommunities] = useState(new Set());
 
   const [refreshing, setRefreshing] = useState(false);
   const [refreshKey, setRefreshKey] = useState(Date.now());
+
   // Function to refresh the community posts
   const handleRefresh = async () => {
-    console.log("refreshing home screen");
+    console.log("Refreshing home screen");
     setRefreshing(true);
     try {
       setPosts([]);
       await fetchJoinedCommunitiesPosts(); 
-      setRefreshKey(Date.now()); // 👈 Forces FlatList to refresh
+      setRefreshKey(Date.now());
     } catch (error) {
       console.error("Error refreshing communities:", error);
     }
@@ -42,16 +42,13 @@ const HomeScreen = () => {
   }, [likedPosts]);
 
   const fetchJoinedCommunitiesPosts = async () => {
-    console.log("Fetching posts for joined communities");
     const communityIds = Array.from(joinedCommunities);
-    // Fetch posts for all clubs in parallel
     const allPostsArrays = await Promise.all(
       communityIds.map(async (clubId: string) => {
         console.log(`Fetching posts for club: ${clubId}`);
         return fetchPostsForClub(clubId);
       })
     );
-
     // Flatten the array of arrays
     const allPosts = allPostsArrays.flat();
     // Deduplicate based on post.id
@@ -64,8 +61,6 @@ const HomeScreen = () => {
     const uniquePosts = Array.from(uniquePostsMap.values());
     // Sort newest first
     const sortedPosts = uniquePosts.sort((a, b) => new Date(b.time) - new Date(a.time));
-
-    // console.log(`✅ Final sorted, deduped posts: ${JSON.stringify(sortedPosts)}`);
     setPosts(sortedPosts);
   };
   
@@ -86,9 +81,9 @@ const HomeScreen = () => {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
-              This page shows the events and posts of your following communities.
+              This page shows the posts of your following communities
             </Text>
-            <Text style={styles.emptyText}>Go to the explore page to follow some communities.</Text>
+            <Text style={styles.emptyText}>Go to the explore page to follow some communities</Text>
           </View>
         }
         refreshControl={

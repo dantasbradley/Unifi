@@ -25,7 +25,6 @@ interface PostCardProps {
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike, onDelete, onEdit }) => {
-  console.log("PostCard rendered with postImageUrl:", post.postImageUrl);
   return (
     <View style={styles.card}>
       <View style={styles.header}>

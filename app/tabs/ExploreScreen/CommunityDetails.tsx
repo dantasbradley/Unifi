@@ -36,21 +36,20 @@ export default function CommunityDetailsScreen() {
   const [refreshingEvents, setRefreshingEvents] = useState(false);
   const [refreshingPosts, setRefreshingPosts] = useState(false);
 
-
-  // State for Bio editing
+  // Bio
   const [editMode, setEditMode] = useState(false);
-  const [originalBioDescription, setOriginalBioDescription] = useState(""); // Store the original value
+  const [originalBioDescription, setOriginalBioDescription] = useState("");
   const [bioDescription, setBioDescription] = useState("");
-  const [originalEmail, setOriginalEmail] = useState(""); // Store the original value
+  const [originalEmail, setOriginalEmail] = useState("");
   const [email, setEmail] = useState("");  
-  const [originalInsta, setOriginalInsta] = useState(""); // Store the original value
+  const [originalInsta, setOriginalInsta] = useState("");
   const [insta, setInsta] = useState("");
   const [originalLocation, setOriginalLocation] = useState("");
   const [location, setLocation] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const googlePlacesRef = useRef(null);
 
-  // Events state
+  // Events
   const [events, setEvents] = useState([]);
   const [eventModalVisible, setEventModalVisible] = useState(false);
   const [newEventTitle, setNewEventTitle] = useState("");
@@ -59,23 +58,9 @@ export default function CommunityDetailsScreen() {
   const [newEventEndTime, setNewEventEndTime] = useState("");
   const [newEventLocation, setNewEventLocation] = useState("");
   const [newEventDescription, setNewEventDescription] = useState("");
-
-  // Posts
-  const [communityPosts, setCommunityPosts] = useState([]);
-  const [postModalVisible, setPostModalVisible] = useState(false);
-  const [newPostName, setNewPostName] = useState("");
-  const [newPostContent, setNewPostContent] = useState("");
-
-  const [editPostModalVisible, setEditPostModalVisible] = useState(false);
-  const [editPostTitle, setEditPostTitle] = useState("");
-  const [editPostImageUri, setEditPostImageUri] = useState("");
-  const [editPostContent, setEditPostContent] = useState("");
-  const [selectedPostId, setSelectedPostId] = useState(null);
-
-  //events
+  // edit Events
   const [editEventModalVisible, setEditEventModalVisible] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState(null);
-
   const [editEventTitle, setEditEventTitle] = useState("");
   const [editEventDate, setEditEventDate] = useState("");
   const [editEventStartTime, setEditEventStartTime] = useState("");
@@ -83,9 +68,206 @@ export default function CommunityDetailsScreen() {
   const [editEventLocation, setEditEventLocation] = useState("");
   const [editEventDescription, setEditEventDescription] = useState("");
 
+  // Posts
+  const [communityPosts, setCommunityPosts] = useState([]);
+  const [postModalVisible, setPostModalVisible] = useState(false);
+  const [newPostName, setNewPostName] = useState("");
+  const [newPostContent, setNewPostContent] = useState("");
+  // edit Posts
+  const [editPostModalVisible, setEditPostModalVisible] = useState(false);
+  const [editPostTitle, setEditPostTitle] = useState("");
+  const [editPostImageUri, setEditPostImageUri] = useState("");
+  const [editPostContent, setEditPostContent] = useState("");
+  const [selectedPostId, setSelectedPostId] = useState(null);
 
+  //refreshes
+  const handleRefreshEvents = async () => {
+    setRefreshingEvents(true);
+    try {
+      await handleFetchEventsForClub(id);
+    } catch (error) {
+      console.error("Error refreshing events:", error);
+    }
+    setRefreshingEvents(false);
+  };
+  const handleRefreshPosts = async () => {
+    setRefreshingPosts(true);
+    try {
+      await handleFetchPostsForClub(id);
+    } catch (error) {
+      console.error("Error refreshing posts:", error);
+    }
+    setRefreshingPosts(false);
+  };
+  // Fetch posts and events when the component mounts
+  useEffect(() => {
+    handleFetchPostsForClub(id);
+    handleFetchEventsForClub(id);
+  }, []);
+  // Fetch posts or events when the likedPosts or attendingEvents change
+  useEffect(() => {
+    handleFetchPostsForClub(id);
+  }, [likedPosts]);
+  useEffect(() => {
+    handleFetchEventsForClub(id);
+  }, [attendingEvents]);
+  // Fetch posts and events function
+  const handleFetchPostsForClub = async (clubId: any) => {
+    const data = await fetchPostsForClub(clubId);
+    // Sort posts by descending time (newest first)
+    const sortedPosts = [...data].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+    setCommunityPosts(sortedPosts);
+  };
+  const handleFetchEventsForClub = async (clubId: any) => {
+    const data = await fetchEventsForClub(clubId);
+    // Sort events by datetime (newest first)
+    const sortedEvents = [...data].sort((a, b) => {
+      const aDateTime = new Date(`${a.date}T${a.time}`);
+      const bDateTime = new Date(`${b.date}T${b.time}`);
+      return bDateTime.getTime() - aDateTime.getTime();
+    });
+    setEvents(sortedEvents);
+  };
+  // Set initial values for bio fields
+  useEffect(() => {
+    console.log("isAdmin: ", isAdmin);
+    setActiveTab(startTab as "Bio" | "Events" | "Community");
+    handleFetchClubImage(`club_profile_pics/${id}_${name}`);
+    loadClubAttribute(id, "description", setBioDescription, setOriginalBioDescription);
+    loadClubAttribute(id, "email", setEmail, setOriginalEmail);
+    loadClubAttribute(id, "instagram", setInsta, setOriginalInsta);
+    loadClubAttribute(id, "location", setLocation, setOriginalLocation); 
+  }, []);
+  // Fetch club attributes
+  const loadClubAttribute = async (
+    clubId: string,
+    field: string,
+    setValue: (value: string) => void,
+    setOriginalValue: (value: string) => void
+  ) => {
+    const attribute = await fetchClubAttribute(clubId, field);
+    if (attribute) {
+      setValue(attribute);
+      setOriginalValue(attribute);
+    }
+  };
+  const handleFetchClubImage = async (filePath : any) => {
+    const imageUrl = await fetchClubImage(`club_profile_pics/${id}_${name}`);
+    setImageUrl(imageUrl); 
+  };
+  
+  const getTabColor = (tabName: string) => (activeTab === tabName ? "#fff" : "#999");
+  // Toggle edit mode and save changes when toggling off
+  const toggleEditMode = () => {
+    if (editMode) {
+      handleSave();
+    }
+    setEditMode((prev) => !prev);
+  };
+  const handleSave = () => {
+    console.log("Saving changes...");
+    saveIfChanged(id, "description", bioDescription, originalBioDescription, setOriginalBioDescription);
+    saveIfChanged(id, "email", email, originalEmail, setOriginalEmail);
+    saveIfChanged(id, "instagram", insta, originalInsta, setOriginalInsta);
+    saveIfChanged(id, "location", location, originalLocation, setOriginalLocation);
+  };
+  const saveIfChanged = (
+    clubId: string, 
+    field: string, 
+    newValue: string, 
+    originalValue: string, 
+    setOriginalValue: (value: string) => void
+  ) => {
+    if (newValue !== originalValue) {
+      updateClubAttribute(clubId, field, newValue);
+      setOriginalValue(newValue);
+    } else {
+      console.log(`No changes detected in ${field}.`);
+    }
+  };
 
+  const uploadClubImage = async (filePath : any, imageUri : any) => {
+    try {
+        console.log("filePath: ", filePath);
+        const response = await fetch(`http://3.85.25.255:3000/S3/get/upload-signed-url?filePath=${encodeURIComponent(filePath)}`);
+        const { url } = await response.json();
+        const blob = await (await fetch(imageUri)).blob();
+        // Use the pre-signed URL to upload the blob
+        const uploadResponse = await fetch(url, {
+            method: 'PUT',
+            body: blob,
+        });
+        await handleFetchClubImage(`club_profile_pics/${id}_${name}`);
+    } catch (error) {
+        console.error('Failed to upload image:', error);
+        alert('Upload failed!');
+    }
+  };
+  const handleChangeImage = async () => {
+    if (!editMode) return;
+    // Request permission to access media library
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permission Denied", "We need permission to access your media library to change the image.");
+      return;
+    }
+    // Open the image picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,  // Consider whether you need the base64 encoding now
+    });
 
+    if (!result.canceled) {
+        uploadClubImage(`club_profile_pics/${id}_${name}`, result.assets[0].uri);
+    }
+  };
+
+  //format date and time
+  const formatEventDateTime = (dateStr: string, startTimeStr: string, endTimeStr: string) => {
+    console.log("Original Inputs => Date:", dateStr, "| Start Time:", startTimeStr, "| End Time:", endTimeStr);
+  
+    // Parse date parts
+    const dateParts = dateStr.split('-').length === 3 ? dateStr.split('-') : dateStr.split('/');
+    const [year, month, day] = dateParts.length === 3 && dateParts[0].length === 4
+      ? [parseInt(dateParts[0]), parseInt(dateParts[1]), parseInt(dateParts[2])]
+      : [parseInt(dateParts[2]), parseInt(dateParts[0]), parseInt(dateParts[1])];
+  
+    // Helper to convert time string and shift
+    const convertAndShiftTime = (timeStr: string): string => {
+      let [hours, minutes] = timeStr.split(':').map(Number);
+      const time = new Date(year, month - 1, day, hours, minutes);
+      time.setHours(time.getHours() - 4); // shift 4 hours back
+      const h = time.getHours();
+      const m = time.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const formattedHour = (h % 12 || 12).toString();
+      const formattedMinutes = m.toString().padStart(2, '0');
+      return `${formattedHour}:${formattedMinutes} ${ampm}`;
+    };
+  
+    const shiftedStart = convertAndShiftTime(startTimeStr);
+    const shiftedEnd = convertAndShiftTime(endTimeStr);
+  
+    const formattedDate = `${month}/${day}/${year}`;
+    const finalString = `${formattedDate} at ${shiftedStart}-${shiftedEnd}`;
+  
+    console.log("Final Formatted DateTime:", finalString);
+    return finalString;
+  };
+  const formatToAmPm = (timeStr: string) => {
+    if (!timeStr) return "";
+    const [hour, minute] = timeStr.split(":").map(Number);
+    const date = new Date();
+    date.setHours(hour, minute || 0);
+    const hours = date.getHours();
+    const formattedHour = hours % 12 || 12;
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const formattedMinutes = date.getMinutes().toString().padStart(2, '0');
+    return `${formattedHour}:${formattedMinutes} ${ampm}`;
+  };
+  //create notification, event, and post
   const handleCreateNotification = async (eventTitle: string, changeType: string, modifiedFields?: string[]) => {
     if (!eventTitle || !changeType) {
       console.log("Missing title or change type.");
@@ -113,15 +295,12 @@ export default function CommunityDetailsScreen() {
       const data = await response.json();
   
       if (!response.ok) throw new Error("Failed to create notification");
-      console.log("✅ Notification created:", data);
+      console.log("Notification created:", data);
     } catch (error) {
-      console.error("❌ Error creating notification:", error);
+      console.error("Error creating notification:", error);
       Alert.alert("Error", "Could not connect to server.");
     }
   };
-  
-
-  // Community posts state
   const handleCreateEvent = async () => {
     if (!newEventTitle || !newEventDate || !newEventStartTime || !newEventEndTime || !newEventLocation || !newEventDescription) {
       Alert.alert("Error", "All fields are required to create an event.");
@@ -165,9 +344,6 @@ export default function CommunityDetailsScreen() {
       Alert.alert("Error", "Could not connect to server.");
     }
   };
-  
-
-  // Return white color if tab is active, else gray
   const handleCreatePost = async (imageUri: string | null) => {
     if (!newPostName || !newPostContent) {
         Alert.alert("Error", "Title and content are required.");
@@ -209,224 +385,7 @@ export default function CommunityDetailsScreen() {
         Alert.alert("Error", "Could not connect to server.");
     }
   };
-
-  const formatEventDateTime = (dateStr: string, startTimeStr: string, endTimeStr: string) => {
-    console.log("🕓 Original Inputs => Date:", dateStr, "| Start Time:", startTimeStr, "| End Time:", endTimeStr);
-  
-    // Parse date parts
-    const dateParts = dateStr.split('-').length === 3 ? dateStr.split('-') : dateStr.split('/');
-    const [year, month, day] = dateParts.length === 3 && dateParts[0].length === 4
-      ? [parseInt(dateParts[0]), parseInt(dateParts[1]), parseInt(dateParts[2])]
-      : [parseInt(dateParts[2]), parseInt(dateParts[0]), parseInt(dateParts[1])];
-  
-    // Helper to convert time string and shift
-    const convertAndShiftTime = (timeStr: string): string => {
-      let [hours, minutes] = timeStr.split(':').map(Number);
-      const time = new Date(year, month - 1, day, hours, minutes);
-      time.setHours(time.getHours() - 4); // shift 4 hours back
-      const h = time.getHours();
-      const m = time.getMinutes();
-      const ampm = h >= 12 ? 'PM' : 'AM';
-      const formattedHour = (h % 12 || 12).toString();
-      const formattedMinutes = m.toString().padStart(2, '0');
-      return `${formattedHour}:${formattedMinutes} ${ampm}`;
-    };
-  
-    const shiftedStart = convertAndShiftTime(startTimeStr);
-    const shiftedEnd = convertAndShiftTime(endTimeStr);
-  
-    const formattedDate = `${month}/${day}/${year}`;
-    const finalString = `${formattedDate} at ${shiftedStart}-${shiftedEnd}`;
-  
-    console.log("✅ Final Formatted DateTime:", finalString);
-    return finalString;
-  };
-  
-  const getTabColor = (tabName: string) => (activeTab === tabName ? "#fff" : "#999");
-
-  // Toggle edit mode and save changes when toggling off
-  const toggleEditMode = () => {
-    if (editMode) {
-      handleSave();
-    }
-    setEditMode((prev) => !prev);
-  };
-  const handleSave = () => {
-    console.log("Saving changes...");
-    saveIfChanged(id, "description", bioDescription, originalBioDescription, setOriginalBioDescription);
-    saveIfChanged(id, "email", email, originalEmail, setOriginalEmail);
-    saveIfChanged(id, "instagram", insta, originalInsta, setOriginalInsta);
-    saveIfChanged(id, "location", location, originalLocation, setOriginalLocation);
-  };
-
-  const saveIfChanged = (
-    clubId: string, 
-    field: string, 
-    newValue: string, 
-    originalValue: string, 
-    setOriginalValue: (value: string) => void
-  ) => {
-    if (newValue !== originalValue) {
-      updateClubAttribute(clubId, field, newValue);
-      setOriginalValue(newValue);
-    } else {
-      console.log(`No changes detected in ${field}.`);
-    }
-  };
-
-  useEffect(() => {
-    console.log("isAdmin: ", isAdmin);
-    setActiveTab(startTab as "Bio" | "Events" | "Community");
-    handleFetchClubImage(`club_profile_pics/${id}_${name}`);
-    loadClubAttribute(id, "description", setBioDescription, setOriginalBioDescription);
-    loadClubAttribute(id, "email", setEmail, setOriginalEmail);
-    loadClubAttribute(id, "instagram", setInsta, setOriginalInsta);
-    loadClubAttribute(id, "location", setLocation, setOriginalLocation); 
-  }, []);
-  
-  const loadClubAttribute = async (
-    clubId: string,
-    field: string,
-    setValue: (value: string) => void,
-    setOriginalValue: (value: string) => void
-  ) => {
-    const attribute = await fetchClubAttribute(clubId, field);
-    if (attribute) {
-      setValue(attribute);
-      setOriginalValue(attribute); // Save the original value
-    }
-  };
-
-  useEffect(() => {
-    handleFetchPostsForClub(id);
-    handleFetchEventsForClub(id);
-  }, []);
-
-  useEffect(() => {
-    handleFetchPostsForClub(id);
-  }, [likedPosts]);
-
-  useEffect(() => {
-    handleFetchEventsForClub(id);
-  }, [attendingEvents]);
-
-  const handleFetchPostsForClub = async (clubId: any) => {
-    const data = await fetchPostsForClub(clubId);
-  
-    // Sort posts by descending time (newest first)
-    const sortedPosts = [...data].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
-  
-    setCommunityPosts(sortedPosts);
-  };
-  
-  const handleFetchEventsForClub = async (clubId: any) => {
-    const data = await fetchEventsForClub(clubId);
-    
-    // Sort events by datetime (newest first)
-    const sortedEvents = [...data].sort((a, b) => {
-      const aDateTime = new Date(`${a.date}T${a.time}`);
-      const bDateTime = new Date(`${b.date}T${b.time}`);
-      return bDateTime.getTime() - aDateTime.getTime(); // Newest first
-    });
-  
-    setEvents(sortedEvents);
-  };
-  
-  const handleRefreshEvents = async () => {
-    setRefreshingEvents(true);
-    try {
-      await handleFetchEventsForClub(id);
-    } catch (error) {
-      console.error("Error refreshing events:", error);
-    }
-    setRefreshingEvents(false);
-  };
-  
-  const handleRefreshPosts = async () => {
-    setRefreshingPosts(true);
-    try {
-      await handleFetchPostsForClub(id);
-    } catch (error) {
-      console.error("Error refreshing posts:", error);
-    }
-    setRefreshingPosts(false);
-  };
-  
-  const handleFetchClubImage = async (filePath : any) => {
-    const imageUrl = await fetchClubImage(`club_profile_pics/${id}_${name}`);
-    setImageUrl(imageUrl); 
-  };
-
-  const uploadClubImage = async (filePath : any, imageUri : any) => {
-    try {
-        console.log("filePath: ", filePath);
-        const response = await fetch(`http://3.85.25.255:3000/S3/get/upload-signed-url?filePath=${encodeURIComponent(filePath)}`);
-        const { url } = await response.json();
-        const blob = await (await fetch(imageUri)).blob();
-        // Use the pre-signed URL to upload the blob
-        const uploadResponse = await fetch(url, {
-            method: 'PUT',
-            body: blob,
-        });
-        await handleFetchClubImage(`club_profile_pics/${id}_${name}`);
-    } catch (error) {
-        console.error('Failed to upload image:', error);
-        alert('Upload failed!');
-    }
-  };
-  const handleChangeImage = async () => {
-    if (!editMode) return;
-    // Request permission to access media library
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Permission Denied", "We need permission to access your media library to change the image.");
-      return;
-    }
-    // Open the image picker
-    const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,  // Consider whether you need the base64 encoding now
-    });
-
-    if (!result.canceled) {
-        uploadClubImage(`club_profile_pics/${id}_${name}`, result.assets[0].uri);
-    }
-  };
-
-  const handleDeletePost = async (postId: string) => {
-    Alert.alert(
-      "Delete Post",
-      "Are you sure you want to delete this post?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const response = await fetch(`http://3.85.25.255:3000/DB/posts/delete/${postId}`, {
-                method: 'DELETE',
-              });
-  
-              const result = await response.json();
-  
-              if (response.ok) {
-                setCommunityPosts((prev) => prev.filter((post) => post.id !== postId));
-              } else {
-                Alert.alert("Error", result.message || "Failed to delete post.");
-              }
-            } catch (err) {
-              console.error("Delete post error:", err);
-              Alert.alert("Error", "Could not connect to server.");
-            }
-          }
-        }
-      ]
-    );
-  };
-
+  // Handle edit post and event
   const handleEditPost = async (postId, updatedTitle, updatedContent, imageUri: string | null) => {
     console.log("Attempting to edit post...");
     console.log("   • postId:", postId);
@@ -475,20 +434,6 @@ export default function CommunityDetailsScreen() {
       Alert.alert("Error", "Could not connect to server.");
     }
   };
-
-  const formatToAmPm = (timeStr: string) => {
-    if (!timeStr) return "";
-    const [hour, minute] = timeStr.split(":").map(Number);
-    const date = new Date();
-    date.setHours(hour, minute || 0);
-    const hours = date.getHours();
-    const formattedHour = hours % 12 || 12;
-    const ampm = hours >= 12 ? "PM" : "AM";
-    const formattedMinutes = date.getMinutes().toString().padStart(2, '0');
-    return `${formattedHour}:${formattedMinutes} ${ampm}`;
-  };
-  
-
   const handleEditEvent = async (eventId, updatedTitle, updatedDate, updatedStartTime, updatedEndTime, updatedLocation, updatedDescription) => {
     console.log("Attempting to edit event...");
     console.log("   • eventId:", eventId);
@@ -567,6 +512,39 @@ export default function CommunityDetailsScreen() {
       Alert.alert("Error", "Could not connect to server.");
     }
   };  
+  // Handle deletes
+  const handleDeletePost = async (postId: string) => {
+    Alert.alert(
+      "Delete Post",
+      "Are you sure you want to delete this post?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const response = await fetch(`http://3.85.25.255:3000/DB/posts/delete/${postId}`, {
+                method: 'DELETE',
+              });
+  
+              const result = await response.json();
+  
+              if (response.ok) {
+                setCommunityPosts((prev) => prev.filter((post) => post.id !== postId));
+              } else {
+                Alert.alert("Error", result.message || "Failed to delete post.");
+              }
+            } catch (err) {
+              console.error("Delete post error:", err);
+              Alert.alert("Error", "Could not connect to server.");
+            }
+          }
+        }
+      ]
+    );
+  };
+
 
   return (
     <View style={styles.container}>
