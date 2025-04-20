@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import EditToggleButton from "../components/ExploreComponents/EditToggleButton";
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -154,9 +155,6 @@ const ProfileScreen = () => {
             <View style={styles.header}>
                 <Text style={styles.headerText}>Account</Text>
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity onPress={toggleEditMode} style={styles.editButton}>
-                        <Text style={styles.buttonText}>{editMode ? 'Save' : 'Edit'}</Text>
-                    </TouchableOpacity>
                     <TouchableOpacity onPress={handleSignOut} style={styles.signOutButton}>
                         <Text style={styles.buttonText}>Sign Out</Text>
                     </TouchableOpacity>
@@ -164,17 +162,20 @@ const ProfileScreen = () => {
             </View>
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 {/* Profile card with image and name */}
-                <View style={styles.profileCard}>
-                    <View style={styles.imageWrapper}>
-                        {editMode ? (
-                            <TouchableOpacity onPress={handleImageUpload} style={{ alignItems: 'center' }}>
-                                <Image source={{ uri: imageUrl }} style={styles.image} />
-                                <Text style={styles.changeImageText}>Change Image</Text>
-                            </TouchableOpacity>
-                        ) : (
+            <View style={styles.profileCard}>
+                <View style={{ position: 'absolute', top: 10, right: 10 }}>
+                    <EditToggleButton editMode={editMode} onPress={toggleEditMode} />
+                </View>
+                <View style={styles.imageWrapper}>
+                    {editMode ? (
+                        <TouchableOpacity onPress={handleImageUpload} style={{ alignItems: 'center' }}>
                             <Image source={{ uri: imageUrl }} style={styles.image} />
-                        )}
-                    </View>
+                            <Text style={styles.changeImageText}>Change Image</Text>
+                        </TouchableOpacity>
+                    ) : (
+                        <Image source={{ uri: imageUrl }} style={styles.image} />
+                    )}
+                </View>
                     {/* Display user's name */}
                     <Text style={styles.nameText}>{name}</Text>
                     {/* Display user's email */}
@@ -231,6 +232,7 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     profileCard: {
+        position: 'relative',
         backgroundColor: '#fff',
         borderRadius: 10,
         padding: 20,
@@ -272,12 +274,6 @@ const styles = StyleSheet.create({
         color: '#344E41',
         fontWeight: '500',
         marginTop: 4,
-    },
-    editButton: {
-        padding: 10,
-        backgroundColor: '#666',
-        borderRadius: 5,
-        marginRight: 15,
     },
 });
 
