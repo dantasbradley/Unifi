@@ -21,6 +21,9 @@ import CalendarScreen from "../tabs/CalendarScreen";
 import CommunityCard from "../components/ExploreComponents/CommunityCard";
 import CreateCommunityModal from "../components/ExploreComponents/CreateCommunityModal";
 import EditToggleButton from "../components/ExploreComponents/EditToggleButton";
+import EventCard from "../components/ExploreComponents/EventCard";
+import PostCard from "../components/ExploreComponents/PostCard";
+import EventList from "../components/EventList";
 
 
 jest.mock('@expo/vector-icons', () => ({
@@ -37,8 +40,16 @@ jest.mock('../components/Hamburger', () => ({
   })
 }));
 
+jest.mock("@react-native-async-storage/async-storage", () => 
+    require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+)
+
 describe('Component Tests', () => {
-  test('CheckButton toggles state on press', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    })
+
+    test('CheckButton toggles state on press', () => {
     const { getByText } = render(<CheckButton text="Test Label" />);
     const label = getByText('Test Label');
 
@@ -145,14 +156,116 @@ describe('Component Tests', () => {
 
     expect(onPressMock).toHaveBeenCalledTimes(1);
   })
+
+  test('EventCard renders with correct props', () => {
+    const { getByText } = render(<EventCard
+        event={{
+            id: 'id',
+            date: 'test date',
+            time: 'test time',
+            location: 'test location',
+            title: 'test title',
+            description: 'test description',
+            attendees: 5
+        }}/>);
+
+    expect(getByText('test date @ test time')).toBeOnTheScreen();
+    expect(getByText("test location")).toBeOnTheScreen();
+    expect(getByText("test title")).toBeOnTheScreen();
+    expect(getByText("test description")).toBeOnTheScreen();
+    expect(getByText("5")).toBeOnTheScreen();
+  })
+
+  test('PostCard renders with correct props', () => {
+    const { getByText } = render(<PostCard
+        post={{
+            id: 'id',
+            name: 'test name',
+            time: 'test time',
+            content: 'test content',
+            likes: 10,
+            comments: 3
+        }}/>);
+
+    expect(getByText('test name')).toBeOnTheScreen();
+    expect(getByText("test time")).toBeOnTheScreen();
+    expect(getByText("test content")).toBeOnTheScreen();
+    expect(getByText("10")).toBeOnTheScreen();
+    expect(getByText("3")).toBeOnTheScreen();
+  })
+
+  test('CheckButton renders with correct props', () => {
+    const { getByText } = render(<CheckButton text="test text"/>);
+    expect(getByText("test text")).toBeOnTheScreen();
+  })
+
+  test('EventList behaves correctly when response is not ok', async () => {
+    const errorMock = jest.spyOn(console, 'error');
+    AsyncStorageMock.getItem = jest.fn(async () => Promise.resolve("test sub"));
+    fetchMock.mockReturnValueOnce(Promise.resolve({ ok: false, json: () => Promise.resolve({ message: "test error message" })} as Response));
+
+    render(<EventList date="test date"/>);
+
+    await waitFor(() => {
+        expect(errorMock).toHaveBeenCalledWith("Error fetching events: ", "test error message");
+    })
+  })
+
+  test('EventList renders correctly when response is ok', async () => {
+    AsyncStorageMock.getItem = jest.fn(async () => Promise.resolve("test sub"));
+    fetchMock.mockReturnValueOnce(Promise.resolve({ ok: true, json: () => Promise.resolve({ events: [
+        {
+            title: "test event 1", 
+            organization: "test organization 1", 
+            startTime: "test start time 1", 
+            endTime: "test end time 1", 
+            location: "test location 1", 
+            description: "test description 1"
+        },
+        {
+            title: "test event 2", 
+            organization: "test organization 2", 
+            startTime: "test start time 2", 
+            endTime: "test end time 2", 
+            location: "test location 2", 
+            description: "test description 2"
+        }
+    ] })} as Response));
+
+    const { getByText } = render(<EventList date="test date"/>);
+
+    await waitFor(() => {
+        expect(getByText("test event 1")).toBeOnTheScreen();
+        expect(getByText("Organization: test organization 1")).toBeOnTheScreen();
+        expect(getByText("Time: test start time 1 - test end time 1")).toBeOnTheScreen();
+        expect(getByText("Location: test location 1")).toBeOnTheScreen();
+        expect(getByText("Description: test description 1")).toBeOnTheScreen();
+
+        expect(getByText("test event 2")).toBeOnTheScreen();
+        expect(getByText("Organization: test organization 2")).toBeOnTheScreen();
+        expect(getByText("Time: test start time 2 - test end time 2")).toBeOnTheScreen();
+        expect(getByText("Location: test location 2")).toBeOnTheScreen();
+        expect(getByText("Description: test description 2")).toBeOnTheScreen();
+    })
+  })
+
+  test('EventList renders correctly when there are no events', async () => {
+    AsyncStorageMock.getItem = jest.fn(async () => Promise.resolve("test sub"));
+    fetchMock.mockReturnValueOnce(Promise.resolve({ ok: true, json: () => Promise.resolve({})} as Response));
+
+    const { getByText } = render(<EventList date="test date"/>);
+
+    await waitFor(() => {
+        expect(getByText("No events scheduled")).toBeOnTheScreen();
+    })
+  })
 });
 
-
-jest.mock("@react-native-async-storage/async-storage", () => {
-    require('@react-native-async-storage/async-storage/jest/async-storage-mock');
-})
-
 describe("Front End Tests", () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        fetchMock.mockReset();
+    })
 
     // Auth Page Tests
     describe("Auth Screen Tests", () => {
@@ -601,6 +714,7 @@ describe("Front End Tests", () => {
     describe("Profile Screen Tests", () => {
 
         it("Default components render correctly", () => {
+            fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
             const { getByText } = render(<ProfileScreen/>);
 
             expect(getByText("Account")).toBeOnTheScreen();
