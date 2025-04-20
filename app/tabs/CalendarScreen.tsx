@@ -47,6 +47,7 @@ const CalendarScreen = () => {
   };
 
   const handleRefresh = async () => {
+    console.log("Refreshing calendar events");
     setRefreshing(true);
     await fetchJoinedCommunitiesEvents();
     setRefreshKey(Date.now());
@@ -119,6 +120,7 @@ const CalendarScreen = () => {
                 event={item}
                 isAttending={attendingEvents.has(item.id)}
                 onToggleAttend={() => toggleAttendEvent(item.id)}
+                isAdmin={joinedCommunities.has(item.id)}
               />
             )}
           />
