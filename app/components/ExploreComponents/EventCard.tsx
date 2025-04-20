@@ -122,7 +122,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, isAttending, onToggleAtten
       </View>
       {onEdit && (
           <TouchableOpacity style={styles.editButton} onPress={onEdit}>
-            <Ionicons name="create-outline" size={20} color="#fff" />
+            <Ionicons name="create-outline" size={20} color="#344E41" />
           </TouchableOpacity>
         )}
     </View>
@@ -252,9 +252,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 10,
     right: 10,
-    backgroundColor: "#3B3B3B",
+    backgroundColor: "#fff",
     padding: 6,
     borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "#344E41",
   },
 });
 
