@@ -83,3 +83,47 @@ describe('Post Routes', () => {
     expect(res.body.message).toMatch(/Database error/);
   });
 });
+
+describe('PUT /DB/posts/update/:post_id', () => {
+  it('should update a post and return 200', async () => {
+    mockQuery.mockImplementation((sql, vals, cb) => cb(null, { affectedRows: 1 }));
+
+    const res = await request(app)
+      .put('/DB/posts/update/1')
+      .send({ content: 'Updated post content' });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toMatch(/updated/i);
+  });
+
+  it('should return 400 if content is missing', async () => {
+    const res = await request(app)
+      .put('/DB/posts/update/1')
+      .send({}); // no content
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toMatch(/missing/i);
+  });
+
+  it('should return 404 if post not found', async () => {
+    mockQuery.mockImplementation((sql, vals, cb) => cb(null, { affectedRows: 0 }));
+
+    const res = await request(app)
+      .put('/DB/posts/update/999')
+      .send({ content: 'Anything' });
+
+    expect(res.statusCode).toBe(404);
+    expect(res.body.error).toMatch(/not found/i);
+  });
+
+  it('should return 500 if the DB fails', async () => {
+    mockQuery.mockImplementation((sql, vals, cb) => cb(new Error('Simulated DB error')));
+
+    const res = await request(app)
+      .put('/DB/posts/update/1')
+      .send({ content: 'Test' });
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body.error).toMatch(/failed to update/i);
+  });
+});

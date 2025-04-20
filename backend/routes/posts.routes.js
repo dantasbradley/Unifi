@@ -40,5 +40,31 @@ module.exports = (app) => {
         res.status(200).json({ message: 'Post deleted' });
       });
     });
+
+    app.put('/DB/posts/update/:post_id', (req, res) => {
+      const { post_id } = req.params;
+      const { content } = req.body;
+    
+      if (!content) {
+        return res.status(400).json({ error: 'Missing post content' });
+      }
+    
+      const pool = app.get('pool');
+      const sql = 'UPDATE Posts SET content = ? WHERE id = ?';
+    
+      pool.query(sql, [content, post_id], (err, result) => {
+        if (err) {
+          console.error('DB error on post update:', err);
+          return res.status(500).json({ error: 'Failed to update post.' });
+        }
+    
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ error: 'Post not found' });
+        }
+    
+        res.status(200).json({ message: 'Post updated successfully.' });
+      });
+    });
+    
   };
   
