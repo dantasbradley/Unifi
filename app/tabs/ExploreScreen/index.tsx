@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { View, TextInput, FlatList, StyleSheet, TouchableOpacity, Alert, RefreshControl } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import CommunityCard from "../../components/ExploreComponents/CommunityCard";
-import CreateCommunityModal from "../../components/ExploreComponents/CreateCommunityModal";
 import { CommunitiesContext } from "../../contexts/CommunitiesContext";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
@@ -26,11 +24,11 @@ export default function ExploreScreen() {
 
   // Function to refresh the community list
   const handleRefresh = async () => {
-    console.log("refreshing page");
+    console.log("Refreshing index explore page");
     setRefreshing(true);
     try {
-      await fetchCommunities(); // Fetch latest data
-      setRefreshKey(Date.now()); // 👈 Forces FlatList to refresh
+      await fetchCommunities();
+      setRefreshKey(Date.now());
     } catch (error) {
       console.error("Error refreshing communities:", error);
     }

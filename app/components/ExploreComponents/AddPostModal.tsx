@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import {View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -17,7 +10,7 @@ interface AddPostModalProps {
   onChangeName: (value: string) => void;
   newPostContent: string;
   onChangeContent: (value: string) => void;
-  onCreate: (imageUri: string | null) => void; // Pass selected image URI to parent if needed
+  onCreate: (imageUri: string | null) => void;
 }
 
 const AddPostModal: React.FC<AddPostModalProps> = ({

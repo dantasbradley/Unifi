@@ -50,7 +50,6 @@ const ProfileScreen = () => {
             console.log("filePath: ", filePath);
             const response = await fetch(`http://3.85.25.255:3000/S3/get/image?filePath=${encodeURIComponent(filePath)}&defaultPath=${encodeURIComponent(defaultPath)}`);
             const data = await response.json();
-            // console.log("Signed URL: ", data.url);
             setImageUrl(data.url);
         } catch (error) {
             console.error('Failed to fetch image:', error);
@@ -72,7 +71,6 @@ const ProfileScreen = () => {
         });
     
         if (!result.canceled) {
-            // console.log('Image URI:', result.assets[0].uri);
             const emailPrefix = email.split('@')[0];
             const filePath = `user_profile_pics/${emailPrefix}`;
             uploadImage(filePath, result.assets[0].uri);
@@ -92,7 +90,6 @@ const ProfileScreen = () => {
                 body: blob,
             });
             fetchImage(filePath, `user_profile_pics/default`);
-            // fetchImage(`club_profile_pics/${id}_${name}`, `user_profile_pics/default`);
         } catch (error) {
             console.error('Failed to upload image:', error);
             alert('Upload failed!');
@@ -115,7 +112,7 @@ const ProfileScreen = () => {
     };
 
     const handleSignOut = async () => {
-        await AsyncStorage.clear();  // Clear all AsyncStorage data
+        await AsyncStorage.clear();
         setTimeout(() => {
             router.replace("/screens/AuthScreen");
         }, 1000);

@@ -119,7 +119,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       const data = await response.json();
       if (data && Array.isArray(data)) {
         const likedPosts = data.map((item: any) => Number(item.post_id));
-        console.log("posts liked:", likedPosts);
+        // console.log("posts liked:", likedPosts);
         setLikedPosts(new Set(likedPosts));
       } else {
         setLikedPosts(new Set());
@@ -136,7 +136,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       const data = await response.json();
       if (data && Array.isArray(data)) {
         const attendingEvents = data.map((item: any) => Number(item.event_id));
-        console.log("attending events:", attendingEvents);
+        // console.log("attending events:", attendingEvents);
         setAttendingEvents(new Set(attendingEvents));
       } else {
         setAttendingEvents(new Set());
@@ -571,7 +571,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       const clubName = await fetchClubAttribute(clubId, "name");
       const clubImageUrl = await fetchClubImage(`club_profile_pics/${clubId}_${clubName}`);
       const formattedPosts = await Promise.all(data.map(async (post: any) => {
-        console.log("Post filepath:", post.filePath);
+        // console.log("Post filepath:", post.filePath);
         const postImageUrl = await fetchPostImage(post.filePath);
         return {
           ...post,
@@ -596,7 +596,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       const response = await fetch(`http://3.85.25.255:3000/DB/notifications/get/club_id=${clubId}`);
       const data = await response.json();
       if (!response.ok) throw new Error("Failed to fetch notifications");
-      console.log("Notifications fetched for club:", clubId, data);
+      console.log("Notifications fetched for club:", clubId);
 
       const clubName = await fetchClubAttribute(clubId, "name");
       const clubImageUrl = await fetchClubImage(`club_profile_pics/${clubId}_${clubName}`);
@@ -626,7 +626,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
     }
   };
   const fetchPostImage = async (filePath : any) => {
-    console.log("fetchPostImage, filePath: ", filePath);
+    // console.log("fetchPostImage called, filePath: ", filePath);
     if (filePath) {
       try {
         const response = await fetch(
@@ -639,7 +639,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       }
     }
     else {
-      console.log("This post doesn't contain an image");
+      // console.log("This post doesn't contain an image");
       return null;
     }
   };

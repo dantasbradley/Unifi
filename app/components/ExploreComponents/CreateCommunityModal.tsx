@@ -48,8 +48,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
           value={newCommunityLocation}
           onChangeText={onChangeLocation}
           onPress={(data, details = null) => {
-            // The details parameter contains full information about the selected place.
-            onChangeLocation(data.description); // Only the location name is used here.
+            onChangeLocation(data.description);
           }}
           query={{
             key: "AIzaSyA5DukSRaMR1oJNR81YxttQsVRmJeFb-Bw",

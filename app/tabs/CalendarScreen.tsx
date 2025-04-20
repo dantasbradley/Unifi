@@ -33,14 +33,12 @@ const CalendarScreen = () => {
       communityIds.map((clubId: string) => fetchEventsForClub(clubId))
     );
     const allEvents = allEventsArrays.flat();
-
     const uniqueEventMap = new Map();
     allEvents.forEach((event) => {
       if (!uniqueEventMap.has(event.id)) {
         uniqueEventMap.set(event.id, event);
       }
     });
-
     const uniqueEvents = Array.from(uniqueEventMap.values());
     const sortedEvents = uniqueEvents.sort(
       (a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
