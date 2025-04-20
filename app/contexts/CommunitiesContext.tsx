@@ -167,7 +167,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       const data = await response.json();
       if (data && Array.isArray(data)) {
         const likers = data.map((item: any) => String(item.user_id));
-        console.log("likers count:", likers.length);
+        // console.log("likers count:", likers.length);
         return likers.length;
       } else {
         return 0;
@@ -183,7 +183,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       const data = await response.json();
       if (data && Array.isArray(data)) {
         const attenders = data.map((item: any) => String(item.user_id));
-        console.log("attenders count:", attenders.length);
+        // console.log("attenders count:", attenders.length);
         return attenders.length;
       } else {
         return 0;
@@ -238,7 +238,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       if (result.error) {
         throw new Error(result.message || "Unknown error");
       }
-      console.log("follow success: ", result);
+      console.log("follow success: ", clubId);
     } catch (error) {
       console.error("Error adding following:", error);
       Alert.alert("Error following. Please try again.");
@@ -260,7 +260,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       });
       const data = await response.json();
       if (!response.ok) throw new Error("Failed to unfollow");
-      console.log("Unfollow success:", clubId, data);
+      console.log("Unfollow success:", clubId);
     } catch (error) {
       console.error("Error unfollowing:", error);
       Alert.alert("Error", "Failed to unfollow.");
@@ -352,7 +352,6 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
   };
 
   const toggleLikePost = async (postID: string) => {
-    console.log("Toggling like for post ID:", postID);
     const newSet = new Set(likedPosts);
     let isLiked = newSet.has(postID);
     if (isLiked) {
@@ -364,7 +363,6 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
     }
     await updatePostLikes(postID);
     setLikedPosts(newSet);
-    console.log("End of toggle");
   };
 
   const likePost = async (postID: string) => {
@@ -381,7 +379,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       if (result.error) {
         throw new Error(result.message || "Unknown error");
       }
-      console.log("likePost success: ", result);
+      console.log("likePost success: ", postID);
     } catch (error) {
       console.error("Error liking post:", error);
       Alert.alert("Error liking post. Please try again.");
@@ -403,7 +401,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       });
       const data = await response.json();
       if (!response.ok) throw new Error("Failed to dislike");
-      console.log("Dislike success:", postID, data);
+      console.log("Dislike success:", postID);
     } catch (error) {
       console.error("Error disliking:", error);
       Alert.alert("Error", "Failed to dislike.");
@@ -418,14 +416,13 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: postID, attribute: "likes", value: newCount }),
       });
-      console.log("Post likes updated successfully");
+      // console.log("Post likes updated successfully");
     } catch (error) {
       console.error("Error updating attribute:", error);
     }
   };
 
   const toggleAttendEvent = async (eventID: string) => {
-    console.log("Toggling attend event for ID:", eventID);
     const newSet = new Set(attendingEvents);
     let isAttending = newSet.has(eventID);
     if (isAttending) {
@@ -437,7 +434,6 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
     }
     await updateAttendingNumber(eventID);
     setAttendingEvents(newSet);
-    console.log("End of toggle attend");
   };
 
   const attendEvent = async (eventID: string) => {
@@ -454,7 +450,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       if (result.error) {
         throw new Error(result.message || "Unknown error");
       }
-      console.log("attendEvent success: ", result);
+      console.log("Attend success for event id: ", eventID);
     } catch (error) {
       console.error("Error attending event:", error);
       Alert.alert("Error attending event. Please try again.");
@@ -476,7 +472,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       });
       const data = await response.json();
       if (!response.ok) throw new Error("Failed to unattend");
-      console.log("Unattend success:", eventID, data);
+      console.log("Unattend success for event id:", eventID);
     } catch (error) {
       console.error("Error Unattend:", error);
       Alert.alert("Error", "Failed to Unattend.");
@@ -491,7 +487,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: eventID, attribute: "attending", value: newCount }),
       });
-      console.log("Attending Number updated successfully");
+      // console.log("Attending Number updated successfully");
     } catch (error) {
       console.error("Error updating attribute:", error);
     }

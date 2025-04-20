@@ -340,7 +340,7 @@ export default function CommunityDetailsScreen() {
         Alert.alert("Error", data.message || "Failed to create event.");
       }
     } catch (error) {
-      console.error("❌ Error creating event:", error);
+      console.error("Error creating event:", error);
       Alert.alert("Error", "Could not connect to server.");
     }
   };
@@ -409,13 +409,13 @@ export default function CommunityDetailsScreen() {
       });
   
       const raw = await response.text(); // get raw string first
-      console.log("📥 Raw response text:", raw);
+      console.log("Raw response text:", raw);
   
       let data;
       try {
         data = JSON.parse(raw); // try parsing JSON
       } catch (err) {
-        console.error("❌ JSON parsing failed:", err);
+        console.error("JSON parsing failed:", err);
         throw new Error("Invalid JSON response from server.");
       }
   
