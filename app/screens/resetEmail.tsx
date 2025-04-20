@@ -1,19 +1,12 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+import {View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator} from "react-native";
 import Toast, { ToastShowParams } from "react-native-toast-message";
-import { useRouter } from "expo-router"; // ✅ Ensure router is imported
+import { useRouter } from "expo-router";
 
 const VerifyEmail = () => {
-  const [email, setEmail] = useState(""); // ✅ Ensure email and setEmail are defined
-  const [loading, setLoading] = useState(false); // ✅ Ensure setLoading is defined
-  const router = useRouter(); // ✅ Ensure router is initialized
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleVerify = async () => {
     if (!email) {
@@ -56,7 +49,7 @@ const VerifyEmail = () => {
         text2Style: { fontSize: 18 },
       });
 
-      // ✅ Navigate to Verification screen after a short delay
+      // Navigate to verification screen after a short delay
       setTimeout(() => {
         router.push(`/screens/resetPassword?email=${encodeURIComponent(email)}`);
       }, 1000);

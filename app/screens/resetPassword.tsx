@@ -1,18 +1,11 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+import {View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator} from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import Toast, { ToastShowParams } from "react-native-toast-message";
 
 const Verification = () => {
   const router = useRouter();
-  const { email } = useLocalSearchParams(); // Get email from query params
+  const { email } = useLocalSearchParams();
 
   const [verificationCode, setVerificationCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -77,7 +70,7 @@ const Verification = () => {
         text2Style: { fontSize: 18 },
       });
 
-      // ✅ Redirect to Login page after success
+      // Redirect to login page after success
       setTimeout(() => {
         router.push("/screens/Login");
       }, 1000);

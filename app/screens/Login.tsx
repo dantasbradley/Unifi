@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+import {View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator} from "react-native";
 import { useRouter } from "expo-router";
 import Toast, { ToastShowParams } from "react-native-toast-message";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -71,10 +64,8 @@ const Login = () => {
         throw new Error("Something went wrong.");
       }
 
-      // localStorage.setItem("cognitoSub", result.cognitoSub);
       await storeCognitoSub(result.cognitoSub);  
 
-      // Show success message
       Toast.show({
         type: "success",
         text1: "Success",
@@ -85,7 +76,7 @@ const Login = () => {
         text2Style: { fontSize: 20 },
       });
 
-      // Navigate **directly after showing toast**
+      // Navigate after showing toast
       setTimeout(() => {
         router.push("/tabs/HomeScreen");
       }, 1000);
@@ -139,7 +130,6 @@ const Login = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Add Toast Component with Custom Configuration */}
       <Toast config={toastConfig} />
     </View>
   );
