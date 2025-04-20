@@ -73,8 +73,8 @@ export default function TabLayout() {
           <Tabs.Screen name="HomeScreen" />
           <Tabs.Screen name="ExploreScreen" />
           <Tabs.Screen name="CalendarScreen" />
-          <Tabs.Screen name="ProfileScreen" />
           <Tabs.Screen name="NotificationScreen" />
+          <Tabs.Screen name="ProfileScreen" />
 
           {/* Hidden from tab bar */}
           <Tabs.Screen
