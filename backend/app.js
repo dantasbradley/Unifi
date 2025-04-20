@@ -37,8 +37,8 @@ app.set('s3', s3);
 app.set('pool', pool);
 
 // Route imports
-require('./routes/auth.routes')(app);
-require('./routes/s3.routes')(app);
+// require('./routes/auth.routes')(app);
+// require('./routes/s3.routes')(app);
 // require('./routes/club.routes')(app);
 // require('./routes/event.routes')(app);
 // require('./routes/post.routes')(app);
@@ -61,3 +61,12 @@ app.get('/shutdown', (req, res) => {
 });
 
 module.exports = app;
+
+if (process.env.NODE_ENV !== 'test') {
+    require('./routes/auth.routes')(app);
+    require('./routes/s3.routes')(app);
+    require('./routes/club.routes')(app);
+    require('./routes/event.routes')(app);
+    // ...other routes
+  }
+  

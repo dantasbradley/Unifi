@@ -1,5 +1,7 @@
 const request = require('supertest');
 const app = require('../app');
+require('../routes/s3.routes')(app);
+
 
 jest.mock('@aws-sdk/client-s3', () => {
   return {

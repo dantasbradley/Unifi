@@ -1,5 +1,7 @@
 const request = require('supertest');
 const app = require('../app');
+require('../routes/auth.routes')(app);
+
 
 jest.mock('aws-sdk', () => {
   const mockCognito = {
