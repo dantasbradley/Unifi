@@ -16,8 +16,7 @@ To install the backend
    npm install mysql2
    npm install @aws-sdk/client-s3
    npm install jsonwebtoken
-
-
+   npm install @aws-sdk/s3-request-presigner
    
    ```
 

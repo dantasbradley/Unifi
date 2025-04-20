@@ -38,7 +38,7 @@ app.set('pool', pool);
 
 // Route imports
 require('./routes/auth.routes')(app);
-// require('./routes/s3.routes')(app);
+require('./routes/s3.routes')(app);
 // require('./routes/club.routes')(app);
 // require('./routes/event.routes')(app);
 // require('./routes/post.routes')(app);
