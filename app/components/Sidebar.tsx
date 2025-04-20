@@ -182,8 +182,8 @@ const styles = StyleSheet.create({
   sidebar: {
     position: "absolute",
     left: 0,
-    top: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-    bottom: 60,
+    top: 0, 
+    bottom: 0, 
     width: 350,
     backgroundColor: "black",
     zIndex: 2,
@@ -235,17 +235,17 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderRadius: 5,
     alignItems: "center",
-    backgroundColor: "black"  // Ensure default background is black
+    backgroundColor: "white"  //ensure default background is white
   },
   activeFilter: {
-    backgroundColor: "white",
+    backgroundColor: "#999999",
   },
   filterText: {
-    color: "white",
+    color: "black",
     fontSize: 14,
   },
-  activeFilterText: {  // New style for active filter text
-    color: "black",
+  activeFilterText: {
+    color: "white",
   },
   communityName: {
     color: "#fff",
