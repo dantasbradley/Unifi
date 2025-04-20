@@ -181,14 +181,6 @@ export default function TabLayout() {
           <Tabs.Screen name="CalendarScreen" />
           <Tabs.Screen name="ProfileScreen" />
           <Tabs.Screen name="NotificationScreen" />
-
-          {/* Hidden from tab bar */}
-          <Tabs.Screen
-            name="ProfileSetup"
-            options={{
-              href: null,
-            }}
-          />
         </Tabs>
       </View>
     </CommunitiesProvider>
