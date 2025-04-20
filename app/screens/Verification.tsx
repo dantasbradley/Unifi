@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router"; // ✅ Use useLocalSearchParams
+import { useRouter, useLocalSearchParams } from "expo-router";
 import Toast, { ToastConfig, ToastConfigParams } from "react-native-toast-message";
 
 const Verification = () => {
     const router = useRouter();
-    const { email } = useLocalSearchParams(); // ✅ Correct way to retrieve params
+    const { email } = useLocalSearchParams();
 
     const [verificationCode, setVerificationCode] = useState("");
     const [loading, setLoading] = useState(false);
