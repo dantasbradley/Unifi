@@ -43,6 +43,7 @@ const registerRoutes = (appInstance) => {
   require('./routes/posts.routes')(appInstance);
   require('./routes/likes.routes')(appInstance);
   require('./routes/follows.routes')(appInstance);
+  require('./routes/notifications.routes')(app);
 };
 
 if (process.env.NODE_ENV !== 'test') {
