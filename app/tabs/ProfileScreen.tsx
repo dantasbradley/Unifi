@@ -166,8 +166,14 @@ const ProfileScreen = () => {
                 {/* Profile card with image and name */}
                 <View style={styles.profileCard}>
                     <View style={styles.imageWrapper}>
-                        <Image source={{ uri: imageUrl }} style={styles.image} />
-                        {/* Overlay text icon to suggest profile image can be edited */}
+                        {editMode ? (
+                            <TouchableOpacity onPress={handleImageUpload} style={{ alignItems: 'center' }}>
+                                <Image source={{ uri: imageUrl }} style={styles.image} />
+                                <Text style={styles.changeImageText}>Change Image</Text>
+                            </TouchableOpacity>
+                        ) : (
+                            <Image source={{ uri: imageUrl }} style={styles.image} />
+                        )}
                     </View>
                     {/* Display user's name */}
                     <Text style={styles.nameText}>{name}</Text>
@@ -184,15 +190,6 @@ const ProfileScreen = () => {
                         />
                     )}
                 </View>
-                {/* Upload new profile image button */}
-                {editMode && (
-                    <>
-                        <TouchableOpacity style={styles.uploadButton} onPress={handleImageUpload}>
-                            <Text style={styles.uploadButtonText}>Upload Photo</Text>
-                        </TouchableOpacity>
-                        {image && <Text style={styles.uploadedText}>{image.split('/').pop()} uploaded</Text>}
-                    </>
-                )}
             </ScrollView>
         </View>
     );
@@ -270,19 +267,11 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginVertical: 10,
     },
-    uploadButton: {
-        backgroundColor: '#A3B18A',
-        padding: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-        marginVertical: 5,
-    },
-    uploadButtonText: {
-        fontWeight: 'bold',
-    },
-    uploadedText: {
-        color: '#fff',
-        marginBottom: 10,
+    changeImageText: {
+        textAlign: 'center',
+        color: '#344E41',
+        fontWeight: '500',
+        marginTop: 4,
     },
     editButton: {
         padding: 10,
