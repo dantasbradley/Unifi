@@ -11,7 +11,6 @@ beforeEach(() => {
     app = require('../app');
     app.set('pool', mockPool);
   
-    // 🚨 Load route after mock pool is set
     require('../routes/club.routes')(app);
   });
   
@@ -21,7 +20,6 @@ describe('Club Routes', () => {
     const res = await request(app).post('/DB/clubs/add').send({
       name: 'Chess Club',
       location: 'Library',
-      // missing admin_id
     });
     expect(res.statusCode).toBe(400);
     expect(res.body.message).toMatch(/admin_id/);

@@ -26,7 +26,6 @@ module.exports = function(appInstance) {
       await cognito.adminUpdateUserAttributes(updateParams).promise();
     };
   
-    // ✅ USE appInstance HERE
     appInstance.get('/cognito/get/attribute', async (req, res) => {
       const { sub, attributeName } = req.query;
   

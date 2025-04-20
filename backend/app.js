@@ -34,7 +34,6 @@ app.set('cognito', cognito);
 app.set('s3', s3);
 app.set('pool', pool);
 
-// Routes — wrap these so you can skip them in test if needed
 const registerRoutes = (appInstance) => {
   require('./routes/auth.routes')(appInstance);
   require('./routes/s3.routes')(appInstance);
@@ -52,19 +51,5 @@ if (process.env.NODE_ENV !== 'test') {
   registerRoutes(app);
 }
 
-app.set('registerRoutes', registerRoutes); // <-- so tests can call it
-
-// Shutdown
-app.get('/shutdown', (req, res) => {
-  res.send('Shutting down server...');
-  if (app.server) {
-    app.server.close(() => {
-      console.log('Server shutdown complete');
-      process.exit(0);
-    });
-  } else {
-    process.exit(1);
-  }
-});
-
+app.set('registerRoutes', registerRoutes);
 module.exports = app;

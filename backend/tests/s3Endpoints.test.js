@@ -1,8 +1,6 @@
-// ✅ Mock functions FIRST
 const mockSend = jest.fn();
 const mockGetSignedUrl = jest.fn();
 
-// ✅ AWS SDK mocks
 jest.mock('@aws-sdk/client-s3', () => {
   const actual = jest.requireActual('@aws-sdk/client-s3');
   return {
@@ -17,10 +15,9 @@ jest.mock('@aws-sdk/s3-request-presigner', () => ({
   getSignedUrl: mockGetSignedUrl
 }));
 
-// ✅ THEN import app (after mocks)
 const request = require('supertest');
 const app = require('../app');
-app.get('registerRoutes')(app); // ✅ register all routes manually for test
+app.get('registerRoutes')(app);
 
 
 

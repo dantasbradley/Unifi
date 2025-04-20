@@ -5,10 +5,10 @@ const mockQuery = jest.fn();
 const mockPool = { query: mockQuery };
 
 beforeEach(() => {
-  jest.resetModules(); // clear app module cache
+  jest.resetModules(); 
   app = require('../app');
   app.set('pool', mockPool);
-  require('../routes/event.routes')(app); // ensure routes are loaded
+  require('../routes/event.routes')(app); 
   mockQuery.mockReset();
 });
 
