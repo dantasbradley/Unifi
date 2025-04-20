@@ -123,7 +123,7 @@ const toastConfig = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#A3B18A",
     alignItems: "center",
     justifyContent: "center",
   },
