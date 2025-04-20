@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
@@ -74,46 +75,46 @@ const ModifyPostModal: React.FC<ModifyPostModalProps> = ({
     <View style={styles.modalOverlay}>
       <View style={styles.modalContainer}>
         <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
-          <Ionicons name="close" size={24} color="#fff" />
+          <Ionicons name="close" size={24} color="#111111" />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.postButton} onPress={handleSubmit}>
+          <Text style={styles.postButtonText}>{isEdit ? "Save" : "Post"}</Text>
         </TouchableOpacity>
 
         <Text style={styles.modalTitle}>{isEdit ? "Edit Post" : "Add New Post"}</Text>
 
-        <Text style={styles.modalLabel}>Title:</Text>
-        <TextInput
-          style={styles.modalInput}
-          placeholder="e.g. Group Reading"
-          placeholderTextColor="#aaa"
-          value={newPostName}
-          onChangeText={onChangeName}
-        />
+        <View style={styles.scrollViewContent}>
+          <Text style={styles.modalLabel}>Title:</Text>
+          <TextInput
+            style={styles.modalInput}
+            placeholder="e.g. Group Reading"
+            placeholderTextColor="#aaa"
+            value={newPostName}
+            onChangeText={onChangeName}
+          />
 
-        <Text style={styles.modalLabel}>Content:</Text>
-        <TextInput
-          style={styles.modalInput}
-          placeholder="Describe the post..."
-          placeholderTextColor="#aaa"
-          value={newPostContent}
-          onChangeText={onChangeContent}
-        />
+          <Text style={styles.modalLabel}>Content:</Text>
+          <TextInput
+            style={styles.modalInput}
+            placeholder="Describe the post..."
+            placeholderTextColor="#aaa"
+            value={newPostContent}
+            onChangeText={onChangeContent}
+          />
 
-        <TouchableOpacity style={styles.uploadButton} onPress={handleImagePick}>
-          <Text style={styles.uploadButtonText}>📷 {selectedImage ? "Change Photo" : "Upload Photo (Optional)"}</Text>
-        </TouchableOpacity>
-
-        {selectedImage && (
-          <View style={styles.previewContainer}>
-            <Image source={{ uri: selectedImage }} style={styles.previewImage} />
-            <TouchableOpacity onPress={handleRemoveImage}>
-              <Text style={styles.removeText}>❌ Remove</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.createButton} onPress={handleSubmit}>
-            <Text style={styles.createButtonText}>{isEdit ? "Update" : "Create"}</Text>
+          <TouchableOpacity style={styles.uploadButton} onPress={handleImagePick}>
+            <Text style={styles.uploadButtonText}>📷 {selectedImage ? "Change Photo" : "Upload Photo (Optional)"}</Text>
           </TouchableOpacity>
+
+          {selectedImage && (
+            <View style={styles.previewContainer}>
+              <Image source={{ uri: selectedImage }} style={styles.previewImage} />
+              <TouchableOpacity onPress={handleRemoveImage}>
+                <Text style={styles.removeText}>❌ Remove</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </View>
     </View>
@@ -132,37 +133,48 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContainer: {
-    backgroundColor: "#000",
-    padding: 20,
-    borderRadius: 10,
-    width: "80%",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderRadius: 16,
+    padding: 30,
+    width: "90%",
+    maxHeight: "90%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  scrollViewContent: {
+    paddingBottom: 5,
   },
   modalTitle: {
-    color: "#fff",
-    fontSize: 18,
+    color: "#111111",
+    fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 15,
+    marginBottom: 20,
     textAlign: "center",
   },
   modalLabel: {
-    color: "#fff",
+    color: "#1A1A1A",
     marginBottom: 5,
   },
   modalInput: {
-    backgroundColor: "#fff",
+    backgroundColor: "#FAFAFA",
     borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-    color: "#000",
+    padding: 12,
+    marginBottom: 15,
+    color: "#1A1A1A",
   },
   uploadButton: {
-    backgroundColor: "#333",
+    backgroundColor: "#E6E6E6",
     padding: 10,
     borderRadius: 5,
     marginVertical: 10,
   },
   uploadButtonText: {
-    color: "#fff",
+    color: "#1A1A1A",
     textAlign: "center",
   },
   previewContainer: {
@@ -179,20 +191,25 @@ const styles = StyleSheet.create({
     color: "#f66",
     fontWeight: "bold",
   },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "center",
+  postButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#588157",
+    borderRadius: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
-  createButton: {
-    backgroundColor: "#fff",
-    borderRadius: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginTop: 10,
-  },
-  createButtonText: {
-    color: "#000",
-    fontWeight: "bold",
+  postButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+    fontSize: 14,
+    letterSpacing: 0.3,
   },
   modalCloseButton: {
     position: "absolute",
