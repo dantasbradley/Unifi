@@ -31,7 +31,7 @@ interface EventCardProps {
 const EventCard: React.FC<EventCardProps> = ({ event, isAttending, onToggleAttend, onDelete, onEdit, isAdmin }) => {
 
   const formatEventDateTime = (dateStr: string, startTimeStr: string, endTimeStr: string) => {
-    console.log("Original Inputs => Date:", dateStr, "| Start Time:", startTimeStr, "| End Time:", endTimeStr);
+    // console.log("Original Inputs => Date:", dateStr, "| Start Time:", startTimeStr, "| End Time:", endTimeStr);
   
     // Parse date parts
     const dateParts = dateStr.split('-').length === 3 ? dateStr.split('-') : dateStr.split('/');
@@ -58,7 +58,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, isAttending, onToggleAtten
     const formattedDate = `${month}/${day}/${year}`;
     const finalString = `${formattedDate} at ${shiftedStart}-${shiftedEnd}`;
   
-    console.log("Final Formatted DateTime:", finalString);
+    // console.log("Final Formatted DateTime:", finalString);
     return finalString;
   };
   

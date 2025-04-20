@@ -33,11 +33,11 @@ const Sidebar = () => {
 
   // Function to refresh the community list
   const handleRefresh = async () => {
-    console.log("refreshing page");
+    console.log("Refreshing sidebar page");
     setRefreshing(true);
     try {
-      await fetchCommunities(); // Fetch latest data
-      setRefreshKey(Date.now()); // 👈 Forces FlatList to refresh
+      await fetchCommunities();
+      setRefreshKey(Date.now());
     } catch (error) {
       console.error("Error refreshing communities:", error);
     }
