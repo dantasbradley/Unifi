@@ -10,6 +10,13 @@ To install the backend
    npm install jwt-decode
    npm audit fix
    npm install axios
+   npm install --save-dev jest supertest
+   npm install --save-dev sinon
+   npm install aws-sdk
+   npm install mysql2
+   npm install @aws-sdk/client-s3
+   npm install jsonwebtoken
+
 
    
    ```
