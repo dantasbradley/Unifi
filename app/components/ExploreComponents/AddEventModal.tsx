@@ -8,6 +8,7 @@ import {
   Platform,
   KeyboardAvoidingView,
   FlatList,
+  ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
   Alert,
@@ -248,13 +249,13 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
           <Text style={styles.modalTitle}>Add New Event</Text>
 
           {/* Render All Form Fields */}
-          <FlatList
-            data={formFields}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.flatListContent}
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
             keyboardShouldPersistTaps="handled"
-          />
+            showsVerticalScrollIndicator={false}
+          >
+            {formFields.map((field) => renderItem({ item: field }))}
+          </ScrollView>
         </KeyboardAvoidingView>
       </View>
     </TouchableWithoutFeedback>
@@ -336,6 +337,9 @@ const styles = StyleSheet.create({
   },
   flatListContent: {
     flexGrow: 1,
+  },
+  scrollContainer: {
+    paddingBottom: 130,
   },
 });
 
