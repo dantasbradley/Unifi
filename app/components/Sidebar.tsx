@@ -129,15 +129,23 @@ const Sidebar = () => {
                 onPress={() => {
                   closeSidebar();
                   router.push({
-                  pathname: "/tabs/ExploreScreen/CommunityDetails",
-                  params: { id: item.id, name: item.name, isAdmin: adminCommunities.has(item.id.toString()), startTab: "Bio" },
-                }); }}
+                    pathname: "/tabs/ExploreScreen/CommunityDetails",
+                    params: {
+                      id: item.id,
+                      name: item.name,
+                      isAdmin: adminCommunities.has(item.id.toString()),
+                      startTab: "Bio",
+                    },
+                  });
+                }}
               />
             )}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
             }
           />
+
           <CreateCommunityModal
             visible={modalVisible}
             onClose={() => setModalVisible(false)}
@@ -166,24 +174,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#344E41",
     padding: 15,
   },
-  regularAddButton: {
-    backgroundColor: "#fff",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    alignSelf: "flex-start",
-    marginBottom: 10,
-  },
-  regularAddButtonText: {
-    color: "black",
-    fontSize: 16,
-    fontWeight: "bold",
-  },  
   sidebar: {
     position: "absolute",
     left: 0,
-    top: 0, 
-    bottom: 0, 
+    top: 0,
+    bottom: 0,
     width: 350,
     backgroundColor: "black",
     zIndex: 2,
@@ -192,12 +187,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 70,
-    paddingHorizontal: 20,
-    marginBottom: 20,
     marginTop: Platform.OS === "android"
       ? (StatusBar.currentHeight || 0) + (70 - (StatusBar.currentHeight || 0))
       : 70,
+    paddingHorizontal: 20,
+    marginBottom: 20,
   },
   title: {
     color: "white",
@@ -212,15 +206,6 @@ const styles = StyleSheet.create({
     height: 44,
     justifyContent: "center",
     alignItems: "center",
-  },
-  scrollContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  menuItem: {
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "gray",
   },
   filterRow: {
     flexDirection: "row",
@@ -247,21 +232,25 @@ const styles = StyleSheet.create({
   activeFilterText: {
     color: "white",
   },
-  communityName: {
-    color: "#fff",
+  regularAddButton: {
+    backgroundColor: "#fff",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignSelf: "flex-start",
+    marginBottom: 10,
+  },
+  regularAddButtonText: {
+    color: "black",
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 4,
-    flexWrap: "wrap",
-    flexShrink: 1,
   },
-  secondLine: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  secondLineText: {
-    color: "#ccc",
-    fontSize: 14,
+  separator: {
+    height: 1,
+    width: "100%",
+    backgroundColor: "#999999",
+    opacity: 1,
+    marginVertical: 6,
   },
 });
 
