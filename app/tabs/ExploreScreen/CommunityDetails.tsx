@@ -513,10 +513,10 @@ export default function CommunityDetailsScreen() {
     }
   };  
   // Handle deletes
-  const handleDeletePost = async (postId: string) => {
+  const handleDeleteClub = async () => {
     Alert.alert(
-      "Delete Post",
-      "Are you sure you want to delete this post?",
+      "Delete Club",
+      `Are you sure you want to permanently delete "${name}"?`,
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -524,14 +524,44 @@ export default function CommunityDetailsScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              const response = await fetch(`http://3.85.25.255:3000/DB/posts/delete/${postId}`, {
+              const encodedPfpPath = encodeURIComponent(`club_profile_pics/${id}_${name}`);
+              const response = await fetch(`http://3.85.25.255:3000/DB/clubs/delete/${id}?clubPfpPath=${encodedPfpPath}`, {
+                method: 'DELETE',
+              });
+              const result = await response.json();
+              if (response.ok) {
+                router.replace("/tabs/ExploreScreen");
+              } else {
+                Alert.alert("Error", result.message || "Failed to delete club.");
+              }
+            } catch (err) {
+              console.error("Delete error:", err);
+              Alert.alert("Error", "Could not connect to server.");
+            }
+          }
+        }
+      ]
+    );
+  };
+  const handleDeletePost = async (id: string, title: string) => {
+    Alert.alert(
+      "Delete Post",
+      `Are you sure you want to delete "${title}"?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const response = await fetch(`http://3.85.25.255:3000/DB/posts/delete/${id}`, {
                 method: 'DELETE',
               });
   
               const result = await response.json();
   
               if (response.ok) {
-                setCommunityPosts((prev) => prev.filter((post) => post.id !== postId));
+                setCommunityPosts((prev) => prev.filter((post) => post.id !== id));
               } else {
                 Alert.alert("Error", result.message || "Failed to delete post.");
               }
@@ -544,7 +574,34 @@ export default function CommunityDetailsScreen() {
       ]
     );
   };
-
+  const handleDeleteEvent = async (id: string, title: string, date: string, start_time: string, end_time: string) => {
+    Alert.alert(
+      "Delete Event", 
+      `Are you sure you want to delete "${title}"?`, 
+      [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const response = await fetch(`http://3.85.25.255:3000/DB/events/delete/${id}`, {
+              method: 'DELETE',
+            });
+            const result = await response.json();
+            if (response.ok) {
+              setEvents((prev) => prev.filter((e) => e.id !== id));
+              const datetime = formatEventDateTime(date, start_time, end_time);
+              handleCreateNotification(`Event title: ${title} \nWhen: ${datetime}`, "Event Deleted");
+            }
+          } catch (err) {
+            console.error("Error:", err);
+            Alert.alert("Error", "Could not connect to server.");
+          }
+        }
+      }
+    ]);
+  };
 
   return (
     <View style={styles.container}>
@@ -659,36 +716,7 @@ export default function CommunityDetailsScreen() {
                   {isAdmin === "true" && (
                     <TouchableOpacity
                       style={styles.deleteButton}
-                      onPress={() => {
-                        Alert.alert(
-                          "Delete Club",
-                          "Are you sure you want to permanently delete this club?",
-                          [
-                            { text: "Cancel", style: "cancel" },
-                            {
-                              text: "Delete",
-                              style: "destructive",
-                              onPress: async () => {
-                                try {
-                                  const encodedPfpPath = encodeURIComponent(`club_profile_pics/${id}_${name}`);
-                                  const response = await fetch(`http://3.85.25.255:3000/DB/clubs/delete/${id}?clubPfpPath=${encodedPfpPath}`, {
-                                    method: 'DELETE',
-                                  });
-                                  const result = await response.json();
-                                  if (response.ok) {
-                                    router.replace("/tabs/ExploreScreen");
-                                  } else {
-                                    Alert.alert("Error", result.message || "Failed to delete club.");
-                                  }
-                                } catch (err) {
-                                  console.error("Delete error:", err);
-                                  Alert.alert("Error", "Could not connect to server.");
-                                }
-                              }
-                            }
-                          ]
-                        );
-                      }}
+                      onPress={() => { handleDeleteClub() } }
                     >
                       <Text style={styles.deleteButtonText}>Delete Club</Text>
                     </TouchableOpacity>
@@ -713,31 +741,11 @@ export default function CommunityDetailsScreen() {
                 isAttending={attendingEvents.has(item.id)}
                 isAdmin={isAdmin === "true"}
                 onToggleAttend={() => toggleAttendEvent(item.id)}
-                onDelete={isAdmin === "true" ? () => {
-                  Alert.alert("Delete Event", `Delete "${item.title}"?`, [
-                    { text: "Cancel", style: "cancel" },
-                    {
-                      text: "Delete",
-                      style: "destructive",
-                      onPress: async () => {
-                        try {
-                          const response = await fetch(`http://3.85.25.255:3000/DB/events/delete/${item.id}`, {
-                            method: 'DELETE',
-                          });
-                          const result = await response.json();
-                          if (response.ok) {
-                            setEvents((prev) => prev.filter((e) => e.id !== item.id));
-                            const datetime = formatEventDateTime(item.date, item.start_time, item.end_time);
-                            handleCreateNotification(`Event title: ${item.title} \nWhen: ${datetime}`, "Event Deleted");
-                          }
-                        } catch (err) {
-                          console.error("Error:", err);
-                          Alert.alert("Error", "Could not connect to server.");
-                        }
-                      }
-                    }
-                  ]);
-                } : undefined}
+                onDelete={
+                  isAdmin === "true"
+                    ? () => handleDeleteEvent(item.id, item.title, item.date, item.start_time, item.end_time)
+                    : undefined
+                }
                 onEdit={
                   isAdmin === "true"
                     ? () => {
@@ -820,7 +828,7 @@ export default function CommunityDetailsScreen() {
                 post={item}
                 isLiked={likedPosts.has(item.id)}
                 onToggleLike={() => toggleLikePost(item.id)}
-                onDelete={isAdmin === "true" ? () => handleDeletePost(item.id) : undefined}
+                onDelete={isAdmin === "true" ? () => handleDeletePost(item.id, item.title) : undefined}
                 onEdit={
                   isAdmin === "true"
                     ? () => {
