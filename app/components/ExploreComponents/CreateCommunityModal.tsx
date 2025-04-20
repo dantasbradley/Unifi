@@ -25,9 +25,9 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
   if (!visible) return null;
 
   return (
-    <View style={styles.modalOverlay}>
+    <View style={styles.modalOverlay} testID="parent">
       <View style={styles.modalContainer}>
-        <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
+        <TouchableOpacity style={styles.modalCloseButton} onPress={onClose} testID="close">
           <Ionicons name="close" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.modalTitle}>Create New Community</Text>

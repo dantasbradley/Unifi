@@ -10,7 +10,7 @@ interface EditToggleButtonProps {
 
 export default function EditToggleButton({ editMode, onPress, style }: EditToggleButtonProps) {
   return (
-    <TouchableOpacity onPress={onPress} style={[styles.button, style]}>
+    <TouchableOpacity onPress={onPress} style={[styles.button, style]} testID="test">
       {/* Swap icons based on editMode */}
       <Ionicons name={editMode ? "checkmark" : "create"} size={24} color="#fff" />
     </TouchableOpacity>

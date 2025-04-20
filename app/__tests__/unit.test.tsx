@@ -9,14 +9,150 @@ import Verification from "../screens/resetPassword";
 import HomeScreen from "../tabs/HomeScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AsyncStorageMock from '@react-native-async-storage/async-storage/jest/async-storage-mock';
+// __tests__/App.test.tsx
+import CheckButton from '../components/CheckButton';
+import CustomButton from '../components/CustomButton';
+import Sidebar from '../components/Sidebar';
+import ProfileScreen from "../tabs/ProfileScreen";
+import { Href, router, useRouter } from "expo-router";
+import { replace } from "expo-router/build/global-state/routing";
+import { Calendar } from "react-native-calendars";
+import CalendarScreen from "../tabs/CalendarScreen";
+import CommunityCard from "../components/ExploreComponents/CommunityCard";
+import CreateCommunityModal from "../components/ExploreComponents/CreateCommunityModal";
+import EditToggleButton from "../components/ExploreComponents/EditToggleButton";
+
+
+jest.mock('@expo/vector-icons', () => ({
+  Ionicons: () => null
+}));
+
+let fetchMock = jest.spyOn(global, "fetch").mockImplementation(jest.fn());
+
+jest.mock('../components/Hamburger', () => ({
+  useHamburger: () => ({
+    isSidebarOpen: true,
+    toggleSidebar: jest.fn(),
+    closeSidebar: jest.fn(),
+  })
+}));
+
+describe('Component Tests', () => {
+  test('CheckButton toggles state on press', () => {
+    const { getByText } = render(<CheckButton text="Test Label" />);
+    const label = getByText('Test Label');
+
+    fireEvent.press(label);
+    fireEvent.press(label);
+  });
+
+  test('CustomButton calls onPress', () => {
+    const onPressMock = jest.fn();
+    const { getByText } = render(
+      <CustomButton title="Click Me" onPress={onPressMock} />
+    );
+    fireEvent.press(getByText('Click Me'));
+    expect(onPressMock).toHaveBeenCalled();
+  });
+
+  test('Sidebar renders with organization titles', async () => {
+    const { getByText } = render(<Sidebar />);
+
+    await waitFor(() => {
+      expect(getByText('My Organizations')).toBeTruthy();
+    });
+  });
+
+  test('CommunityCard calls onPress and onToggleJoin correctly', () => {
+    const onPressMock = jest.fn();
+    const onToggleJoinMock = jest.fn();
+    const { getByText } = render(<CommunityCard onPress={onPressMock} onToggleJoin={onToggleJoinMock} isJoined={true} community={{ id: 'id', name: 'name', description: 'description', membersCount: 'members', location: 'location'}}/>);
+
+    fireEvent.press(getByText("name"));
+    expect(onPressMock).toHaveBeenCalled();
+    expect(onToggleJoinMock).not.toHaveBeenCalled();
+    fireEvent.press(getByText(new RegExp('Join')));
+    expect(onToggleJoinMock).toHaveBeenCalled();
+    expect(onPressMock).toHaveBeenCalledTimes(1);
+  })
+
+  test('CommunityCard renders with correct props', () => {
+    const onPressMock = jest.fn();
+    const onToggleJoinMock = jest.fn();
+    const { getByText } = render(<CommunityCard 
+        onPress={onPressMock} 
+        onToggleJoin={onToggleJoinMock} 
+        isJoined={true} 
+        community={{ id: 'id', name: 'name', description: 'description', membersCount: 'members', location: 'location'}}/>);
+
+    expect(getByText('name')).toBeOnTheScreen();
+    expect(getByText('members')).toBeOnTheScreen();
+    expect(getByText('location')).toBeOnTheScreen();
+  })
+
+  test('CreateCommunityModal calls onClose, onChangeName, onChangeLocation, and onCreate correctly', () => {
+    const onCloseMock = jest.fn();
+    const onChangeNameMock = jest.fn();
+    const onChangeLocationMock = jest.fn();
+    const onCreateMock = jest.fn();
+    const { getByText, getByPlaceholderText, getByTestId } = render(<CreateCommunityModal 
+        onClose={onCloseMock} 
+        onChangeLocation={onChangeLocationMock} 
+        onChangeName={onChangeNameMock}
+        onCreate={onCreateMock}
+        visible={true}
+        newCommunityName="community name"
+        newCommunityLocation="community location"/>);
+    
+    fireEvent.press(getByTestId("close"));
+    expect(onCloseMock).toHaveBeenCalled();
+    fireEvent.changeText(getByPlaceholderText("Enter community name"));
+    expect(onChangeNameMock).toHaveBeenCalled();
+    fireEvent.changeText(getByPlaceholderText("Enter community location"));
+    expect(onChangeLocationMock).toHaveBeenCalled();
+    fireEvent.press(getByText("Create"));
+
+    expect(onCloseMock).toHaveBeenCalledTimes(1);
+    expect(onChangeLocationMock).toHaveBeenCalledTimes(1);
+    expect(onChangeNameMock).toHaveBeenCalledTimes(1);
+    expect(onCreateMock).toHaveBeenCalledTimes(1);
+  })
+
+  test('CreateCommunityModal returns null if visible is false', () => {
+    const onCloseMock = jest.fn();
+    const onChangeNameMock = jest.fn();
+    const onChangeLocationMock = jest.fn();
+    const onCreateMock = jest.fn();
+    const { queryByTestId } = render(<CreateCommunityModal 
+        onClose={onCloseMock} 
+        onChangeLocation={onChangeLocationMock} 
+        onChangeName={onChangeNameMock}
+        onCreate={onCreateMock}
+        visible={false}
+        newCommunityName="community name"
+        newCommunityLocation="community location"/>);
+
+    expect(queryByTestId("parent")).toBeNull();
+  })
+
+  test('EditToggleButton calls onPress correctly', () => {
+    const onPressMock = jest.fn();
+    const { getByTestId } = render(<EditToggleButton
+        onPress={onPressMock}
+        editMode={true}/>);
+    
+    fireEvent.press(getByTestId("test"));
+
+    expect(onPressMock).toHaveBeenCalledTimes(1);
+  })
+});
+
 
 jest.mock("@react-native-async-storage/async-storage", () => {
     require('@react-native-async-storage/async-storage/jest/async-storage-mock');
 })
 
 describe("Front End Tests", () => {
-
-    let fetchMock = jest.spyOn(global, "fetch").mockImplementation(jest.fn());
 
     // Auth Page Tests
     describe("Auth Screen Tests", () => {
@@ -49,8 +185,6 @@ describe("Front End Tests", () => {
 
     // Login Page Tests
     describe("Login Page Tests", () => {
-
-        let fetchMock = jest.spyOn(global, "fetch").mockImplementation(jest.fn());
 
         beforeEach(() => {
             jest.clearAllMocks();
@@ -462,6 +596,40 @@ describe("Front End Tests", () => {
                 expect(screen).toHavePathname("/screens/Login");
             });
         })
+    })
+
+    describe("Profile Screen Tests", () => {
+
+        it("Default components render correctly", () => {
+            const { getByText } = render(<ProfileScreen/>);
+
+            expect(getByText("Account")).toBeOnTheScreen();
+            expect(getByText("Edit")).toBeOnTheScreen();
+            expect(getByText("Sign Out")).toBeOnTheScreen();
+            expect(getByText("📂 Select file to upload")).toBeOnTheScreen();
+            expect(getByText("Full Name:")).toBeOnTheScreen();
+            expect(getByText("Email:")).toBeOnTheScreen();
+            expect(getByText("Notifications")).toBeOnTheScreen();
+            expect(getByText("Receive updates from the communities you follow")).toBeOnTheScreen();
+            expect(getByText("Receive updates from nearby communities based on interests")).toBeOnTheScreen();
+            expect(getByText("Receive reminders of upcoming events")).toBeOnTheScreen();
+        })
+
+    })
+
+    describe("Calendar Screen Tests", () => {
+
+        it("Calendar defaults to correct month", () => {
+            const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+            const d = new Date();
+            let m = month[d.getMonth()];
+
+            render(<CalendarScreen/>);
+
+            expect(screen.getByText(new RegExp(`${m}`))).toBeOnTheScreen();
+        })
+
     })
 })
 
