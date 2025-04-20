@@ -84,7 +84,7 @@ const ModifyPostModal: React.FC<ModifyPostModalProps> = ({
 
         <Text style={styles.modalTitle}>{isEdit ? "Edit Post" : "Add New Post"}</Text>
 
-        <ScrollView contentContainerStyle={styles.scrollViewContent} keyboardShouldPersistTaps="handled">
+        <View style={styles.scrollViewContent}>
           <Text style={styles.modalLabel}>Title:</Text>
           <TextInput
             style={styles.modalInput}
@@ -115,7 +115,7 @@ const ModifyPostModal: React.FC<ModifyPostModalProps> = ({
               </TouchableOpacity>
             </View>
           )}
-        </ScrollView>
+        </View>
       </View>
     </View>
   );
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   scrollViewContent: {
-    paddingBottom: 30,
+    paddingBottom: 5,
   },
   modalTitle: {
     color: "#111111",

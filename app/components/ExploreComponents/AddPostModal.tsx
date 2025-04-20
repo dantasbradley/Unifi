@@ -73,36 +73,38 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
 
         <Text style={styles.modalTitle}>Add New Post</Text>
 
-        <Text style={styles.modalLabel}>Title:</Text>
-        <TextInput
-          style={styles.modalInput}
-          placeholder="e.g. Group Reading"
-          placeholderTextColor="#aaa"
-          value={newPostName}
-          onChangeText={onChangeName}
-        />
+        <View style={styles.scrollViewContent}>
+          <Text style={styles.modalLabel}>Title:</Text>
+          <TextInput
+            style={styles.modalInput}
+            placeholder="e.g. Group Reading"
+            placeholderTextColor="#aaa"
+            value={newPostName}
+            onChangeText={onChangeName}
+          />
 
-        <Text style={styles.modalLabel}>Content:</Text>
-        <TextInput
-          style={styles.modalInput}
-          placeholder="Describe the event..."
-          placeholderTextColor="#aaa"
-          value={newPostContent}
-          onChangeText={onChangeContent}
-        />
+          <Text style={styles.modalLabel}>Content:</Text>
+          <TextInput
+            style={styles.modalInput}
+            placeholder="Describe the event..."
+            placeholderTextColor="#aaa"
+            value={newPostContent}
+            onChangeText={onChangeContent}
+          />
 
-        <TouchableOpacity style={styles.uploadButton} onPress={handleImagePick}>
-          <Text style={styles.uploadButtonText}>📷 Upload Photo (Optional)</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.uploadButton} onPress={handleImagePick}>
+            <Text style={styles.uploadButtonText}>📷 Upload Photo (Optional)</Text>
+          </TouchableOpacity>
 
-        {selectedImage && (
-          <View style={styles.previewContainer}>
-            <Image source={{ uri: selectedImage }} style={styles.previewImage} />
-            <TouchableOpacity onPress={handleRemoveImage}>
-              <Text style={styles.removeText}>❌ Remove</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          {selectedImage && (
+            <View style={styles.previewContainer}>
+              <Image source={{ uri: selectedImage }} style={styles.previewImage} />
+              <TouchableOpacity onPress={handleRemoveImage}>
+                <Text style={styles.removeText}>❌ Remove</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -199,6 +201,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 10,
     left: 10,
+  },
+  scrollViewContent: {
+    paddingBottom: 5,
   },
 });
 
