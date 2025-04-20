@@ -45,7 +45,7 @@ const registerRoutes = (appInstance) => {
   require('./routes/follows.routes')(appInstance);
   require('./routes/notifications.routes')(app);
   require('./routes/cognito.routes')(appInstance);
-
+  require('./routes/s3endpoints.routes')(appInstance);
 };
 
 if (process.env.NODE_ENV !== 'test') {
