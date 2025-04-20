@@ -1,11 +1,10 @@
-// app.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const AWS = require('aws-sdk');
 const mysql = require('mysql2');
-const { S3, S3Client } = require('@aws-sdk/client-s3');
+const { S3Client } = require('@aws-sdk/client-s3');
 
 const app = express();
 
@@ -21,7 +20,7 @@ const cognito = new AWS.CognitoIdentityServiceProvider({
 });
 const s3 = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
 
-// MySQL Connection Pool
+// MySQL Pool
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -31,23 +30,26 @@ const pool = mysql.createPool({
   connectionLimit: 10,
 });
 
-// Attach services to app for easy mocking/testing
 app.set('cognito', cognito);
 app.set('s3', s3);
 app.set('pool', pool);
 
-// Route imports
-// require('./routes/auth.routes')(app);
-// require('./routes/s3.routes')(app);
-// require('./routes/club.routes')(app);
-// require('./routes/event.routes')(app);
-// require('./routes/post.routes')(app);
-// require('./routes/like.routes')(app);
-// require('./routes/utility.routes')(app);
-// require('./routes/follow.routes')(app);
-// require('./routes/notification.routes')(app);
+// Routes — wrap these so you can skip them in test if needed
+const registerRoutes = (appInstance) => {
+  require('./routes/auth.routes')(appInstance);
+  require('./routes/s3.routes')(appInstance);
+  require('./routes/club.routes')(appInstance);
+  require('./routes/event.routes')(appInstance);
+  require('./routes/posts.routes')(appInstance); // this one too
+};
 
-// Graceful Shutdown Route
+if (process.env.NODE_ENV !== 'test') {
+  registerRoutes(app);
+}
+
+app.set('registerRoutes', registerRoutes); // <-- so tests can call it
+
+// Shutdown
 app.get('/shutdown', (req, res) => {
   res.send('Shutting down server...');
   if (app.server) {
@@ -61,12 +63,3 @@ app.get('/shutdown', (req, res) => {
 });
 
 module.exports = app;
-
-if (process.env.NODE_ENV !== 'test') {
-    require('./routes/auth.routes')(app);
-    require('./routes/s3.routes')(app);
-    require('./routes/club.routes')(app);
-    require('./routes/event.routes')(app);
-    // ...other routes
-  }
-  
