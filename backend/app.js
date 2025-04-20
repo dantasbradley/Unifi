@@ -40,7 +40,8 @@ const registerRoutes = (appInstance) => {
   require('./routes/s3.routes')(appInstance);
   require('./routes/club.routes')(appInstance);
   require('./routes/event.routes')(appInstance);
-  require('./routes/posts.routes')(appInstance); // this one too
+  require('./routes/posts.routes')(appInstance);
+  require('./routes/likes.routes')(appInstance);
 };
 
 if (process.env.NODE_ENV !== 'test') {
