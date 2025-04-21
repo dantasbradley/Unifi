@@ -60,7 +60,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ item, onPress }) =>
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#588157",
+    backgroundColor: "#3A5A40",
     borderRadius: 16,
     padding: 16,
     marginHorizontal: 15,
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 4,
     borderWidth: 1,
-    borderColor: "#6D9B6A",
+    borderColor: "#DAD7CD",
   },
 
   header: {

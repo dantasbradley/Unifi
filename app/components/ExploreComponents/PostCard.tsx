@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 4,
     borderWidth: 1,
-    borderColor: "#6B8F6F",
+    borderColor: "#DAD7CD",
   },
 
   header: {
