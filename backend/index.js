@@ -548,7 +548,7 @@ app.put('/DB/posts/update/:post_id', (req, res) => {
     `;
     let newFilePath = filePath;
     if (imageUri){
-        newFilePath = `post_images/${postId}_${title}`;
+        newFilePath = `post_images/${post_id}_${title}`;
     }
     const params = [title, content, newFilePath, imageUri, post_id];
 
