@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Platform, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import Toast, { ToastConfig, ToastConfigParams } from "react-native-toast-message";
 
@@ -85,53 +85,60 @@ const SignUp = () => {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.form}>
-                <Text style={styles.label}>First Name</Text>
-                <TextInput style={styles.input} placeholder="Enter your first name" value={firstName} placeholderTextColor="#888" onChangeText={setFirstName} />
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="always">
+                    <View style={styles.form}>
+                        <Text style={styles.label}>First Name</Text>
+                        <TextInput style={styles.input} placeholder="Enter your first name" value={firstName} placeholderTextColor="#888" onChangeText={setFirstName} />
 
-                <Text style={styles.label}>Last Name</Text>
-                <TextInput style={styles.input} placeholder="Enter your last name" value={lastName} placeholderTextColor="#888" onChangeText={setLastName} />
+                        <Text style={styles.label}>Last Name</Text>
+                        <TextInput style={styles.input} placeholder="Enter your last name" value={lastName} placeholderTextColor="#888" onChangeText={setLastName} />
 
-                <Text style={styles.label}>Email</Text>
-                <TextInput style={styles.input} placeholder="Enter your email" keyboardType="email-address" value={email} placeholderTextColor="#888" onChangeText={setEmail} />
-                
-                <Text style={styles.label}>Password</Text>
-                
-                <View style={styles.passwordRequirements}>
-                    <Text style={[styles.requirement, minLength ? styles.met : null]}>• At least 8 characters</Text>
-                    <Text style={[styles.requirement, hasUpper ? styles.met : null]}>• Includes an uppercase letter</Text>
-                    <Text style={[styles.requirement, hasLower ? styles.met : null]}>• Includes a lowercase letter</Text>
-                    <Text style={[styles.requirement, hasNumber ? styles.met : null]}>• Includes a number</Text>
-                    <Text style={[styles.requirement, hasSpecial ? styles.met : null]}>• Includes a special character</Text>
-                </View>
-                
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter your password"
-                    secureTextEntry
-                    value={password}
-                    placeholderTextColor="#888"
-                    onChangeText={(text) => {
-                        setPassword(text);
-                        updatePasswordRequirements(text);
-                    }}
-                />
+                        <Text style={styles.label}>Email</Text>
+                        <TextInput style={styles.input} placeholder="Enter your email" keyboardType="email-address" value={email} placeholderTextColor="#888" onChangeText={setEmail} />
+                        
+                        <Text style={styles.label}>Password</Text>
+                        
+                        <View style={styles.passwordRequirements}>
+                            <Text style={[styles.requirement, minLength ? styles.met : null]}>• At least 8 characters</Text>
+                            <Text style={[styles.requirement, hasUpper ? styles.met : null]}>• Includes an uppercase letter</Text>
+                            <Text style={[styles.requirement, hasLower ? styles.met : null]}>• Includes a lowercase letter</Text>
+                            <Text style={[styles.requirement, hasNumber ? styles.met : null]}>• Includes a number</Text>
+                            <Text style={[styles.requirement, hasSpecial ? styles.met : null]}>• Includes a special character</Text>
+                        </View>
+                        
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter your password"
+                            secureTextEntry
+                            value={password}
+                            placeholderTextColor="#888"
+                            onChangeText={(text) => {
+                                setPassword(text);
+                                updatePasswordRequirements(text);
+                            }}
+                        />
 
-                <Text style={styles.label}>Confirm Password</Text>
-                <TextInput style={styles.input} placeholder="Re-enter your password" secureTextEntry value={passwordConf} placeholderTextColor="#888" onChangeText={setPasswordConf} />
+                        <Text style={styles.label}>Confirm Password</Text>
+                        <TextInput style={styles.input} placeholder="Re-enter your password" secureTextEntry value={passwordConf} placeholderTextColor="#888" onChangeText={setPasswordConf} />
 
-                <TouchableOpacity style={styles.signupButton} onPress={handleSignUp} disabled={loading}>
-                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.signupText}>Sign Up</Text>}
-                </TouchableOpacity>
-            </View>
-        </View>
+                        <TouchableOpacity style={styles.signupButton} onPress={handleSignUp} disabled={loading}>
+                            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.signupText}>Sign Up</Text>}
+                        </TouchableOpacity>
+                    </View>
+                </ScrollView>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#A3B18A", alignItems: "center", justifyContent: "center" },
-    form: { backgroundColor: "#fff", padding: 20, borderRadius: 10, width: "80%" },
+    container: { flexGrow: 1, backgroundColor: "#A3B18A", alignItems: "center", paddingBottom: 100 },
+    form: { backgroundColor: "#fff", padding: 20, borderRadius: 10, width: "80%", alignSelf: "center", marginTop: 50, marginBottom: 50 },
     label: { fontSize: 16, color: "#000", marginBottom: 5 },
     input: { height: 40, borderColor: "#ddd", borderWidth: 1, borderRadius: 5, paddingHorizontal: 10, marginBottom: 15 },
     signupButton: { backgroundColor: "#222", paddingVertical: 12, borderRadius: 5, alignItems: "center", marginBottom: 15 },
@@ -149,14 +156,14 @@ const styles = StyleSheet.create({
         color: "#fff",
         textAlign: "center",
     },
-    passwordRequirements: { marginBottom: 15 }, // Ensure alignment
+    passwordRequirements: { marginBottom: 15 },
     requirement: {
         fontSize: 14,
         marginBottom: 4,
-        color: 'black', // Default color
+        color: 'black',
     },
     met: {
-        color: 'green' // Styling for the password requirements text
+        color: 'green'
     }
 });
 
