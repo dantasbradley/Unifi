@@ -7,16 +7,11 @@ import SignUp from "../screens/SignUp";
 import VerifyEmail from "../screens/resetEmail";
 import Verification from "../screens/resetPassword";
 import HomeScreen from "../tabs/HomeScreen";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import AsyncStorageMock from '@react-native-async-storage/async-storage/jest/async-storage-mock';
-// __tests__/App.test.tsx
 import CheckButton from '../components/CheckButton';
 import CustomButton from '../components/CustomButton';
 import Sidebar from '../components/Sidebar';
 import ProfileScreen from "../tabs/ProfileScreen";
-import { Href, router, useRouter } from "expo-router";
-import { replace } from "expo-router/build/global-state/routing";
-import { Calendar } from "react-native-calendars";
 import CalendarScreen from "../tabs/CalendarScreen";
 import CommunityCard from "../components/ExploreComponents/CommunityCard";
 import CreateCommunityModal from "../components/ExploreComponents/CreateCommunityModal";
@@ -26,8 +21,6 @@ import PostCard from "../components/ExploreComponents/PostCard";
 import EventList from "../components/EventList";
 import TabLayout from "../tabs/_layout";
 import NotificationScreen from "../tabs/NotificationScreen";
-import ExploreScreen from "../tabs/ExploreScreen";
-
 
 jest.mock('@expo/vector-icons', () => ({
   Ionicons: () => null
