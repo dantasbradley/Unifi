@@ -82,7 +82,7 @@ export default function CommunityDetailsScreen() {
   // edit Posts
   const [editPostModalVisible, setEditPostModalVisible] = useState(false);
   const [editPostTitle, setEditPostTitle] = useState("");
-  const [editPostImageUri, setEditPostImageUri] = useState("");
+  const [editPostImageUri, setEditPostImageUri] = useState<string | null>(null);
   const [editPostContent, setEditPostContent] = useState("");
   const [selectedPostId, setSelectedPostId] = useState(null);
 
@@ -351,9 +351,7 @@ export default function CommunityDetailsScreen() {
 
     try {
         let filePath = "";
-        if (imageUri) {
-          filePath = "yes";
-        }
+        const newImageUri = imageUri ? imageUri : "";
         const response = await fetch("http://3.85.25.255:3000/DB/posts/add", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -362,6 +360,7 @@ export default function CommunityDetailsScreen() {
                 content: newPostContent,
                 filePath,
                 club_id: id,
+                imageUri: newImageUri,
             }),
         });
         const data = await response.json();
@@ -388,9 +387,7 @@ export default function CommunityDetailsScreen() {
   const handleEditPost = async (postId, updatedTitle, updatedContent, imageUri: string | null) => {  
     try {
       let filePath = "";
-      if (imageUri) {
-        filePath = "yes";
-      }
+      const newImageUri = imageUri ? imageUri : "";
       const response = await fetch(`http://3.85.25.255:3000/DB/posts/update/${postId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -398,6 +395,7 @@ export default function CommunityDetailsScreen() {
           title: updatedTitle,
           content: updatedContent,
           filePath, 
+          imageUri: newImageUri,
         }),
       });
       const data = await response.json();
@@ -775,7 +773,7 @@ export default function CommunityDetailsScreen() {
                         setSelectedPostId(item.id);
                         setEditPostTitle(item.title);
                         setEditPostContent(item.content);
-                        setEditPostImageUri(item.filePath);
+                        setEditPostImageUri(item.imageUri);
                         setEditPostModalVisible(true);
                       }
                     : undefined
