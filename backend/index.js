@@ -500,12 +500,12 @@ app.delete('/DB/events/delete/:event_id', async (req, res) => {
 });
 // === Add Post ===
 app.post('/DB/posts/add', (req, res) => {
-    const { title, content, filePath, club_id } = req.body;
-    console.log('=== /DB/posts/add =input=', { title, content, filePath, club_id });
+    const { title, content, filePath, club_id, imageUri } = req.body;
+    console.log('=== /DB/posts/add =input=', { title, content, filePath, club_id, imageUri });
     if (!validateFields({ title, content, club_id }, res)) return;
 
-    const insertQuery = 'INSERT INTO test.posts (title, content, filePath, club_id) VALUES (?, ?, ?, ?)';
-    const insertParams = [title, content, filePath, club_id];
+    const insertQuery = 'INSERT INTO test.posts (title, content, filePath, club_id, imageUri) VALUES (?, ?, ?, ?, ?)';
+    const insertParams = [title, content, filePath, club_id, imageUri];
 
     pool.query(insertQuery, insertParams, (insertError, insertResults) => {
         if (insertError) {
@@ -517,7 +517,7 @@ app.post('/DB/posts/add', (req, res) => {
         console.log('Post added with ID:', postId);
 
         // Check if we need to update filePath
-        if (filePath) {
+        if (imageUri) {
             const newFilePath = `post_images/${postId}_${title}`;
             const updateQuery = 'UPDATE test.posts SET filePath = ? WHERE id = ?';
             pool.query(updateQuery, [newFilePath, postId], (updateError) => {
@@ -536,17 +536,21 @@ app.post('/DB/posts/add', (req, res) => {
 // === Update Post ===
 app.put('/DB/posts/update/:post_id', (req, res) => {
     const { post_id } = req.params;
-    const { title, content, filePath } = req.body;
-    console.log('=== /DB/posts/update/:post_id =input=', { post_id, title, content, filePath });
+    const { title, content, filePath, imageUri} = req.body;
+    console.log('=== /DB/posts/update/:post_id =input=', { post_id, title, content, filePath, imageUri });
     if (!post_id || !title || !content) {
         return res.status(400).json({ message: 'Post ID, title, and content are required.' });
     }
     const query = `
         UPDATE test.posts
-        SET title = ?, content = ?, updated_at = NOW(), filePath = ?
+        SET title = ?, content = ?, updated_at = NOW(), filePath = ?, imageUri = ?
         WHERE id = ?
     `;
-    const params = [title, content, filePath, post_id];
+    let newFilePath = filePath;
+    if (imageUri){
+        newFilePath = `post_images/${post_id}_${title}`;
+    }
+    const params = [title, content, newFilePath, imageUri, post_id];
 
     pool.query(query, params, (err, results) => {
         if (err) {
@@ -562,7 +566,7 @@ app.put('/DB/posts/update/:post_id', (req, res) => {
         return res.json({
             message: 'Post updated successfully',
             post_id,
-            filePath
+            filePath: newFilePath
         });
     });
 });

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {View, Text, TextInput, StyleSheet, TouchableOpacity, Platform, KeyboardAvoidingView, FlatList, 
 TouchableWithoutFeedback, Keyboard, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -47,6 +47,18 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   const [endTime, setEndTime] = useState(new Date());
   const googlePlacesRef = useRef(null);
 
+  useEffect(() => {
+    if (visible){
+      const currentDate = date;
+      setDate(currentDate);
+      onChangeDate(currentDate.toISOString().split("T")[0]);
+
+      const currentStartTime = startTime;
+      setStartTime(currentStartTime);
+      onChangeStartTime(currentStartTime.toISOString().split("T")[1].substr(0, 8));
+    }
+  }, [visible]);
+
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setDate(currentDate);
@@ -62,7 +74,9 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   const handleEndTimeChange = (event, selectedTime) => {
     const currentTime = selectedTime || endTime;
     setEndTime(currentTime);
-    onChangeEndTime(currentTime.toISOString().split("T")[1].substr(0, 8));
+    const adjustedTime = new Date(currentTime);
+    adjustedTime.setHours(adjustedTime.getHours() - 1);
+    onChangeEndTime(adjustedTime.toISOString().split("T")[1].substr(0, 8));
   };
 
   const handleLocationSelect = (data) => {
@@ -70,20 +84,21 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   };
 
   const handleCreate = () => {
-    if (!newEventTitle || !newEventDate || !newEventStartTime || !newEventEndTime || !newEventLocation || !newEventDescription) {
-      Alert.alert("Missing Fields", "Please fill in all the fields before creating the event.");
+    const missingFields = [];
+    if (!newEventTitle) missingFields.push("Title");
+    if (!newEventDate) missingFields.push("Date");
+    if (!newEventStartTime) missingFields.push("Start Time");
+    if (!newEventEndTime) missingFields.push("End Time");
+    if (!newEventLocation) missingFields.push("Location");
+    if (!newEventDescription) missingFields.push("Description");
+
+    if (missingFields.length > 0) {
+      Alert.alert(
+        "Missing Fields",
+        `Please fill in the following field(s): ${missingFields.join(", ")}.`
+      );
       return;
     }
-
-    const start = new Date(`${newEventDate}T${newEventStartTime}`);
-    const end = new Date(`${newEventDate}T${newEventEndTime}`);
-    const now = new Date();
-
-    if (end <= start) {
-      Alert.alert("Invalid End Time", "End time must be after start time.");
-      return;
-    }
-
     onCreate();
   };
 
@@ -120,6 +135,8 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         display="default"
         is24Hour={false}
         onChange={handleEndTimeChange}
+        minimumDate={new Date(2000, 0, 1, 0, 0)}
+        maximumDate={new Date(2000, 0, 1, 23, 59)}
       />
     )},
     { id: "location", label: "Location", component: (
