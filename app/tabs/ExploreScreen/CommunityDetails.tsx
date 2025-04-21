@@ -471,6 +471,7 @@ export default function CommunityDetailsScreen() {
         }
         await handleRefreshPosts();
         setEditPostModalVisible(false);
+        setHidePostAddButton(false);
       } else {
         Alert.alert("Error", data.message || "Failed to update post.");
       }
@@ -538,6 +539,7 @@ export default function CommunityDetailsScreen() {
         );
         await handleRefreshEvents();
         setEditEventModalVisible(false);
+        setHideAddButton(false);
         const formattedDateTime = formatEventDateTime(updatedDate, updatedStartTime, updatedEndTime);
         const updateMessage = `Event title: ${updatedTitle} \nWhen: ${formattedDateTime}`;
         
@@ -777,6 +779,7 @@ export default function CommunityDetailsScreen() {
                         setEditEventLocation(item.location);
                         setEditEventDescription(item.description);
                         setEditEventModalVisible(true);
+                        setHideAddButton(true);
                       }
                     : undefined
                 }
@@ -808,7 +811,10 @@ export default function CommunityDetailsScreen() {
           />
           <ModifyEventModal
             visible={editEventModalVisible}
-            onClose={() => setEditEventModalVisible(false)}
+            onClose={() => {
+              setEditEventModalVisible(false);
+              setHideAddButton(false);
+            }}
             newEventTitle={editEventTitle}
             onChangeTitle={setEditEventTitle}
             newEventDate={editEventDate}
@@ -866,6 +872,7 @@ export default function CommunityDetailsScreen() {
                         setEditPostContent(item.content);
                         setEditPostImageUri(item.filePath);
                         setEditPostModalVisible(true);
+                        setHidePostAddButton(true);
                       }
                     : undefined
                 }
@@ -888,7 +895,10 @@ export default function CommunityDetailsScreen() {
           />
           <ModifyPostModal
             visible={editPostModalVisible}
-            onClose={() => setEditPostModalVisible(false)}
+            onClose={() => {
+              setEditPostModalVisible(false);
+              setHidePostAddButton(false);
+            }}
             newPostName={editPostTitle}
             onChangeName={setEditPostTitle}
             newPostContent={editPostContent}
