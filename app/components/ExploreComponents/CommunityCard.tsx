@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: "#588157",
+    borderColor: "#344E41",
   },
   infoContainer: {
     flexDirection: "row",
