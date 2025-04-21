@@ -536,17 +536,17 @@ app.post('/DB/posts/add', (req, res) => {
 // === Update Post ===
 app.put('/DB/posts/update/:post_id', (req, res) => {
     const { post_id } = req.params;
-    const { title, content, filePath } = req.body;
-    console.log('=== /DB/posts/update/:post_id =input=', { post_id, title, content, filePath });
+    const { title, content, filePath, imageUri} = req.body;
+    console.log('=== /DB/posts/update/:post_id =input=', { post_id, title, content, filePath, imageUri });
     if (!post_id || !title || !content) {
         return res.status(400).json({ message: 'Post ID, title, and content are required.' });
     }
     const query = `
         UPDATE test.posts
-        SET title = ?, content = ?, updated_at = NOW(), filePath = ?
+        SET title = ?, content = ?, updated_at = NOW(), filePath = ?, imageUri = ?
         WHERE id = ?
     `;
-    const params = [title, content, filePath, post_id];
+    const params = [title, content, filePath, post_id, imageUri];
 
     pool.query(query, params, (err, results) => {
         if (err) {
