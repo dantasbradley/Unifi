@@ -566,7 +566,7 @@ app.put('/DB/posts/update/:post_id', (req, res) => {
         return res.json({
             message: 'Post updated successfully',
             post_id,
-            filePath
+            filePath: newFilePath
         });
     });
 });
