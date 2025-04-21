@@ -629,6 +629,8 @@ export default function CommunityDetailsScreen() {
                       value={bioDescription}
                       onChangeText={setBioDescription}
                       multiline
+                      placeholder="Insert description"
+                      placeholderTextColor="#aaa"
                     />
                   ) : (
                     <Text style={styles.sectionText}>{bioDescription}</Text>
@@ -960,7 +962,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   changeImageText: {
-    color: "#fff",
+    color: "#344E41",
     textAlign: "center",
     marginTop: 5,
   },

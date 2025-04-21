@@ -188,7 +188,10 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
           }}
           fetchDetails={true}
           styles={{
-            textInput: styles.modalInput,
+            textInput: {
+              ...styles.modalInput,
+              placeholderTextColor: "#aaa",
+            },
             listView: { backgroundColor: "#fff", zIndex: 1000 },
           }}
           debounce={300}
@@ -254,7 +257,11 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            {formFields.map((field) => renderItem({ item: field }))}
+            {formFields.map((field) => (
+              <React.Fragment key={field.id}>
+                {renderItem({ item: field })}
+              </React.Fragment>
+            ))}
           </ScrollView>
         </KeyboardAvoidingView>
       </View>

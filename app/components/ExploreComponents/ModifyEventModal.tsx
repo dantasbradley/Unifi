@@ -165,7 +165,10 @@ const ModifyEventModal: React.FC<ModifyEventModalProps> = ({
               }}
               fetchDetails={true}
               styles={{
-                textInput: styles.modalInput,
+                textInput: {
+                  ...styles.modalInput,
+                  placeholderTextColor: "#aaa",
+                },
                 container: { flex: 0 },
               }}
             />
