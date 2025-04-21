@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -52,10 +52,41 @@ const ModifyEventModal: React.FC<ModifyEventModalProps> = ({
   originalEventDescription,
 }) => {
   const initialDate = newEventDate && !isNaN(Date.parse(newEventDate)) ? new Date(newEventDate) : new Date();
+  const initialStartTime = newEventStartTime ? new Date(`2000-01-01T${newEventStartTime}Z`) : new Date();
+  const initialEndTime = newEventEndTime ? new Date(`2000-01-01T${newEventEndTime}Z`) : new Date();
+  
   const [date, setDate] = useState(initialDate);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [start_time, setStartTime] = useState(new Date());
-  const [end_time, setEndTime] = useState(new Date());
+  const [start_time, setStartTime] = useState(initialStartTime);
+  const [end_time, setEndTime] = useState(initialEndTime);
+
+  const formatDateLocal = (date: Date): Date => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate() + 1;
+    return new Date(year, month, day);
+  };
+  function addOneHourToDate(date: Date): Date {
+    const newDate = new Date(date);
+    newDate.setHours(newDate.getHours() + 1);
+    return newDate;
+  }
+  function subtractOneHourToDate(date: Date): Date {
+    const newDate = new Date(date);
+    newDate.setHours(newDate.getHours() - 1);
+    return newDate;
+  }
+
+  useEffect(() => {
+    if (visible){
+      setShowDatePicker(true);
+      setDate(formatDateLocal(initialDate));
+      onChangeDate(initialDate.toISOString().split('T')[0]);
+
+      setStartTime(addOneHourToDate(initialStartTime));
+      setEndTime(addOneHourToDate(initialEndTime));
+    }
+  }, [visible]);
 
   //format date and time
   const formatEventDateTime = (dateStr: string, startTimeStr: string, endTimeStr: string) => {  
@@ -97,13 +128,13 @@ const ModifyEventModal: React.FC<ModifyEventModalProps> = ({
   const handleTimeStartChange = (event, selectedTime) => {
     const currentTime = selectedTime || start_time;
     setStartTime(currentTime);
-    onChangeStartTime(currentTime.toISOString().split('T')[1].substr(0, 8));
+    onChangeStartTime(subtractOneHourToDate(currentTime).toISOString().split('T')[1].substr(0, 8));
   };
 
   const handleTimeEndChange = (event, selectedTime) => {
     const currentTime = selectedTime || end_time;
     setEndTime(currentTime);
-    onChangeEndTime(currentTime.toISOString().split('T')[1].substr(0, 8));
+    onChangeEndTime(subtractOneHourToDate(currentTime).toISOString().split('T')[1].substr(0, 8));
   };
 
   const handleCreate = () => {
@@ -196,6 +227,8 @@ const ModifyEventModal: React.FC<ModifyEventModalProps> = ({
             display="default"
             is24Hour={false}
             onChange={handleTimeEndChange}
+            minimumDate={new Date(2000, 0, 0, 0, 0)}
+            maximumDate={new Date(2000, 0, 12, 23, 59)}
           />
         </View>
 
