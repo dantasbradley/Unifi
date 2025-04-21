@@ -257,7 +257,7 @@ describe('Component Tests', () => {
   })
 });
 
-describe("Front End Tests", () => {
+describe("Screen Tests", () => {
     beforeEach(() => {
         jest.clearAllMocks();
         fetchMock.mockReset();
