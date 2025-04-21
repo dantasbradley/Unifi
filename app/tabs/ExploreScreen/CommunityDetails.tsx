@@ -59,12 +59,14 @@ export default function CommunityDetailsScreen() {
   const [newEventEndTime, setNewEventEndTime] = useState("");
   const [newEventLocation, setNewEventLocation] = useState("");
   const [newEventDescription, setNewEventDescription] = useState("");
+  const [hideAddButton, setHideAddButton] = useState(false);
 
   // Posts
   const [communityPosts, setCommunityPosts] = useState([]);
   const [postModalVisible, setPostModalVisible] = useState(false);
   const [newPostName, setNewPostName] = useState("");
   const [newPostContent, setNewPostContent] = useState("");
+  const [hidePostAddButton, setHidePostAddButton] = useState(false);
 
   const [editPostModalVisible, setEditPostModalVisible] = useState(false);
   const [editPostTitle, setEditPostTitle] = useState("");
@@ -147,6 +149,7 @@ export default function CommunityDetailsScreen() {
       if (response.ok) {
         await handleRefreshEvents();
         setEventModalVisible(false);
+        setHideAddButton(false);
         setNewEventTitle("");
         setNewEventDate("");
         setNewEventStartTime("");
@@ -199,6 +202,7 @@ export default function CommunityDetailsScreen() {
             }
             await handleRefreshPosts();
             setPostModalVisible(false);
+            setHidePostAddButton(false);
             setNewPostName("");
             setNewPostContent("");
         } else {
@@ -784,7 +788,10 @@ export default function CommunityDetailsScreen() {
           {/* Add + Modify Event Modals */}
           <AddEventModal
             visible={eventModalVisible}
-            onClose={() => setEventModalVisible(false)}
+            onClose={() => {
+              setEventModalVisible(false);
+              setHideAddButton(false);
+            }}
             newEventTitle={newEventTitle}
             onChangeTitle={setNewEventTitle}
             newEventDate={newEventDate}
@@ -825,8 +832,14 @@ export default function CommunityDetailsScreen() {
             )}
           />
   
-          {isAdmin === "true" && (
-            <TouchableOpacity style={styles.addButton} onPress={() => setEventModalVisible(true)}>
+          {isAdmin === "true" && !hideAddButton && (
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => {
+                setEventModalVisible(true);
+                setHideAddButton(true);
+              }}
+            >
               <Ionicons name="add" size={32} color="black" />
             </TouchableOpacity>
           )}
@@ -863,7 +876,10 @@ export default function CommunityDetailsScreen() {
   
           <AddPostModal
             visible={postModalVisible}
-            onClose={() => setPostModalVisible(false)}
+            onClose={() => {
+              setPostModalVisible(false);
+              setHidePostAddButton(false);
+            }}
             newPostName={newPostName}
             onChangeName={setNewPostName}
             newPostContent={newPostContent}
@@ -885,8 +901,14 @@ export default function CommunityDetailsScreen() {
             isEdit={true}
           />
   
-          {isAdmin === "true" && (
-            <TouchableOpacity style={styles.addButton} onPress={() => setPostModalVisible(true)}>
+          {isAdmin === "true" && !hidePostAddButton && (
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => {
+                setPostModalVisible(true);
+                setHidePostAddButton(true);
+              }}
+            >
               <Ionicons name="add" size={32} color="black" />
             </TouchableOpacity>
           )}
