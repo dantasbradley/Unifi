@@ -48,7 +48,7 @@ export default function TabLayout() {
             const iconSource = icons[route.name] || fallbackIcon;
 
             return (
-              <View style={styles.iconContainer}>
+              <View style={styles.iconContainer} testID={`${route.name}`}>
                 <Image
                   source={iconSource}
                   style={{

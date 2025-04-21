@@ -24,6 +24,9 @@ import EditToggleButton from "../components/ExploreComponents/EditToggleButton";
 import EventCard from "../components/ExploreComponents/EventCard";
 import PostCard from "../components/ExploreComponents/PostCard";
 import EventList from "../components/EventList";
+import TabLayout from "../tabs/_layout";
+import NotificationScreen from "../tabs/NotificationScreen";
+import ExploreScreen from "../tabs/ExploreScreen";
 
 
 jest.mock('@expo/vector-icons', () => ({
@@ -299,10 +302,6 @@ describe("Front End Tests", () => {
     // Login Page Tests
     describe("Login Page Tests", () => {
 
-        beforeEach(() => {
-            jest.clearAllMocks();
-        })
-        
         it("Default text and buttons render correctly", () => {
             render(<Login/>);
 
@@ -417,37 +416,33 @@ describe("Front End Tests", () => {
             expect(screen).toHavePathname("/screens/resetEmail");
         })
 
-        // it("Navigate to Home Page after successful login", async () => {
-        //     AsyncStorageMock.setItem = jest.fn(() => Promise.resolve());
-        //     jest.useFakeTimers();
-        //     fetchMock.mockReturnValueOnce(Promise.resolve({ok: true, json: () => Promise.resolve({ cognitoSub: "test" })} as Response));
+        it("Navigate to Home Page after successful login", async () => {
+            AsyncStorageMock.setItem = jest.fn(() => Promise.resolve());
+            jest.useFakeTimers();
+            fetchMock.mockReturnValueOnce(Promise.resolve({ok: true, json: () => Promise.resolve({ cognitoSub: "test" })} as Response));
 
-        //     renderRouter({ 'screens/Login': jest.fn(() => <Login/>), 'tabs/HomeScreen': jest.fn(() => <HomeScreen/>) }, { initialUrl: 'screens/Login' });
+            renderRouter({ 'screens/Login': jest.fn(() => <Login/>), 'tabs/HomeScreen': jest.fn(() => <HomeScreen/>) }, { initialUrl: 'screens/Login' });
 
-        //     const loginButton = screen.getByText("Login");
-        //     const emailField = screen.getByPlaceholderText("Enter your email");
-        //     const passwordField = screen.getByPlaceholderText("Enter your password");
+            const loginButton = screen.getByText("Login");
+            const emailField = screen.getByPlaceholderText("Enter your email");
+            const passwordField = screen.getByPlaceholderText("Enter your password");
 
-        //     await userEvent.type(emailField, "test1");
-        //     await userEvent.type(passwordField, "test2");
+            await userEvent.type(emailField, "test1");
+            await userEvent.type(passwordField, "test2");
 
-        //     fireEvent.press(loginButton);
+            fireEvent.press(loginButton);
 
-        //     jest.advanceTimersByTime(1000);
+            jest.advanceTimersByTimeAsync(1000);
             
-        //     await waitFor(async () => {
-        //         expect(screen).toHavePathname("tabs/HomeScreen");
-        //     });
-        // })
+            await waitFor(async () => {
+                expect(screen).toHavePathname("/tabs/HomeScreen");
+            });
+        })
 
     })
 
     // Reset Email Page Tests
     describe("Reset Email Page Tests", () => {
-
-        beforeEach(() => {
-            jest.clearAllMocks();
-        })
 
         it("Default components render correctly", () => {
             render(<VerifyEmail/>);
@@ -521,10 +516,6 @@ describe("Front End Tests", () => {
     })
 
     describe("Reset Password Page Tests", () => {
-
-        beforeEach(() => {
-            jest.clearAllMocks();
-        })
 
         it("Default text and buttons render correctly", () => {
             renderRouter({index: jest.fn(() => <Verification/>)});
@@ -744,6 +735,164 @@ describe("Front End Tests", () => {
             expect(screen.getByText(new RegExp(`${m}`))).toBeOnTheScreen();
         })
 
+    })
+
+    describe("Main App Navigation Tests", () => {
+
+        it("Navigating from Home to Profile Screen", async () => {
+            fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+            renderRouter({ '_layout': TabLayout, '/tabs/HomeScreen': HomeScreen, '/tabs/ProfileScreen': ProfileScreen }, { initialUrl: '/tabs/HomeScreen' });
+
+            fireEvent.press(screen.getAllByTestId("/tabs/ProfileScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/ProfileScreen');
+            })
+        })
+
+        it("Navigating from Home to Notification Screen", async () => {
+            fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+            renderRouter({ '_layout': TabLayout, '/tabs/HomeScreen': HomeScreen, '/tabs/NotificationScreen': NotificationScreen }, { initialUrl: '/tabs/HomeScreen' });
+
+            fireEvent.press(screen.getAllByTestId("/tabs/NotificationScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/NotificationScreen');
+            })
+        })
+
+        it("Navigating from Home to Calendar Screen", async () => {
+            fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+            renderRouter({ '_layout': TabLayout, '/tabs/HomeScreen': HomeScreen, '/tabs/CalendarScreen': CalendarScreen }, { initialUrl: '/tabs/HomeScreen' });
+
+            fireEvent.press(screen.getAllByTestId("/tabs/CalendarScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/CalendarScreen');
+            })
+        })
+
+        // it("Navigating from Home to Explore Screen", async () => {
+        //     fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+        //     renderRouter({ '_layout': TabLayout, '/tabs/HomeScreen': HomeScreen, '/tabs/ExploreScreen': ExploreScreen }, { initialUrl: '/tabs/HomeScreen' });
+
+        //     fireEvent.press(screen.getAllByTestId("/tabs/ExploreScreen")[0]);
+        //     await waitFor(() => {
+        //         expect(screen).toHavePathname('/tabs/ExploreScreen');
+        //     })
+        // })
+
+        it("Navigating from Profile Screen to Home Screen", async () => {
+            fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+            renderRouter({ '_layout': TabLayout, '/tabs/HomeScreen': HomeScreen, '/tabs/ProfileScreen': ProfileScreen }, { initialUrl: '/tabs/ProfileScreen' });
+
+            fireEvent.press(screen.getAllByTestId("/tabs/HomeScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/HomeScreen');
+            })
+        })
+
+        it("Navigating from Profile Screen to Notification Screen", async () => {
+            fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+            renderRouter({ '_layout': TabLayout, '/tabs/NotificationScreen': NotificationScreen, '/tabs/ProfileScreen': ProfileScreen }, { initialUrl: '/tabs/ProfileScreen' });
+
+            fireEvent.press(screen.getAllByTestId("/tabs/NotificationScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/NotificationScreen');
+            })
+        })
+
+        it("Navigating from Profile Screen to Calendar Screen", async () => {
+            fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+            renderRouter({ '_layout': TabLayout, '/tabs/CalendarScreen': CalendarScreen, '/tabs/ProfileScreen': ProfileScreen }, { initialUrl: '/tabs/ProfileScreen' });
+
+            fireEvent.press(screen.getAllByTestId("/tabs/CalendarScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/CalendarScreen');
+            })
+        })
+
+        it("Navigating from Notification Screen to Home Screen", async () => {
+            fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+            renderRouter({ '_layout': TabLayout, '/tabs/HomeScreen': HomeScreen, '/tabs/NotificationScreen': NotificationScreen }, { initialUrl: '/tabs/NotificationScreen' });
+
+            fireEvent.press(screen.getAllByTestId("/tabs/HomeScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/HomeScreen');
+            })
+        })
+
+        it("Navigating from Notification Screen to Profile Screen", async () => {
+            fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+            renderRouter({ '_layout': TabLayout, '/tabs/ProfileScreen': ProfileScreen, '/tabs/NotificationScreen': NotificationScreen }, { initialUrl: '/tabs/NotificationScreen' });
+
+            fireEvent.press(screen.getAllByTestId("/tabs/ProfileScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/ProfileScreen');
+            })
+        })
+
+        it("Navigating from Notification Screen to Calendar Screen", async () => {
+            fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+            renderRouter({ '_layout': TabLayout, '/tabs/CalendarScreen': CalendarScreen, '/tabs/NotificationScreen': NotificationScreen }, { initialUrl: '/tabs/NotificationScreen' });
+
+            fireEvent.press(screen.getAllByTestId("/tabs/CalendarScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/CalendarScreen');
+            })
+        })
+
+        it("Navigating from Calendar Screen to Home Screen", async () => {
+            fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+            renderRouter({ '_layout': TabLayout, '/tabs/HomeScreen': HomeScreen, '/tabs/CalendarScreen': CalendarScreen }, { initialUrl: '/tabs/CalendarScreen' });
+
+            fireEvent.press(screen.getAllByTestId("/tabs/HomeScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/HomeScreen');
+            })
+        })
+
+        it("Navigating from Calendar Screen to Profile Screen", async () => {
+            fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+            renderRouter({ '_layout': TabLayout, '/tabs/ProfileScreen': HomeScreen, '/tabs/CalendarScreen': CalendarScreen }, { initialUrl: '/tabs/CalendarScreen' });
+
+            fireEvent.press(screen.getAllByTestId("/tabs/ProfileScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/ProfileScreen');
+            })
+        })
+
+        it("Navigating from Calendar Screen to Notification Screen", async () => {
+            fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+            renderRouter({ '_layout': TabLayout, '/tabs/NotificationScreen': NotificationScreen, '/tabs/CalendarScreen': CalendarScreen }, { initialUrl: '/tabs/CalendarScreen' });
+
+            fireEvent.press(screen.getAllByTestId("/tabs/NotificationScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/NotificationScreen');
+            })
+        })
+
+        it("Navigating from Home to Profile to Notification to Calendar to Home Screen", async () => {
+            fetchMock.mockReturnValue(Promise.resolve({ok: true, json: () => Promise.resolve({})} as Response));
+            renderRouter({ '_layout': TabLayout, '/tabs/HomeScreen': HomeScreen, '/tabs/ProfileScreen': ProfileScreen, '/tabs/NotificationScreen': NotificationScreen, '/tabs/CalendarScreen': CalendarScreen }, { initialUrl: '/tabs/HomeScreen' });
+
+            fireEvent.press(screen.getAllByTestId("/tabs/ProfileScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/ProfileScreen');
+            })
+
+            fireEvent.press(screen.getAllByTestId("/tabs/NotificationScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/NotificationScreen');
+            })
+
+            fireEvent.press(screen.getAllByTestId("/tabs/CalendarScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/CalendarScreen');
+            })
+
+            fireEvent.press(screen.getAllByTestId("/tabs/HomeScreen")[0]);
+            await waitFor(() => {
+                expect(screen).toHavePathname('/tabs/HomeScreen');
+            })
+        })
     })
 })
 
