@@ -500,12 +500,12 @@ app.delete('/DB/events/delete/:event_id', async (req, res) => {
 });
 // === Add Post ===
 app.post('/DB/posts/add', (req, res) => {
-    const { title, content, filePath, club_id } = req.body;
-    console.log('=== /DB/posts/add =input=', { title, content, filePath, club_id });
-    if (!validateFields({ title, content, club_id }, res)) return;
+    const { title, content, filePath, club_id, imageUri } = req.body;
+    console.log('=== /DB/posts/add =input=', { title, content, filePath, club_id, imageUri });
+    if (!validateFields({ title, content, club_id, imageUri }, res)) return;
 
-    const insertQuery = 'INSERT INTO test.posts (title, content, filePath, club_id) VALUES (?, ?, ?, ?)';
-    const insertParams = [title, content, filePath, club_id];
+    const insertQuery = 'INSERT INTO test.posts (title, content, filePath, club_id, imageUri) VALUES (?, ?, ?, ?, ?)';
+    const insertParams = [title, content, filePath, club_id, imageUri];
 
     pool.query(insertQuery, insertParams, (insertError, insertResults) => {
         if (insertError) {
