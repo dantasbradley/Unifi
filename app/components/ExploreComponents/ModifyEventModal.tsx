@@ -19,7 +19,13 @@ interface ModifyEventModalProps {
   onChangeLocation: (value: string) => void;
   newEventDescription: string;
   onChangeDescription: (value: string) => void;
-  onCreate: () => void;
+  onCreate: (changes: string) => void;
+  originalEventTitle: string;
+  originalEventDate: string;
+  originalEventStartTime: string;
+  originalEventEndTime: string;
+  originalEventLocation: string;
+  originalEventDescription: string;
 }
 
 const ModifyEventModal: React.FC<ModifyEventModalProps> = ({
@@ -38,12 +44,48 @@ const ModifyEventModal: React.FC<ModifyEventModalProps> = ({
   newEventDescription,
   onChangeDescription,
   onCreate,
+  originalEventTitle,
+  originalEventDate,
+  originalEventStartTime,
+  originalEventEndTime,
+  originalEventLocation,
+  originalEventDescription,
 }) => {
   const initialDate = newEventDate && !isNaN(Date.parse(newEventDate)) ? new Date(newEventDate) : new Date();
   const [date, setDate] = useState(initialDate);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [start_time, setStartTime] = useState(new Date());
   const [end_time, setEndTime] = useState(new Date());
+
+  //format date and time
+  const formatEventDateTime = (dateStr: string, startTimeStr: string, endTimeStr: string) => {  
+    // Parse date parts
+    const dateParts = dateStr.split('-').length === 3 ? dateStr.split('-') : dateStr.split('/');
+    const [year, month, day] = dateParts.length === 3 && dateParts[0].length === 4
+      ? [parseInt(dateParts[0]), parseInt(dateParts[1]), parseInt(dateParts[2])]
+      : [parseInt(dateParts[2]), parseInt(dateParts[0]), parseInt(dateParts[1])];
+  
+    // Helper to convert time string and shift
+    const convertAndShiftTime = (timeStr: string): string => {
+      let [hours, minutes] = timeStr.split(':').map(Number);
+      const time = new Date(year, month - 1, day, hours, minutes);
+      time.setHours(time.getHours() - 4); // shift 4 hours back
+      const h = time.getHours();
+      const m = time.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const formattedHour = (h % 12 || 12).toString();
+      const formattedMinutes = m.toString().padStart(2, '0');
+      return `${formattedHour}:${formattedMinutes} ${ampm}`;
+    };
+  
+    const shiftedStart = convertAndShiftTime(startTimeStr);
+    const shiftedEnd = convertAndShiftTime(endTimeStr);
+  
+    const formattedDate = `${month}/${day}/${year}`;
+    const finalString = `${formattedDate} at ${shiftedStart}-${shiftedEnd}`;
+  
+    return finalString;
+  };
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -65,23 +107,41 @@ const ModifyEventModal: React.FC<ModifyEventModalProps> = ({
   };
 
   const handleCreate = () => {
-    console.log({
-      newEventTitle,
-      newEventDate,
-      newEventStartTime,
-      newEventEndTime,
-      newEventLocation,
-      newEventDescription,
-    });
-
     if (!newEventTitle) return Alert.alert("Missing Title", "Please enter a title.");
     if (!newEventDate) return Alert.alert("Missing Date", "Please select a date.");
     if (!newEventStartTime) return Alert.alert("Missing Start Time", "Please select a start time.");
     if (!newEventEndTime) return Alert.alert("Missing End Time", "Please select an end time.");
     if (!newEventLocation) return Alert.alert("Missing Location", "Please select a location.");
     if (!newEventDescription) return Alert.alert("Missing Description", "Please enter a description.");
+    const hasChanges =
+      newEventTitle !== originalEventTitle ||
+      newEventDate !== originalEventDate ||
+      newEventStartTime !== originalEventStartTime ||
+      newEventEndTime !== originalEventEndTime ||
+      newEventLocation !== originalEventLocation ||
+      newEventDescription !== originalEventDescription;
+    if (!hasChanges) return Alert.alert("No Changes Detected", "Please modify at least one field to save changes.");
 
-    onCreate();
+    const formattedDateTime = formatEventDateTime(originalEventDate, originalEventStartTime, originalEventEndTime);
+    const changes = [];
+    if (newEventTitle !== originalEventTitle) {
+      changes.push(`Event Title: ${originalEventTitle} → ${newEventTitle}`);
+    }
+    else {
+      changes.push(`Event Title: ${originalEventTitle}`);
+    }
+    if (newEventDate !== originalEventDate || newEventStartTime !== originalEventStartTime || newEventEndTime !== originalEventEndTime) {
+      const newFormattedDateTime = formatEventDateTime(newEventDate, newEventStartTime, newEventEndTime);
+      changes.push(`\nWhen: ${formattedDateTime} → ${newFormattedDateTime}`);
+    }
+    else {
+      changes.push(`\nWhen: ${formattedDateTime}`);
+    }
+    if (newEventLocation !== originalEventLocation) 
+      changes.push(`\nLocation: ${originalEventLocation} → ${newEventLocation}`);
+    if (newEventDescription !== originalEventDescription) 
+      changes.push(`\nDescription Changed`);
+    onCreate(changes.join(''));
   };
 
   if (!visible) return null;

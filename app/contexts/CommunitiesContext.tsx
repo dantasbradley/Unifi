@@ -331,7 +331,6 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
   const addCommunity = async (newCommunityName: string, newCommunityLocation: string) => {
     const cognitoSub = await AsyncStorage.getItem('cognitoSub');
     try {
-      console.log("Adding new community...");
       const response = await fetch("http://3.85.25.255:3000/DB/clubs/add", {
         method: "POST",
         headers: {
@@ -343,6 +342,7 @@ export const CommunitiesProvider: React.FC<CommunitiesProviderProps> = ({ childr
       if (result.error) {
         throw new Error(result.message || "Unknown error");
       }
+      console.log("Added new community");
       setAdminCommunities(new Set(adminCommunities).add(result.id.toString()));
       setCommunities([...communities, { id: result.id.toString(), name: newCommunityName, location: newCommunityLocation, membersCount: 0 }]);
     } catch (error) {

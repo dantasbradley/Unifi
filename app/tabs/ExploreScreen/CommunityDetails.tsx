@@ -67,6 +67,12 @@ export default function CommunityDetailsScreen() {
   const [editEventEndTime, setEditEventEndTime] = useState("");
   const [editEventLocation, setEditEventLocation] = useState("");
   const [editEventDescription, setEditEventDescription] = useState("");
+  const [originalEventTitle, setOriginalEventTitle] = useState("");
+  const [originalEventDate, setOriginalEventDate] = useState("");
+  const [originalEventStartTime, setOriginalEventStartTime] = useState("");
+  const [originalEventEndTime, setOriginalEventEndTime] = useState("");
+  const [originalEventLocation, setOriginalEventLocation] = useState("");
+  const [originalEventDescription, setOriginalEventDescription] = useState("");
 
   // Posts
   const [communityPosts, setCommunityPosts] = useState([]);
@@ -226,7 +232,7 @@ export default function CommunityDetailsScreen() {
 
   //format date and time
   const formatEventDateTime = (dateStr: string, startTimeStr: string, endTimeStr: string) => {
-    console.log("Original Inputs => Date:", dateStr, "| Start Time:", startTimeStr, "| End Time:", endTimeStr);
+    // console.log("Original Inputs => Date:", dateStr, "| Start Time:", startTimeStr, "| End Time:", endTimeStr);
   
     // Parse date parts
     const dateParts = dateStr.split('-').length === 3 ? dateStr.split('-') : dateStr.split('/');
@@ -253,7 +259,7 @@ export default function CommunityDetailsScreen() {
     const formattedDate = `${month}/${day}/${year}`;
     const finalString = `${formattedDate} at ${shiftedStart}-${shiftedEnd}`;
   
-    console.log("Final Formatted DateTime:", finalString);
+    // console.log("Final Formatted DateTime:", finalString);
     return finalString;
   };
   const formatToAmPm = (timeStr: string) => {
@@ -268,25 +274,18 @@ export default function CommunityDetailsScreen() {
     return `${formattedHour}:${formattedMinutes} ${ampm}`;
   };
   //create notification, event, and post
-  const handleCreateNotification = async (eventTitle: string, changeType: string, modifiedFields?: string[]) => {
+  const handleCreateNotification = async (eventTitle: string, changeType: string) => {
     if (!eventTitle || !changeType) {
       console.log("Missing title or change type.");
       return;
     }
-  
-    // Compose dynamic title based on fields changed
-    const fieldsText = modifiedFields && modifiedFields.length > 0 
-      ? `Modified: ${modifiedFields.join(", ")}`
-      : "";
-  
-    const fullTitle = `${eventTitle} — ${changeType}${fieldsText ? ` | ${fieldsText}` : ""}`;
   
     try {
       const response = await fetch("http://3.85.25.255:3000/DB/notifications/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: fullTitle,
+          title: eventTitle,
           type: changeType,
           club_id: id,
         }),
@@ -295,7 +294,7 @@ export default function CommunityDetailsScreen() {
       const data = await response.json();
   
       if (!response.ok) throw new Error("Failed to create notification");
-      console.log("Notification created:", data);
+      console.log(`Notification created as ${changeType}:\n${eventTitle}`);
     } catch (error) {
       console.error("Error creating notification:", error);
       Alert.alert("Error", "Could not connect to server.");
@@ -386,13 +385,7 @@ export default function CommunityDetailsScreen() {
     }
   };
   // Handle edit post and event
-  const handleEditPost = async (postId, updatedTitle, updatedContent, imageUri: string | null) => {
-    console.log("Attempting to edit post...");
-    console.log("   • postId:", postId);
-    console.log("   • updatedTitle:", updatedTitle);
-    console.log("   • updatedContent:", updatedContent);
-    console.log("   • imageUri:", imageUri);
-  
+  const handleEditPost = async (postId, updatedTitle, updatedContent, imageUri: string | null) => {  
     try {
       let filePath = "";
       if (imageUri) {
@@ -407,43 +400,23 @@ export default function CommunityDetailsScreen() {
           filePath, 
         }),
       });
+      const data = await response.json();
+      if (!response.ok) throw new Error("Failed to update post");
   
-      const raw = await response.text(); // get raw string first
-      console.log("Raw response text:", raw);
-  
-      let data;
-      try {
-        data = JSON.parse(raw); // try parsing JSON
-      } catch (err) {
-        console.error("JSON parsing failed:", err);
-        throw new Error("Invalid JSON response from server.");
+      if (imageUri) {
+        console.log("uploading image: ", data.filePath);
+        await uploadImage(data.filePath, imageUri);
       }
-  
-      if (response.ok) {
-        if (imageUri) {
-          console.log("uploading image: ", data.filePath);
-          await uploadImage(data.filePath, imageUri);
-        }
-        await handleRefreshPosts();
-        setEditPostModalVisible(false);
-      } else {
-        Alert.alert("Error", data.message || "Failed to update post.");
-      }
+      await handleRefreshPosts();
+      console.log("Edit post success");
+      setEditPostModalVisible(false);
+      
     } catch (error) {
-      console.error("🔥 Error editing post:", error);
+      console.error("Error editing post:", error);
       Alert.alert("Error", "Could not connect to server.");
     }
   };
-  const handleEditEvent = async (eventId, updatedTitle, updatedDate, updatedStartTime, updatedEndTime, updatedLocation, updatedDescription) => {
-    console.log("Attempting to edit event...");
-    console.log("   • eventId:", eventId);
-    console.log("   • updatedTitle:", updatedTitle);
-    console.log("   • updatedDate:", updatedDate);
-    console.log("   • updatedStartTime:", updatedStartTime);
-    console.log("   • updatedEndTime:", updatedEndTime);
-    console.log("   • updatedLocation:", updatedLocation);
-    console.log("   • updatedDescription:", updatedDescription);
-
+  const handleEditEvent = async (eventId, updatedTitle, updatedDate, updatedStartTime, updatedEndTime, updatedLocation, updatedDescription, changes: string) => {
     try {
       const response = await fetch(`http://3.85.25.255:3000/DB/events/update/${eventId}`, {
         method: "PUT",
@@ -458,57 +431,15 @@ export default function CommunityDetailsScreen() {
         }),
       });
   
-      const raw = await response.text();
-      console.log("📥 Raw response text:", raw);
-  
-      let data;
-      try {
-        data = JSON.parse(raw);
-      } catch (err) {
-        console.error("❌ JSON parsing failed:", err);
-        throw new Error("Invalid JSON response from server.");
-      }
-  
-      if (response.ok) {
-        setEvents((prevEvents) =>
-          prevEvents.map((e) =>
-            e.id === eventId
-              ? { ...e, title: updatedTitle, date: updatedDate, start_time: updatedStartTime, end_time: updatedEndTime, location: updatedLocation, description: updatedDescription }
-              : e
-          )
-        );
-        await handleRefreshEvents();
-        setEditEventModalVisible(false);
-        const formattedDateTime = formatEventDateTime(updatedDate, updatedStartTime, updatedEndTime);
-        const updateMessage = `Event title: ${updatedTitle} \nWhen: ${formattedDateTime}`;
-        
-        const original = events.find(e => e.id === eventId);
-        console.log("📌 Original Event:", original);
-        const changes = [];
+      const data = await response.json();
+      if (!response.ok) throw new Error("Failed to update event");
 
-        if (updatedTitle !== original?.title) changes.push(`Title → ${updatedTitle}`);
-        if (updatedDate !== original?.date) {
-          changes.push(`Date: ${original?.date} → ${updatedDate}`);
-        }
-        if (updatedStartTime !== original?.start_time) {
-          changes.push(`Start Time: ${formatToAmPm(original?.start_time)} → ${formatToAmPm(updatedStartTime)}`);
-        }
-        if (updatedEndTime !== original?.end_time) {
-          changes.push(`End Time: ${formatToAmPm(original?.end_time)} → ${formatToAmPm(updatedEndTime)}`);
-        }
-        
-        
+      await handleRefreshEvents();
+      setEditEventModalVisible(false);
+      handleCreateNotification(changes, "Event Updated");
 
-        if (updatedLocation !== original?.location) changes.push(`Location → ${updatedLocation}`);
-        if (updatedDescription !== original?.description) changes.push(`Description Changed`);
-        
-        handleCreateNotification(updatedTitle, "Event Updated", changes);
-
-      } else {
-        Alert.alert("Error", data.message || "Failed to update event.");
-      }
     } catch (error) {
-      console.error("🔥 Error editing event:", error);
+      console.error("Error editing event:", error);
       Alert.alert("Error", "Could not connect to server.");
     }
   };  
@@ -756,6 +687,12 @@ export default function CommunityDetailsScreen() {
                         setEditEventEndTime(item.end_time);
                         setEditEventLocation(item.location);
                         setEditEventDescription(item.description);
+                        setOriginalEventTitle(item.title);
+                        setOriginalEventDate(item.date);
+                        setOriginalEventStartTime(item.start_time);
+                        setOriginalEventEndTime(item.end_time);
+                        setOriginalEventLocation(item.location);
+                        setOriginalEventDescription(item.description);
                         setEditEventModalVisible(true);
                       }
                     : undefined
@@ -786,27 +723,30 @@ export default function CommunityDetailsScreen() {
           <ModifyEventModal
             visible={editEventModalVisible}
             onClose={() => setEditEventModalVisible(false)}
+
             newEventTitle={editEventTitle}
-            onChangeTitle={setEditEventTitle}
             newEventDate={editEventDate}
-            onChangeDate={setEditEventDate}
             newEventStartTime={editEventStartTime}
-            onChangeStartTime={setEditEventStartTime}
             newEventEndTime={editEventEndTime}
-            onChangeEndTime={setEditEventEndTime}
             newEventLocation={editEventLocation}
-            onChangeLocation={setEditEventLocation}
             newEventDescription={editEventDescription}
+
+            onChangeTitle={setEditEventTitle}
+            onChangeDate={setEditEventDate}
+            onChangeStartTime={setEditEventStartTime}
+            onChangeEndTime={setEditEventEndTime}
+            onChangeLocation={setEditEventLocation}
             onChangeDescription={setEditEventDescription}
-            onCreate={() => selectedEventId && handleEditEvent(
-              selectedEventId,
-              editEventTitle,
-              editEventDate,
-              editEventStartTime,
-              editEventEndTime,
-              editEventLocation,
-              editEventDescription
-            )}
+
+            originalEventTitle={originalEventTitle}
+            originalEventDate={originalEventDate}
+            originalEventStartTime={originalEventStartTime}
+            originalEventEndTime={originalEventEndTime}
+            originalEventLocation={originalEventLocation}
+            originalEventDescription={originalEventDescription}
+            
+            onCreate={(changes: string) => selectedEventId && handleEditEvent(selectedEventId, editEventTitle,editEventDate,
+              editEventStartTime,editEventEndTime,editEventLocation,editEventDescription, changes)}
           />
   
           {isAdmin === "true" && (
