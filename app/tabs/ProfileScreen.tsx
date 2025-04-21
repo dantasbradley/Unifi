@@ -4,6 +4,7 @@ import EditToggleButton from "../components/ExploreComponents/EditToggleButton";
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 
 const ProfileScreen = () => {
     const [name, setName] = useState('');
@@ -156,7 +157,7 @@ const ProfileScreen = () => {
                 <Text style={styles.headerText}>Account</Text>
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity onPress={handleSignOut} style={styles.signOutButton}>
-                        <Text style={styles.buttonText}>Sign Out</Text>
+                        <Ionicons name="log-out-outline" size={24} color="#fff" />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -215,8 +216,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     signOutButton: {
-        padding: 10,
-        backgroundColor: '#c00',
+        padding: 8,
+        backgroundColor: '#5C614A',
         borderRadius: 5,
     },
     buttonContainer: {

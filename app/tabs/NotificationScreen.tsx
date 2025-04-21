@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, FlatList, RefreshControl, StyleSheet } from "react-native";
+import { View, FlatList, RefreshControl, StyleSheet, Text } from "react-native";
 import { CommunitiesContext } from "../contexts/CommunitiesContext";
 import NotificationCard from "../components/NotificationCard";
 import { useRouter } from "expo-router";
@@ -71,6 +71,11 @@ const NotificationScreen: React.FC<NotificationProps> = ({ profile }) => {
             />
         )}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>This page shows notifications for communities you follow. Follow one to get started!</Text>
+          </View>
+        }
       />
     </View>
   );
@@ -89,9 +94,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
+    marginTop: 10,
   },
   emptyText: {
-    color: "#fff",
+    color: "#344E41",
     fontSize: 16,
     textAlign: "center",
     marginBottom: 5,
