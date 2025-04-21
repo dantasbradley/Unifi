@@ -502,7 +502,7 @@ app.delete('/DB/events/delete/:event_id', async (req, res) => {
 app.post('/DB/posts/add', (req, res) => {
     const { title, content, filePath, club_id, imageUri } = req.body;
     console.log('=== /DB/posts/add =input=', { title, content, filePath, club_id, imageUri });
-    if (!validateFields({ title, content, club_id, imageUri }, res)) return;
+    if (!validateFields({ title, content, club_id }, res)) return;
 
     const insertQuery = 'INSERT INTO test.posts (title, content, filePath, club_id, imageUri) VALUES (?, ?, ?, ?, ?)';
     const insertParams = [title, content, filePath, club_id, imageUri];
