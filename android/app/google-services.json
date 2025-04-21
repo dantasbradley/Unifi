@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "841075380096",
+    "project_id": "unifi-c7fb8",
+    "storage_bucket": "unifi-c7fb8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:841075380096:android:f24b03205d08ffc57abb65",
+        "android_client_info": {
+          "package_name": "com.anonymous.reactnativeunifi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5b4LgHYUllLST8s7C6NjJ0aLlfgQEBVM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
