@@ -517,7 +517,7 @@ app.post('/DB/posts/add', (req, res) => {
         console.log('Post added with ID:', postId);
 
         // Check if we need to update filePath
-        if (filePath) {
+        if (imageUri) {
             const newFilePath = `post_images/${postId}_${title}`;
             const updateQuery = 'UPDATE test.posts SET filePath = ? WHERE id = ?';
             pool.query(updateQuery, [newFilePath, postId], (updateError) => {
@@ -546,7 +546,11 @@ app.put('/DB/posts/update/:post_id', (req, res) => {
         SET title = ?, content = ?, updated_at = NOW(), filePath = ?, imageUri = ?
         WHERE id = ?
     `;
-    const params = [title, content, filePath, imageUri, post_id];
+    let newFilePath = filePath;
+    if (imageUri){
+        newFilePath = `post_images/${postId}_${title}`;
+    }
+    const params = [title, content, newFilePath, imageUri, post_id];
 
     pool.query(query, params, (err, results) => {
         if (err) {
