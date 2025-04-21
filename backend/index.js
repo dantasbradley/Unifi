@@ -546,7 +546,7 @@ app.put('/DB/posts/update/:post_id', (req, res) => {
         SET title = ?, content = ?, updated_at = NOW(), filePath = ?, imageUri = ?
         WHERE id = ?
     `;
-    const params = [title, content, filePath, post_id, imageUri];
+    const params = [title, content, filePath, imageUri, post_id];
 
     pool.query(query, params, (err, results) => {
         if (err) {
