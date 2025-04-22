@@ -79,7 +79,7 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
           <Text style={styles.modalLabel}>Content:</Text>
           <TextInput
             style={styles.modalInput}
-            placeholder="Describe the event..."
+            placeholder="Describe the post..."
             placeholderTextColor="#aaa"
             value={newPostContent}
             onChangeText={onChangeContent}
