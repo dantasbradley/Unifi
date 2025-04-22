@@ -1,6 +1,8 @@
 module.exports = (app) => {
+  // Get database connection pool from the Express app instance
     const pool = app.get('pool');
   
+     // Helper function to validate required fields in the request body
     function validateFields(fields, res) {
       for (const key in fields) {
         if (!fields[key]) {
@@ -11,10 +13,13 @@ module.exports = (app) => {
       return true;
     }
   
+    //add like
     app.post('/DB/likes/add', (req, res) => {
       const { user_id, post_id } = req.body;
+      // Validate required fields
       if (!validateFields({ user_id, post_id }, res)) return;
   
+      // SQL query to insert a new like into the likes table
       const query = 'INSERT INTO test.likes (user_id, post_id) VALUES (?, ?)';
       pool.query(query, [user_id, post_id], (err, result) => {
         if (err) {
@@ -24,10 +29,13 @@ module.exports = (app) => {
       });
     });
   
+    //remove like
     app.delete('/DB/likes/delete', (req, res) => {
       const { user_id, post_id } = req.body;
+      // Validate required fields
       if (!validateFields({ user_id, post_id }, res)) return;
   
+      // SQL query to delete a like based on user_id and post_id
       const query = 'DELETE FROM test.likes WHERE user_id = ? AND post_id = ?';
       pool.query(query, [user_id, post_id], (err, result) => {
         if (err) {

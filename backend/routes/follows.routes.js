@@ -1,13 +1,17 @@
 module.exports = (app) => {
+  // Get the database connection pool from the Express app instance
     const pool = app.get('pool');
   
     // Endpoint to follow a user
     app.post('/DB/follows/add', (req, res) => {
       const { follower_id, followee_id } = req.body;
+      
+      // Validate required fields
       if (!follower_id || !followee_id) {
         return res.status(400).json({ message: 'Missing required fields' });
       }
   
+      // SQL query to insert a new follow relationship
       const query = 'INSERT INTO follows (follower_id, followee_id) VALUES (?, ?)';
       pool.query(query, [follower_id, followee_id], (err, results) => {
         if (err) {
@@ -24,6 +28,7 @@ module.exports = (app) => {
         return res.status(400).json({ message: 'Missing required fields' });
       }
   
+      // SQL query to delete an existing follow relationship
       const query = 'DELETE FROM follows WHERE follower_id = ? AND followee_id = ?';
       pool.query(query, [follower_id, followee_id], (err, result) => {
         if (err) {
