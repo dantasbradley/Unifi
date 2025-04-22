@@ -122,7 +122,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, isAttending, onToggleAtten
       </View>
       {onEdit && (
           <TouchableOpacity style={styles.editButton} onPress={onEdit}>
-            <Ionicons name="create-outline" size={20} color="#fff" />
+            <Ionicons name="create-outline" size={20} color="#344E41" />
           </TouchableOpacity>
         )}
     </View>
@@ -131,111 +131,133 @@ const EventCard: React.FC<EventCardProps> = ({ event, isAttending, onToggleAtten
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#3A5A40",
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.18,
+    shadowRadius: 5,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "#DAD7CD",
   },
+
   communityImage: {
     width: 50,
     height: 50,
     borderRadius: 15,
     marginRight: 10,
   },
+
   createdAt: {
-    color: "#888",
+    color: "#D1D1D1",
     fontSize: 13,
   },
+
   header: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
   },
+
   clubImage: {
     width: 40,
     height: 40,
     borderRadius: 12,
     marginRight: 10,
   },
+
   placeholderImage: {
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: "#444",
+    backgroundColor: "#3A3A3A",
     marginRight: 10,
   },
+
   clubName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#fff",
+    color: "#FFFFFF",
   },
+
   eventTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#fff",
+    color: "#FFFFFF",
     marginVertical: 6,
   },
+
   metaRow: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 4,
   },
+
   metaText: {
     marginLeft: 6,
     fontSize: 14,
-    color: "#aaa",
+    color: "#E0E0E0",
   },
+
   description: {
     marginTop: 10,
     fontSize: 14,
-    color: "#ccc",
+    color: "#F1F1F1",
     lineHeight: 20,
   },
+
   buttonRow: {
     flexDirection: "row",
     justifyContent: "flex-end",
     marginTop: 14,
     gap: 10,
   },
+
   attendButton: {
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 8,
   },
+
   attendText: {
-    color: "#000",
+    color: "#1A1A1A",
     fontWeight: "bold",
   },
+
   attending: {
-    backgroundColor: "#4ade80", // green
+    backgroundColor: "#4ADE80",
   },
+
   attendingText: {
-    color: "#fff",
+    color: "#FFFFFF",
   },
+
   deleteButton: {
-    backgroundColor: "#ef4444", // red
+    backgroundColor: "#EF4444",
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 8,
   },
+
   deleteText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontWeight: "bold",
   },
+
   editButton: {
     position: "absolute",
     top: 10,
     right: 10,
-    backgroundColor: "#333",
+    backgroundColor: "#fff",
     padding: 6,
     borderRadius: 6,
-  }  
+    borderWidth: 1,
+    borderColor: "#344E41",
+  },
 });
 
 export default EventCard;

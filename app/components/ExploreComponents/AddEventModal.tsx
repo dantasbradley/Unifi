@@ -1,11 +1,24 @@
-import React, { useState, useRef, useEffect } from "react";
-import {View, Text, TextInput, StyleSheet, TouchableOpacity, Platform, KeyboardAvoidingView, FlatList, 
-TouchableWithoutFeedback, Keyboard, Alert } from "react-native";
+import React, { useState, useRef } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+  KeyboardAvoidingView,
+  FlatList,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Alert,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import 'react-native-get-random-values';
+import "react-native-get-random-values";
 
+// Props interface for the AddEventModal
 interface AddEventModalProps {
   visible: boolean;
   onClose: () => void;
@@ -41,7 +54,12 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   onChangeDescription,
   onCreate,
 }) => {
-  const initialDate = newEventDate && !isNaN(Date.parse(newEventDate)) ? new Date(newEventDate) : new Date();
+  // Set initial date based on existing value or use today
+  const initialDate =
+    newEventDate && !isNaN(Date.parse(newEventDate))
+      ? new Date(newEventDate)
+      : new Date();
+
   const [date, setDate] = useState(initialDate);
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
@@ -65,12 +83,14 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
     onChangeDate(currentDate.toISOString().split("T")[0]);
   };
 
+  // Handle selecting start time
   const handleStartTimeChange = (event, selectedTime) => {
     const currentTime = selectedTime || startTime;
     setStartTime(currentTime);
     onChangeStartTime(currentTime.toISOString().split("T")[1].substr(0, 8));
   };
 
+  // Handle selecting end time
   const handleEndTimeChange = (event, selectedTime) => {
     const currentTime = selectedTime || endTime;
     setEndTime(currentTime);
@@ -79,10 +99,12 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
     onChangeEndTime(adjustedTime.toISOString().split("T")[1].substr(0, 8));
   };
 
+  // Handle location selection from Google Places
   const handleLocationSelect = (data) => {
     onChangeLocation(data.description);
   };
 
+  // Validate form and call onCreate if valid
   const handleCreate = () => {
     const missingFields = [];
     if (!newEventTitle) missingFields.push("Title");
@@ -102,9 +124,10 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
     onCreate();
   };
 
-
+  // If modal is not visible, render nothing
   if (!visible) return null;
 
+  // Define all form fields with either input or custom components
   const formFields = [
     { id: "title", label: "Title", value: newEventTitle, onChangeText: onChangeTitle, placeholder: "e.g. Book Drive" },
     { id: "date", label: "Date", component: (
@@ -160,6 +183,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
     { id: "description", label: "Description", value: newEventDescription, onChangeText: onChangeDescription, placeholder: "Describe the event..." },
   ];
 
+  // Render either input field or component
   const renderItem = ({ item }) => {
     if (item.component) {
       return (
@@ -190,30 +214,38 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
           behavior={Platform.OS === "ios" ? "padding" : undefined}
           style={styles.modalContainer}
         >
+          {/* Close Modal Button */}
           <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
-            <Ionicons name="close" size={24} color="#fff" />
+            <Ionicons name="close" size={24} color="#111111" />
           </TouchableOpacity>
+
+          {/* Post Button */}
+          <TouchableOpacity style={styles.postButton} onPress={handleCreate}>
+            <Text style={styles.postButtonText}>Post</Text>
+          </TouchableOpacity>
+
+          {/* Modal Title */}
           <Text style={styles.modalTitle}>Add New Event</Text>
 
-          <FlatList
-            data={formFields}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.flatListContent}
+          {/* Render All Form Fields */}
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
             keyboardShouldPersistTaps="handled"
-          />
-
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.createButton} onPress={handleCreate}>
-              <Text style={styles.createButtonText}>Create</Text>
-            </TouchableOpacity>
-          </View>
+            showsVerticalScrollIndicator={false}
+          >
+            {formFields.map((field) => (
+              <React.Fragment key={field.id}>
+                {renderItem({ item: field })}
+              </React.Fragment>
+            ))}
+          </ScrollView>
         </KeyboardAvoidingView>
       </View>
     </TouchableWithoutFeedback>
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   modalOverlay: {
     position: "absolute",
@@ -226,56 +258,71 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContainer: {
-    backgroundColor: "#000",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
     padding: 30,
-    borderRadius: 10,
+    borderRadius: 16,
     width: "90%",
     maxHeight: "90%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
   modalTitle: {
-    color: "#fff",
+    color: "#111111",
     fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 24,
     textAlign: "center",
+    letterSpacing: 0.5,
   },
   modalLabel: {
-    color: "#fff",
+    color: "#1A1A1A",
     marginBottom: 5,
   },
   modalInput: {
-    backgroundColor: "#fff",
+    backgroundColor: "#FAFAFA",
     borderRadius: 5,
-    padding: 15,
+    padding: 12,
     marginBottom: 15,
-    color: "#000",
-  },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  createButton: {
-    backgroundColor: "#fff",
-    borderRadius: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginTop: 10,
-  },
-  createButtonText: {
-    color: "#000",
-    fontWeight: "bold",
+    color: "#1A1A1A",
   },
   modalCloseButton: {
     position: "absolute",
     top: 10,
     left: 10,
   },
+  postButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#588157",
+    borderRadius: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  postButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+    fontSize: 14,
+    letterSpacing: 0.3,
+  },
   fieldContainer: {
     marginBottom: 15,
   },
   flatListContent: {
     flexGrow: 1,
+  },
+  scrollContainer: {
+    paddingBottom: 130,
   },
 });
 

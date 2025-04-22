@@ -79,7 +79,7 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#DAD7CD",
     padding: 15,
   },
   searchBar: {

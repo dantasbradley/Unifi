@@ -73,13 +73,15 @@ export default function CommunityDetailsScreen() {
   const [originalEventEndTime, setOriginalEventEndTime] = useState("");
   const [originalEventLocation, setOriginalEventLocation] = useState("");
   const [originalEventDescription, setOriginalEventDescription] = useState("");
+  const [hideAddButton, setHideAddButton] = useState(false);
 
   // Posts
   const [communityPosts, setCommunityPosts] = useState([]);
   const [postModalVisible, setPostModalVisible] = useState(false);
   const [newPostName, setNewPostName] = useState("");
   const [newPostContent, setNewPostContent] = useState("");
-  // edit Posts
+  const [hidePostAddButton, setHidePostAddButton] = useState(false);
+
   const [editPostModalVisible, setEditPostModalVisible] = useState(false);
   const [editPostTitle, setEditPostTitle] = useState("");
   const [editPostImageUri, setEditPostImageUri] = useState<string | null>(null);
@@ -100,6 +102,38 @@ export default function CommunityDetailsScreen() {
     setRefreshingPosts(true);
     try {
       await handleFetchPostsForClub(id);
+      const response = await fetch("http://3.85.25.255:3000/DB/events/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newEventTitle,
+          date: newEventDate,
+          start_time: newEventStartTime,
+          end_time: newEventEndTime,
+          location: newEventLocation,
+          description: newEventDescription,
+          club_id: id,
+        }),
+      });
+      const data = await response.json();
+  
+      if (response.ok) {
+        await handleRefreshEvents();
+        setEventModalVisible(false);
+        setHideAddButton(false);
+        setNewEventTitle("");
+        setNewEventDate("");
+        setNewEventStartTime("");
+        setNewEventEndTime("");
+        setNewEventLocation("");
+        setNewEventDescription("");
+  
+        const datetime = formatEventDateTime(newEventDate, newEventStartTime, newEventEndTime);
+        const createMessage = `Event title: ${newEventTitle} \nWhen: ${datetime}`;
+        handleCreateNotification(createMessage, "Event Created");
+      } else {
+        Alert.alert("Error", data.message || "Failed to create event.");
+      }
     } catch (error) {
       console.error("Error refreshing posts:", error);
     }
@@ -155,6 +189,50 @@ export default function CommunityDetailsScreen() {
     if (attribute) {
       setValue(attribute);
       setOriginalValue(attribute);
+    }
+  };
+
+  // Return white color if tab is active, else gray
+  const handleCreatePost = async (imageUri: string | null) => {
+    if (!newPostName || !newPostContent) {
+        Alert.alert("Error", "Title and content are required.");
+        return;
+    }
+
+    try {
+        let filePath = "";
+        if (imageUri) {
+          filePath = "yes";
+        }
+        const response = await fetch("http://3.85.25.255:3000/DB/posts/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: newPostName,
+                content: newPostContent,
+                filePath,
+                club_id: id,
+            }),
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("Message result:", data.message);
+            if (imageUri) {
+              console.log("uploading image: ", data.filePath);
+              await uploadImage(data.filePath, imageUri);
+            }
+            await handleRefreshPosts();
+            setPostModalVisible(false);
+            setHidePostAddButton(false);
+            setNewPostName("");
+            setNewPostContent("");
+        } else {
+            Alert.alert("Error", data.message || "Failed to create post.");
+        }
+    } catch (error) {
+        console.error("Error creating post:", error);
+        Alert.alert("Error", "Could not connect to server.");
     }
   };
   const handleFetchClubImage = async (filePath : any) => {
@@ -343,46 +421,6 @@ export default function CommunityDetailsScreen() {
       Alert.alert("Error", "Could not connect to server.");
     }
   };
-  const handleCreatePost = async (imageUri: string | null) => {
-    if (!newPostName || !newPostContent) {
-        Alert.alert("Error", "Title and content are required.");
-        return;
-    }
-
-    try {
-        let filePath = "";
-        const newImageUri = imageUri ? imageUri : "";
-        const response = await fetch("http://3.85.25.255:3000/DB/posts/add", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                title: newPostName,
-                content: newPostContent,
-                filePath,
-                club_id: id,
-                imageUri: newImageUri,
-            }),
-        });
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("Message result:", data.message);
-            if (imageUri) {
-              console.log("uploading image: ", data.filePath);
-              await uploadImage(data.filePath, imageUri);
-            }
-            await handleRefreshPosts();
-            setPostModalVisible(false);
-            setNewPostName("");
-            setNewPostContent("");
-        } else {
-            Alert.alert("Error", data.message || "Failed to create post.");
-        }
-    } catch (error) {
-        console.error("Error creating post:", error);
-        Alert.alert("Error", "Could not connect to server.");
-    }
-  };
   // Handle edit post and event
   const handleEditPost = async (postId, updatedTitle, updatedContent, imageUri: string | null) => {  
     try {
@@ -400,7 +438,7 @@ export default function CommunityDetailsScreen() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error("Failed to update post");
-  
+
       if (imageUri) {
         console.log("uploading image: ", data.filePath);
         await uploadImage(data.filePath, imageUri);
@@ -408,7 +446,7 @@ export default function CommunityDetailsScreen() {
       await handleRefreshPosts();
       console.log("Edit post success");
       setEditPostModalVisible(false);
-      
+      setHidePostAddButton(false);
     } catch (error) {
       console.error("Error editing post:", error);
       Alert.alert("Error", "Could not connect to server.");
@@ -593,6 +631,8 @@ export default function CommunityDetailsScreen() {
                       value={bioDescription}
                       onChangeText={setBioDescription}
                       multiline
+                      placeholder="Insert description"
+                      placeholderTextColor="#aaa"
                     />
                   ) : (
                     <Text style={styles.sectionText}>{bioDescription}</Text>
@@ -692,6 +732,7 @@ export default function CommunityDetailsScreen() {
                         setOriginalEventLocation(item.location);
                         setOriginalEventDescription(item.description);
                         setEditEventModalVisible(true);
+                        setHideAddButton(true);
                       }
                     : undefined
                 }
@@ -703,7 +744,10 @@ export default function CommunityDetailsScreen() {
           {/* Add + Modify Event Modals */}
           <AddEventModal
             visible={eventModalVisible}
-            onClose={() => setEventModalVisible(false)}
+            onClose={() => {
+              setEventModalVisible(false);
+              setHideAddButton(false);
+            }}
             newEventTitle={newEventTitle}
             onChangeTitle={setNewEventTitle}
             newEventDate={newEventDate}
@@ -720,8 +764,10 @@ export default function CommunityDetailsScreen() {
           />
           <ModifyEventModal
             visible={editEventModalVisible}
-            onClose={() => setEditEventModalVisible(false)}
-
+            onClose={() => {
+              setEditEventModalVisible(false);
+              setHideAddButton(false);
+            }}
             newEventTitle={editEventTitle}
             newEventDate={editEventDate}
             newEventStartTime={editEventStartTime}
@@ -747,8 +793,14 @@ export default function CommunityDetailsScreen() {
               editEventStartTime,editEventEndTime,editEventLocation,editEventDescription, changes)}
           />
   
-          {isAdmin === "true" && (
-            <TouchableOpacity style={styles.addButton} onPress={() => setEventModalVisible(true)}>
+          {isAdmin === "true" && !hideAddButton && (
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => {
+                setEventModalVisible(true);
+                setHideAddButton(true);
+              }}
+            >
               <Ionicons name="add" size={32} color="black" />
             </TouchableOpacity>
           )}
@@ -775,6 +827,7 @@ export default function CommunityDetailsScreen() {
                         setEditPostContent(item.content);
                         setEditPostImageUri(item.imageUri);
                         setEditPostModalVisible(true);
+                        setHidePostAddButton(true);
                       }
                     : undefined
                 }
@@ -785,7 +838,10 @@ export default function CommunityDetailsScreen() {
   
           <AddPostModal
             visible={postModalVisible}
-            onClose={() => setPostModalVisible(false)}
+            onClose={() => {
+              setPostModalVisible(false);
+              setHidePostAddButton(false);
+            }}
             newPostName={newPostName}
             onChangeName={setNewPostName}
             newPostContent={newPostContent}
@@ -794,7 +850,10 @@ export default function CommunityDetailsScreen() {
           />
           <ModifyPostModal
             visible={editPostModalVisible}
-            onClose={() => setEditPostModalVisible(false)}
+            onClose={() => {
+              setEditPostModalVisible(false);
+              setHidePostAddButton(false);
+            }}
             newPostName={editPostTitle}
             onChangeName={setEditPostTitle}
             newPostContent={editPostContent}
@@ -807,8 +866,14 @@ export default function CommunityDetailsScreen() {
             isEdit={true}
           />
   
-          {isAdmin === "true" && (
-            <TouchableOpacity style={styles.addButton} onPress={() => setPostModalVisible(true)}>
+          {isAdmin === "true" && !hidePostAddButton && (
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => {
+                setPostModalVisible(true);
+                setHidePostAddButton(true);
+              }}
+            >
               <Ionicons name="add" size={32} color="black" />
             </TouchableOpacity>
           )}
@@ -822,12 +887,12 @@ export default function CommunityDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#DAD7CD",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#000",
+    backgroundColor: "#344E41",
     paddingHorizontal: 10,
     paddingVertical: 12,
   },
@@ -867,13 +932,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    color: "#fff",
+    color: "#344E41",
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 5,
   },
   sectionText: {
-    color: "#fff",
+    color: "#344E41",
     marginBottom: 15,
   },
   input: {
@@ -884,7 +949,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   changeImageText: {
-    color: "#fff",
+    color: "#344E41",
     textAlign: "center",
     marginTop: 5,
   },

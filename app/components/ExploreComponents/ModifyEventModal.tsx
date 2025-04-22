@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform, Alert } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform, Alert, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -176,7 +176,7 @@ const ModifyEventModal: React.FC<ModifyEventModalProps> = ({
   };
 
   if (!visible) return null;
-
+  
   return (
     <View style={styles.modalOverlay}>
       <View style={styles.modalContainer}>
@@ -258,13 +258,95 @@ const ModifyEventModal: React.FC<ModifyEventModalProps> = ({
           onChangeText={onChangeDescription}
         />
 
-        <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.createButton} onPress={handleCreate}>
-            <Text style={styles.createButtonText}>Save Changes</Text>
+          <TouchableOpacity style={styles.postButton} onPress={handleCreate}>
+            <Text style={styles.postButtonText}>Save</Text>
           </TouchableOpacity>
+
+          <Text style={styles.modalTitle}>Edit Event</Text>
+
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <Text style={styles.modalLabel}>Title:</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="e.g. Book Drive"
+              placeholderTextColor="#aaa"
+              value={newEventTitle}
+              onChangeText={onChangeTitle}
+            />
+
+            <Text style={styles.modalLabel}>Date:</Text>
+            <View style={styles.pickerContainer}>
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={date}
+                mode="date"
+                display="default"
+                onChange={handleDateChange}
+                maximumDate={new Date(2300, 12, 31)}
+              />
+            </View>
+
+            <Text style={styles.modalLabel}>Start Time:</Text>
+            <View style={styles.pickerContainer}>
+              <DateTimePicker
+                testID="timePicker"
+                value={start_time}
+                mode="time"
+                display="default"
+                is24Hour={false}
+                onChange={handleTimeStartChange}
+              />
+            </View>
+
+            <Text style={styles.modalLabel}>End Time:</Text>
+            <View style={styles.pickerContainer}>
+              <DateTimePicker
+                testID="timePicker"
+                value={end_time}
+                mode="time"
+                display="default"
+                is24Hour={false}
+                onChange={handleTimeEndChange}
+              />
+            </View>
+
+            <Text style={styles.modalLabel}>Location:</Text>
+            <GooglePlacesAutocomplete
+              placeholder="e.g. Gainesville, FL"
+              onPress={(data, details = null) => {
+                onChangeLocation(data.description);
+              }}
+              query={{
+                key: "AIzaSyA5DukSRaMR1oJNR81YxttQsVRmJeFb-Bw",
+                language: 'en',
+              }}
+              fetchDetails={true}
+              styles={{
+                textInput: {
+                  ...styles.modalInput,
+                  placeholderTextColor: "#aaa",
+                },
+                container: { flex: 0 },
+              }}
+            />
+
+            <Text style={styles.modalLabel}>Description:</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Describe the event..."
+              placeholderTextColor="#aaa"
+              value={newEventDescription}
+              onChangeText={onChangeDescription}
+            />
+
+          </ScrollView>
         </View>
-      </View>
-    </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -281,48 +363,66 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     width: "100%",
-    alignItems: "center",
+    alignItems: "flex-start",
     marginBottom: 20,
   },
   modalContainer: {
-    backgroundColor: "#000",
-    padding: 20,
-    borderRadius: 10,
-    width: "85%",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderRadius: 16,
+    padding: 30,
+    width: "90%",
+    maxHeight: "90%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
   modalTitle: {
-    color: "#fff",
-    fontSize: 18,
+    color: "#111111",
+    fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 15,
+    marginBottom: 20,
     textAlign: "center",
   },
   modalLabel: {
-    color: "#fff",
+    color: "#1A1A1A",
     marginBottom: 5,
   },
   modalInput: {
-    backgroundColor: "#fff",
+    backgroundColor: "#FAFAFA",
     borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-    color: "#000",
+    padding: 12,
+    marginBottom: 15,
+    color: "#1A1A1A",
   },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+  scrollViewContent: {
+    paddingBottom: 30,
   },
-  createButton: {
-    backgroundColor: "#fff",
-    borderRadius: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginTop: 10,
+  scrollContainer: {
+    paddingBottom: 100,
   },
-  createButtonText: {
-    color: "#000",
-    fontWeight: "bold",
+  postButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#588157",
+    borderRadius: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  postButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+    fontSize: 14,
+    letterSpacing: 0.3,
   },
   modalCloseButton: {
     position: "absolute",

@@ -102,7 +102,7 @@ const toastConfig: ToastConfig = {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#000", alignItems: "center", justifyContent: "center" },
+    container: { flex: 1, backgroundColor: "#A3B18A", alignItems: "center", justifyContent: "center" },
     form: { backgroundColor: "#fff", padding: 20, borderRadius: 10, width: "80%" },
     label: { fontSize: 16, color: "#000", marginBottom: 5 },
     input: { height: 40, borderColor: "#ddd", borderWidth: 1, borderRadius: 5, paddingHorizontal: 10, marginBottom: 15 },
