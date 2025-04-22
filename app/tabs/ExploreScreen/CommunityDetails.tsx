@@ -122,18 +122,14 @@ export default function CommunityDetailsScreen() {
   // Fetch posts and events function
   const handleFetchPostsForClub = async (clubId: any) => {
     const data = await fetchPostsForClub(clubId);
-    const sortedPosts = [...data].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    const sortedPosts = [...data].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     setCommunityPosts(sortedPosts);
   };
   
   const handleFetchEventsForClub = async (clubId: any) => {
     const data = await fetchEventsForClub(clubId);
     // Sort events by datetime (newest first)
-    const sortedEvents = [...data].sort((a, b) => {
-      const aDateTime = new Date(`${a.date}T${a.time}`);
-      const bDateTime = new Date(`${b.date}T${b.time}`);
-      return bDateTime.getTime() - aDateTime.getTime();
-    });
+    const sortedEvents = [...data].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     setEvents(sortedEvents);
   };
   // Set initial values for bio fields
