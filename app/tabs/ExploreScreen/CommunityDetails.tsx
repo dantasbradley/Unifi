@@ -138,14 +138,21 @@ export default function CommunityDetailsScreen() {
   };
   // Set initial values for bio fields
   useEffect(() => {
-    console.log("isAdmin: ", isAdmin);
+    if (!id || !name) return;
+
+    console.log("Navigated to new community with id:", id);
+
     setActiveTab(startTab as "Bio" | "Events" | "Community");
     handleFetchClubImage(`club_profile_pics/${id}_${name}`);
     loadClubAttribute(id, "description", setBioDescription, setOriginalBioDescription);
     loadClubAttribute(id, "email", setEmail, setOriginalEmail);
     loadClubAttribute(id, "instagram", setInsta, setOriginalInsta);
     loadClubAttribute(id, "location", setLocation, setOriginalLocation); 
-  }, []);
+
+    handleFetchPostsForClub(id);
+    handleFetchEventsForClub(id);
+
+  }, [id, name]);
   // Fetch club attributes
   const loadClubAttribute = async (
     clubId: string,
