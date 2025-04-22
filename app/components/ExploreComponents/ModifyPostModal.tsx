@@ -69,6 +69,7 @@ const ModifyPostModal: React.FC<ModifyPostModalProps> = ({
 
   const handleSubmit = () => {
     onSubmit(selectedImage);
+    onClose(); // Close the modal after submitting
   };
 
   return (
