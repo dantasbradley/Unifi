@@ -35,4 +35,25 @@ module.exports = (app) => {
       });
     });
   });
+
+  // ✅ New DELETE endpoint
+  app.delete('/DB/clubs/delete/:club_id', (req, res) => {
+    const { club_id } = req.params;
+    if (!club_id) {
+      return res.status(400).json({ message: 'Club ID is required.' });
+    }
+
+    const query = 'DELETE FROM test.clubs WHERE id = ?';
+    pool.query(query, [club_id], (error, results) => {
+      if (error) {
+        return res.status(500).json({ message: 'Database error', error });
+      }
+
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ message: 'No club found with the provided ID.' });
+      }
+
+      res.json({ message: 'Club deleted successfully', club_id });
+    });
+  });
 };

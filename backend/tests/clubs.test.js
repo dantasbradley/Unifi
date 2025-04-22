@@ -80,4 +80,36 @@ describe('Club Routes', () => {
     expect(res.statusCode).toBe(500);
     expect(res.body.message).toMatch(/Error adding admin to club/);
   });
+
+  it('should delete a club successfully', async () => {
+    mockQuery.mockImplementationOnce((query, params, cb) =>
+      cb(null, { affectedRows: 1 })
+    );
+
+    const res = await request(app).delete('/DB/clubs/delete/123');
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toMatch(/Club deleted successfully/i);
+    expect(res.body.club_id).toBe('123');
+  });
+
+  it('should return 404 if club to delete is not found', async () => {
+    mockQuery.mockImplementationOnce((query, params, cb) =>
+      cb(null, { affectedRows: 0 })
+    );
+
+    const res = await request(app).delete('/DB/clubs/delete/999');
+    expect(res.statusCode).toBe(404);
+    expect(res.body.message).toMatch(/No club found/i);
+  });
+
+  it('should return 500 if DB error occurs during delete', async () => {
+    mockQuery.mockImplementationOnce((query, params, cb) =>
+      cb(new Error('DB failure'))
+    );
+
+    const res = await request(app).delete('/DB/clubs/delete/123');
+    expect(res.statusCode).toBe(500);
+    expect(res.body.message).toMatch(/Database error/i);
+  });
+
 });
