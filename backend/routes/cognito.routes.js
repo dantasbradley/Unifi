@@ -1,9 +1,12 @@
+// Export a function that registers routes on the passed `appInstance`
 module.exports = function(appInstance) {
+  // Import AWS SDK and initialize Cognito Identity Service Provider
     const AWS = require('aws-sdk');
     const cognito = new AWS.CognitoIdentityServiceProvider({
       region: process.env.COGNITO_REGION || 'us-east-1',
     });
   
+    // Helper function to get a Cognito user by their `sub` (unique user ID)
     const getUserBySub = async (sub) => {
       const params = {
         UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
@@ -17,6 +20,7 @@ module.exports = function(appInstance) {
       return data.Users[0];
     };
   
+    // Helper function to update a user's attribute in Cognito
     const updateUserAttribute = async (username, attributeName, value) => {
       const updateParams = {
         UserPoolId: process.env.USER_POOL_ID || 'us-east-1_UeljCiAIL',
@@ -26,6 +30,7 @@ module.exports = function(appInstance) {
       await cognito.adminUpdateUserAttributes(updateParams).promise();
     };
   
+    // GET a user's attribute value by `sub` and `attributeName`
     appInstance.get('/cognito/get/attribute', async (req, res) => {
       const { sub, attributeName } = req.query;
   
@@ -44,6 +49,7 @@ module.exports = function(appInstance) {
       }
     });
   
+    // POST and update a user's attribute by `sub`
     appInstance.post('/cognito/update/attribute', async (req, res) => {
       const { sub, attributeName, value } = req.body;
   
