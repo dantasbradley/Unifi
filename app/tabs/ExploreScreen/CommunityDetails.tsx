@@ -154,10 +154,10 @@ export default function CommunityDetailsScreen() {
   // Fetch posts and events function
   const handleFetchPostsForClub = async (clubId: any) => {
     const data = await fetchPostsForClub(clubId);
-    // Sort posts by descending time (newest first)
-    const sortedPosts = [...data].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+    const sortedPosts = [...data].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
     setCommunityPosts(sortedPosts);
   };
+  
   const handleFetchEventsForClub = async (clubId: any) => {
     const data = await fetchEventsForClub(clubId);
     // Sort events by datetime (newest first)

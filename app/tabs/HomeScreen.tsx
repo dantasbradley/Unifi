@@ -60,9 +60,9 @@ const HomeScreen = () => {
     });
     const uniquePosts = Array.from(uniquePostsMap.values());
     // Sort newest first
-    const sortedPosts = uniquePosts.sort((a, b) => new Date(b.time) - new Date(a.time));
-
+    const sortedPosts = uniquePosts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     setPosts(sortedPosts);
+
   };
 
   return (
