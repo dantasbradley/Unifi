@@ -102,38 +102,6 @@ export default function CommunityDetailsScreen() {
     setRefreshingPosts(true);
     try {
       await handleFetchPostsForClub(id);
-      const response = await fetch("http://3.85.25.255:3000/DB/events/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: newEventTitle,
-          date: newEventDate,
-          start_time: newEventStartTime,
-          end_time: newEventEndTime,
-          location: newEventLocation,
-          description: newEventDescription,
-          club_id: id,
-        }),
-      });
-      const data = await response.json();
-  
-      if (response.ok) {
-        await handleRefreshEvents();
-        setEventModalVisible(false);
-        setHideAddButton(false);
-        setNewEventTitle("");
-        setNewEventDate("");
-        setNewEventStartTime("");
-        setNewEventEndTime("");
-        setNewEventLocation("");
-        setNewEventDescription("");
-  
-        const datetime = formatEventDateTime(newEventDate, newEventStartTime, newEventEndTime);
-        const createMessage = `Event title: ${newEventTitle} \nWhen: ${datetime}`;
-        handleCreateNotification(createMessage, "Event Created");
-      } else {
-        Alert.alert("Error", data.message || "Failed to create event.");
-      }
     } catch (error) {
       console.error("Error refreshing posts:", error);
     }
@@ -196,50 +164,6 @@ export default function CommunityDetailsScreen() {
     if (attribute) {
       setValue(attribute);
       setOriginalValue(attribute);
-    }
-  };
-
-  // Return white color if tab is active, else gray
-  const handleCreatePost = async (imageUri: string | null) => {
-    if (!newPostName || !newPostContent) {
-        Alert.alert("Error", "Title and content are required.");
-        return;
-    }
-
-    try {
-        let filePath = "";
-        if (imageUri) {
-          filePath = "yes";
-        }
-        const response = await fetch("http://3.85.25.255:3000/DB/posts/add", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                title: newPostName,
-                content: newPostContent,
-                filePath,
-                club_id: id,
-            }),
-        });
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("Message result:", data.message);
-            if (imageUri) {
-              console.log("uploading image: ", data.filePath);
-              await uploadImage(data.filePath, imageUri);
-            }
-            await handleRefreshPosts();
-            setPostModalVisible(false);
-            setHidePostAddButton(false);
-            setNewPostName("");
-            setNewPostContent("");
-        } else {
-            Alert.alert("Error", data.message || "Failed to create post.");
-        }
-    } catch (error) {
-        console.error("Error creating post:", error);
-        Alert.alert("Error", "Could not connect to server.");
     }
   };
   const handleFetchClubImage = async (filePath : any) => {
@@ -383,6 +307,48 @@ export default function CommunityDetailsScreen() {
     } catch (error) {
       console.error("Error creating notification:", error);
       Alert.alert("Error", "Could not connect to server.");
+    }
+  };
+  const handleCreatePost = async (imageUri: string | null) => {
+    // if (!newPostName || !newPostContent) {
+    //     Alert.alert("Error", "Title and content are required.");
+    //     return;
+    // }
+    console.log("newPostName" , newPostName);
+
+    try {
+        let filePath = "";
+        const newImageUri = imageUri ? imageUri : "";
+        const response = await fetch("http://3.85.25.255:3000/DB/posts/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: newPostName,
+                content: newPostContent,
+                filePath,
+                club_id: id,
+                imageUri: newImageUri,
+            }),
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("Message result:", data.message);
+            if (imageUri) {
+              console.log("uploading image: ", data.filePath);
+              await uploadImage(data.filePath, imageUri);
+            }
+            await handleRefreshPosts();
+            setPostModalVisible(false);
+            setHidePostAddButton(false);
+            setNewPostName("");
+            setNewPostContent("");
+        } else {
+            Alert.alert("Error", data.message || "Failed to create post.");
+        }
+    } catch (error) {
+        console.error("Error creating post:", error);
+        Alert.alert("Error", "Could not connect to server.");
     }
   };
   const handleCreateEvent = async () => {
