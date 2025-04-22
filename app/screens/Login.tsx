@@ -78,7 +78,7 @@ const Login = () => {
 
       // Navigate after showing toast
       setTimeout(() => {
-        router.push("/tabs/ExploreScreen");
+        router.push("/tabs/HomeScreen");
       }, 1000);
 
     } catch (error) {
