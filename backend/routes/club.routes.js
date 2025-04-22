@@ -23,7 +23,7 @@ module.exports = (app) => {
 
       const club_id = results.insertId;
       const adminQuery = 'INSERT INTO test.club_admins (admin_id, club_id) VALUES (?, ?)';
-      pool.query(adminQuery, [admin_id, club_id], (adminError, adminResults) => {
+      pool.query(adminQuery, [admin_id, club_id], (adminError) => {
         if (adminError) {
           return res.status(500).json({ message: 'Error adding admin to club', error: adminError });
         }
@@ -36,24 +36,19 @@ module.exports = (app) => {
     });
   });
 
-  // ✅ New DELETE endpoint
-  app.delete('/DB/clubs/delete/:club_id', (req, res) => {
-    const { club_id } = req.params;
-    if (!club_id) {
-      return res.status(400).json({ message: 'Club ID is required.' });
-    }
+  // Generic delete route for testing
+  app.delete('/DB/:table/delete/:id1=:val1/:id2=:val2', (req, res) => {
+    const { table, id1, val1, id2, val2 } = req.params;
 
-    const query = 'DELETE FROM test.clubs WHERE id = ?';
-    pool.query(query, [club_id], (error, results) => {
-      if (error) {
-        return res.status(500).json({ message: 'Database error', error });
+    const query = `DELETE FROM ?? WHERE ?? = ? AND ?? = ?`;
+    pool.query(query, [table, id1, val1, id2, val2], (err, results) => {
+      if (err) {
+        return res.status(500).json({ message: 'Failed to delete data from ' + table });
       }
-
       if (results.affectedRows === 0) {
-        return res.status(404).json({ message: 'No club found with the provided ID.' });
+        return res.status(404).json({ message: 'No records found to delete' });
       }
-
-      res.json({ message: 'Club deleted successfully', club_id });
+      res.status(200).json({ message: `Successfully deleted from ${table}` });
     });
   });
 };

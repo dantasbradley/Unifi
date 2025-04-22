@@ -81,35 +81,35 @@ describe('Club Routes', () => {
     expect(res.body.message).toMatch(/Error adding admin to club/);
   });
 
-  it('should delete a club successfully', async () => {
-    mockQuery.mockImplementationOnce((query, params, cb) =>
-      cb(null, { affectedRows: 1 })
-    );
+  it('should delete a club_admin using dynamic delete route', async () => {
+    mockQuery.mockImplementationOnce((query, params, cb) => {
+      expect(query).toMatch(/DELETE FROM/);
+      expect(params).toEqual(['club_admins', 'pfpPath', 'some_fake_path', 'club_id', '123']);
+      cb(null, { affectedRows: 1 });
+    });
 
-    const res = await request(app).delete('/DB/clubs/delete/123');
+    const res = await request(app).delete('/DB/club_admins/delete/pfpPath=some_fake_path/club_id=123');
+
     expect(res.statusCode).toBe(200);
-    expect(res.body.message).toMatch(/Club deleted successfully/i);
-    expect(res.body.club_id).toBe('123');
+    expect(res.body.message).toMatch(/Successfully deleted/);
   });
 
-  it('should return 404 if club to delete is not found', async () => {
-    mockQuery.mockImplementationOnce((query, params, cb) =>
-      cb(null, { affectedRows: 0 })
-    );
+  it('should return 404 if no club_admin rows were deleted', async () => {
+    mockQuery.mockImplementationOnce((query, params, cb) => cb(null, { affectedRows: 0 }));
 
-    const res = await request(app).delete('/DB/clubs/delete/999');
+    const res = await request(app).delete('/DB/club_admins/delete/pfpPath=not_found/club_id=999');
+
     expect(res.statusCode).toBe(404);
-    expect(res.body.message).toMatch(/No club found/i);
+    expect(res.body.message).toMatch(/No records found to delete/);
   });
 
-  it('should return 500 if DB error occurs during delete', async () => {
-    mockQuery.mockImplementationOnce((query, params, cb) =>
-      cb(new Error('DB failure'))
-    );
+  it('should return 500 if DB deletion errors', async () => {
+    mockQuery.mockImplementationOnce((query, params, cb) => cb(new Error('DB error')));
 
-    const res = await request(app).delete('/DB/clubs/delete/123');
+    const res = await request(app).delete('/DB/club_admins/delete/pfpPath=some_path/club_id=1');
+
     expect(res.statusCode).toBe(500);
-    expect(res.body.message).toMatch(/Database error/i);
+    expect(res.body.message).toMatch(/Failed to delete/);
   });
 
 });
