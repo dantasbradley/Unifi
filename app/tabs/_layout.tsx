@@ -1,112 +1,9 @@
-// import { Tabs, useSegments } from "expo-router";
-// import { Image, TouchableOpacity, View, StyleSheet } from "react-native";
-// import Sidebar from "../components/Sidebar";
-// import { useHamburger } from "../components/Hamburger";
-// import { CommunitiesProvider } from "../contexts/CommunitiesContext";
-
-// const homeIcon = require("../../assets/images/home.png");
-// const exploreIcon = require("../../assets/images/compass.png");
-// const calendarIcon = require("../../assets/images/calendar.png");
-// const profileIcon = require("../../assets/images/profile.png");
-// const notificationIcon = require("../../assets/images/bell.png");
-// const menuIcon = require("../../assets/images/hamburger.png");
-// const fallbackIcon = require("../../assets/images/profile.png");
-
-// export default function TabLayout() {
-//   const { toggleSidebar } = useHamburger();
-//   const segments = useSegments();
-//   const isHomeScreen = segments[segments.length - 1] === "HomeScreen";
-
-//   return (
-//     <CommunitiesProvider>
-//       <View style={styles.container}>
-//         {/* 👇 Only render Sidebar on HomeScreen */}
-//         {isHomeScreen && <Sidebar />}
-
-//         <Tabs
-//           screenOptions={({ route }) => ({
-//             headerShown: true,
-//             headerTitle: "",
-//             headerStyle: { backgroundColor: "black" },
-//             headerTitleStyle: { color: "white" },
-//             tabBarStyle: {
-//               backgroundColor: "black",
-//               height: 88,
-//               paddingBottom: 12,
-//               borderTopWidth: 0,
-//             },
-//             tabBarItemStyle: { height: 88 },
-//             tabBarShowLabel: false,
-//             tabBarIcon: ({ focused }) => {
-//               const icons = {
-//                 HomeScreen: homeIcon,
-//                 ExploreScreen: exploreIcon,
-//                 CalendarScreen: calendarIcon,
-//                 ProfileScreen: profileIcon,
-//                 NotificationScreen: notificationIcon,
-//               };
-//               const iconSource = icons[route.name] || fallbackIcon;
-//               return (
-//                 <View style={styles.iconContainer}>
-//                   <Image
-//                     source={iconSource}
-//                     style={{
-//                       width: 30,
-//                       height: 30,
-//                       tintColor: focused ? "white" : "gray",
-//                     }}
-//                   />
-//                 </View>
-//               );
-//             },
-//             headerLeft: () => (
-//               <TouchableOpacity onPress={toggleSidebar} style={styles.hamburger}>
-//                 <Image source={menuIcon} style={{ width: 24, height: 24 }} />
-//               </TouchableOpacity>
-//             ),
-//           })}
-//         >
-//           <Tabs.Screen name="HomeScreen" />
-//           <Tabs.Screen name="ExploreScreen" />
-//           <Tabs.Screen name="CalendarScreen" />
-//           <Tabs.Screen name="ProfileScreen" />
-//           <Tabs.Screen name="NotificationScreen" />
-//           <Tabs.Screen name="ProfileSetup" options={{ href: null }} />
-//         </Tabs>
-//       </View>
-//     </CommunitiesProvider>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "black",
-//   },
-//   iconContainer: {
-//     flex: 1,
-//     alignItems: "center",
-//     justifyContent: "center",
-//   },
-//   hamburger: {
-//     marginLeft: 15,
-//   },
-// });
-
 import { Tabs, useSegments } from "expo-router";
-import { Image, TouchableOpacity, View, StyleSheet } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 import Sidebar from "../components/Sidebar";
 import { useHamburger } from "../components/Hamburger";
 import { CommunitiesProvider } from "../contexts/CommunitiesContext";
-
-// Icons
-const homeIcon = require("../../assets/images/home.png");
-const exploreIcon = require("../../assets/images/compass.png");
-const calendarIcon = require("../../assets/images/calendar.png");
-const profileIcon = require("../../assets/images/profile.png");
-const notificationIcon = require("../../assets/images/bell.png");
-const menuIcon = require("../../assets/images/hamburger.png");
-const fallbackIcon = require("../../assets/images/profile.png");
 
 export default function TabLayout() {
   const { isSidebarOpen, toggleSidebar, closeSidebar } = useHamburger();
@@ -128,50 +25,47 @@ export default function TabLayout() {
           screenOptions={({ route }) => ({
             headerShown: true,
             headerTitle: "",
-            headerStyle: { backgroundColor: "black" },
-            headerTitleStyle: { color: "white" },
+            headerStyle: {
+              backgroundColor: "#DAD7CD",
+              borderBottomWidth: 0.75,
+              borderBottomColor: "#344E41",
+              elevation: 4,
+            },
+            headerTitleStyle: { color: "#588157" },
 
             tabBarStyle: {
-              backgroundColor: "black",
+              backgroundColor: "#DAD7CD",
               height: 88,
               paddingBottom: 12,
-              borderTopWidth: 0,
+              borderTopWidth: 0.75,
+              borderTopColor: "#344E41",
+              elevation: 4,
             },
             tabBarItemStyle: {
               height: 88,
             },
             tabBarShowLabel: false,
 
-            tabBarIcon: ({ focused }) => {
-              const icons: Record<string, any> = {
-                HomeScreen: homeIcon,
-                ExploreScreen: exploreIcon,
-                CalendarScreen: calendarIcon,
-                ProfileScreen: profileIcon,
-                NotificationScreen: notificationIcon,
-              };
-
-              const iconSource = icons[route.name] || fallbackIcon;
-
-              return (
-                <View style={styles.iconContainer}>
-                  <Image
-                    source={iconSource}
-                    style={{
-                      width: 30,
-                      height: 30,
-                      tintColor: focused ? "white" : "gray",
-                    }}
-                  />
-                </View>
-              );
-            },
+            tabBarIcon: ({ focused }) => (
+              <FontAwesome
+                name={
+                  route.name === "HomeScreen" ? "home" :
+                  route.name === "ExploreScreen" ? "compass" :
+                  route.name === "CalendarScreen" ? "calendar" :
+                  route.name === "ProfileScreen" ? "user" :
+                  route.name === "NotificationScreen" ? "bell" :
+                  "question"
+                }
+                size={28}
+                color={focused ? "#555" : "#AAA"}
+              />
+            ),
 
             // Only show hamburger icon on HomeScreen
             headerLeft: () =>
               route.name === "HomeScreen" ? (
                 <TouchableOpacity onPress={toggleSidebar} style={styles.hamburger}>
-                  <Image source={menuIcon} style={{ width: 24, height: 24 }} />
+                  <FontAwesome name="bars" size={28} color="#555" />
                 </TouchableOpacity>
               ) : null,
           })}
@@ -179,7 +73,6 @@ export default function TabLayout() {
           <Tabs.Screen name="HomeScreen" />
           <Tabs.Screen name="ExploreScreen" />
           <Tabs.Screen name="CalendarScreen" />
-          <Tabs.Screen name="ProfileScreen" />
           <Tabs.Screen name="NotificationScreen" />
         </Tabs>
       </View>

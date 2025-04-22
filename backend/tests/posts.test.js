@@ -1,9 +1,11 @@
 const request = require('supertest');
 let app;
 
+// Mocked database query function and pool
 const mockQuery = jest.fn();
 const mockPool = { query: mockQuery };
 
+// Set up the test environment before each test
 beforeEach(() => {
     jest.resetModules();
     app = require('../app');
@@ -14,6 +16,7 @@ beforeEach(() => {
   
 
 describe('Post Routes', () => {
+  //Test for validation failure
   it('should return 400 if required fields are missing', async () => {
     const res = await request(app).post('/DB/posts/add').send({
       content: 'Missing club_id and author_id'
@@ -22,6 +25,7 @@ describe('Post Routes', () => {
     expect(res.body.message).toMatch(/Missing required field/);
   });
 
+  //Test successful post insertion
   it('should return 201 on successful post insert', async () => {
     mockQuery.mockImplementationOnce((query, params, cb) => {
       cb(null, { insertId: 101 });
@@ -38,6 +42,7 @@ describe('Post Routes', () => {
     expect(res.body.id).toBe(101);
   });
 
+  //Test DB error on inser
   it('should return 500 on DB error during insert', async () => {
     mockQuery.mockImplementationOnce((query, params, cb) => {
       cb(new Error('DB error'));
@@ -53,6 +58,7 @@ describe('Post Routes', () => {
     expect(res.body.message).toMatch(/Database error/);
   });
 
+  //Test successful deletion
   it('should delete a post successfully', async () => {
     mockQuery.mockImplementationOnce((query, params, cb) => {
       cb(null, { affectedRows: 1 });
@@ -63,6 +69,7 @@ describe('Post Routes', () => {
     expect(res.body.message).toMatch(/Post deleted/);
   });
 
+  //Test deletion when no post is found
   it('should return 404 if post to delete not found', async () => {
     mockQuery.mockImplementationOnce((query, params, cb) => {
       cb(null, { affectedRows: 0 });
@@ -73,6 +80,7 @@ describe('Post Routes', () => {
     expect(res.body.message).toMatch(/Post not found/);
   });
 
+  //Test DB error on deletion
   it('should return 500 if delete query fails', async () => {
     mockQuery.mockImplementationOnce((query, params, cb) => {
       cb(new Error('Delete failed'));
@@ -85,6 +93,7 @@ describe('Post Routes', () => {
 });
 
 describe('PUT /DB/posts/update/:post_id', () => {
+  //Test successful update
   it('should update a post and return 200', async () => {
     mockQuery.mockImplementation((sql, vals, cb) => cb(null, { affectedRows: 1 }));
 
@@ -96,6 +105,7 @@ describe('PUT /DB/posts/update/:post_id', () => {
     expect(res.body.message).toMatch(/updated/i);
   });
 
+  //Test update with missing content
   it('should return 400 if content is missing', async () => {
     const res = await request(app)
       .put('/DB/posts/update/1')
@@ -105,6 +115,7 @@ describe('PUT /DB/posts/update/:post_id', () => {
     expect(res.body.error).toMatch(/missing/i);
   });
 
+  //Test update when no post matches
   it('should return 404 if post not found', async () => {
     mockQuery.mockImplementation((sql, vals, cb) => cb(null, { affectedRows: 0 }));
 
@@ -116,6 +127,7 @@ describe('PUT /DB/posts/update/:post_id', () => {
     expect(res.body.error).toMatch(/not found/i);
   });
 
+  //Test DB error during update
   it('should return 500 if the DB fails', async () => {
     mockQuery.mockImplementation((sql, vals, cb) => cb(new Error('Simulated DB error')));
 

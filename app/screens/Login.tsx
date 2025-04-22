@@ -78,7 +78,7 @@ const Login = () => {
 
       // Navigate after showing toast
       setTimeout(() => {
-        router.push("/tabs/HomeScreen");
+        router.push("/tabs/ExploreScreen");
       }, 1000);
 
     } catch (error) {
@@ -102,6 +102,7 @@ const Login = () => {
         <TextInput
           style={styles.input}
           placeholder="Enter your email"
+          placeholderTextColor="#888"
           keyboardType="email-address"
           autoCapitalize="none"
           value={email}
@@ -112,6 +113,7 @@ const Login = () => {
         <TextInput
           style={styles.input}
           placeholder="Enter your password"
+          placeholderTextColor="#888"
           secureTextEntry
           value={password}
           onChangeText={setPassword}
@@ -159,7 +161,7 @@ const toastConfig = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#A3B18A",
     alignItems: "center",
     justifyContent: "center",
   },

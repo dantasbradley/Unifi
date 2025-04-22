@@ -74,96 +74,110 @@ const PostCard: React.FC<PostCardProps> = ({ post, isLiked, onToggleLike, onDele
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#1C1C1E",
-    borderRadius: 12,
+    backgroundColor: "#588157",
+    borderRadius: 16,
     padding: 16,
-    marginBottom: 12,
+    marginBottom: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "#DAD7CD",
   },
+
   header: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 12,
   },
+
   clubImage: {
     width: 48,
     height: 48,
     borderRadius: 12,
     marginRight: 12,
   },
+
   postImage: {
     width: "100%",
     aspectRatio: 1,
-    borderRadius: 10,
+    borderRadius: 12,
     marginBottom: 12,
-    backgroundColor: "#222",
+    backgroundColor: "#1C1C1C",
   },
-  
+
   placeholderImage: {
     width: 48,
     height: 48,
     borderRadius: 12,
     marginRight: 12,
-    backgroundColor: "#444",
+    backgroundColor: "#3A3A3A",
   },
+
   clubName: {
-    color: "#fff",
+    color: "#F0F0F0",
     fontWeight: "600",
     fontSize: 16,
   },
+
   createdAt: {
-    color: "#888",
+    color: "#C0C0C0",
     fontSize: 13,
   },
+
   title: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 6,
   },
+
   content: {
-    color: "#ddd",
+    color: "#EAEAEA",
     fontSize: 15,
-    lineHeight: 20,
+    lineHeight: 21,
     marginBottom: 12,
   },
+
   actions: {
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
     borderTopWidth: 1,
-    borderTopColor: "#333",
+    borderTopColor: "#4C6A52",
     paddingTop: 10,
   },
+
   iconButton: {
     flexDirection: "row",
     alignItems: "center",
     marginRight: 20,
   },
+
   iconText: {
-    color: "#ccc",
+    color: "#DDDDDD",
     marginLeft: 6,
     fontSize: 14,
   },
+
   deleteButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#e74c3c",
+    backgroundColor: "#E74C3C",
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 6,
+    borderRadius: 8,
     marginLeft: "auto",
   },
+
   deleteText: {
-    color: "#fff",
+    color: "#FFFFFF",
     marginLeft: 6,
     fontWeight: "600",
     fontSize: 14,
   },
-});
+});;
 
 export default PostCard;

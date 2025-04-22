@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import {View, Text, TextInput, StyleSheet, TouchableOpacity, Platform, KeyboardAvoidingView, FlatList, 
-TouchableWithoutFeedback, Keyboard, Alert } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -160,57 +159,46 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
     { id: "description", label: "Description", value: newEventDescription, onChangeText: onChangeDescription, placeholder: "Describe the event..." },
   ];
 
-  const renderItem = ({ item }) => {
-    if (item.component) {
-      return (
-        <View style={styles.fieldContainer}>
-          <Text style={styles.modalLabel}>{item.label}:</Text>
-          {item.component}
-        </View>
-      );
-    }
-    return (
-      <View style={styles.fieldContainer}>
-        <Text style={styles.modalLabel}>{item.label}:</Text>
-        <TextInput
-          style={styles.modalInput}
-          placeholder={item.placeholder}
-          placeholderTextColor="#aaa"
-          value={item.value}
-          onChangeText={item.onChangeText}
-        />
-      </View>
-    );
-  };
+  if (!visible) return null;
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.modalOverlay}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          style={styles.modalContainer}
+    <View style={styles.modalOverlay}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.modalContainer}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 80}
+      >
+        <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
+          <Ionicons name="close" size={24} color="#111111" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.postButton} onPress={handleCreate}>
+          <Text style={styles.postButtonText}>Post</Text>
+        </TouchableOpacity>
+        <Text style={styles.modalTitle}>Add New Event</Text>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
-            <Ionicons name="close" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.modalTitle}>Add New Event</Text>
-
-          <FlatList
-            data={formFields}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.flatListContent}
-            keyboardShouldPersistTaps="handled"
-          />
-
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.createButton} onPress={handleCreate}>
-              <Text style={styles.createButtonText}>Create</Text>
-            </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
-      </View>
-    </TouchableWithoutFeedback>
+          {formFields.map((field) => (
+            <View style={styles.fieldContainer} key={field.id}>
+              <Text style={styles.modalLabel}>{field.label}:</Text>
+              {field.component ? (
+                field.component
+              ) : (
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder={field.placeholder}
+                  placeholderTextColor="#aaa"
+                  value={field.value}
+                  onChangeText={field.onChangeText}
+                />
+              )}
+            </View>
+          ))}
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -226,45 +214,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContainer: {
-    backgroundColor: "#000",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderRadius: 16,
     padding: 30,
-    borderRadius: 10,
-    width: "90%",
+    width: "95%",
     maxHeight: "90%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    alignItems: "stretch",
   },
   modalTitle: {
-    color: "#fff",
+    color: "#111111",
     fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 24,
     textAlign: "center",
+    letterSpacing: 0.5,
   },
   modalLabel: {
-    color: "#fff",
+    color: "#1A1A1A",
     marginBottom: 5,
+    alignSelf: "flex-start",
   },
   modalInput: {
-    backgroundColor: "#fff",
+    backgroundColor: "#FAFAFA",
     borderRadius: 5,
-    padding: 15,
+    padding: 12,
     marginBottom: 15,
-    color: "#000",
-  },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  createButton: {
-    backgroundColor: "#fff",
-    borderRadius: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginTop: 10,
-  },
-  createButtonText: {
-    color: "#000",
-    fontWeight: "bold",
+    color: "#1A1A1A",
   },
   modalCloseButton: {
     position: "absolute",
@@ -274,8 +256,29 @@ const styles = StyleSheet.create({
   fieldContainer: {
     marginBottom: 15,
   },
-  flatListContent: {
-    flexGrow: 1,
+  // New styles for CreateCommunityModal visual match
+  scrollContainer: {
+    paddingBottom: 20,
+  },
+  postButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#588157",
+    borderRadius: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  postButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+    fontSize: 14,
+    letterSpacing: 0.3,
   },
 });
 

@@ -40,12 +40,12 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
             <Image source={placeholderImage} style={styles.communityImage} />
         )}
         <View style={styles.textContainer}>
-          <Text style={styles.communityName}>{community.name}</Text>
+        <Text style={styles.communityName} numberOfLines={1} ellipsizeMode="tail">{community.name}</Text>
           <View style={styles.secondLine}>
             <Ionicons name="people" size={14} color="#ccc" style={{ marginRight: 4 }} />
             <Text style={styles.secondLineText}>{community.membersCount}</Text>
             <Ionicons name="location" size={14} color="#ccc" style={{ marginLeft: 16, marginRight: 4 }} />
-            <Text style={styles.secondLineText}>{community.location}</Text>
+            <Text style={styles.secondLineText} numberOfLines={1} ellipsizeMode="tail">{community.location}</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -60,10 +60,12 @@ const styles = StyleSheet.create({
   cardContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#222",
+    backgroundColor: "#344E41",
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#344E41",
   },
   infoContainer: {
     flexDirection: "row",
@@ -85,16 +87,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 4,
-    flexWrap: "wrap",
     flexShrink: 1,
+    flexWrap: "wrap",
   },
   secondLine: {
     flexDirection: "row",
     alignItems: "center",
+    flexWrap: "wrap",
+    flexShrink: 1,
   },
   secondLineText: {
     color: "#ccc",
     fontSize: 14,
+    flexShrink: 1,
   },
 });
 
