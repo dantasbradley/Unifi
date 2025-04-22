@@ -60,65 +60,77 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ item, onPress }) =>
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#1C1C1E",
-    borderRadius: 12,
+    backgroundColor: "#3A5A40",
+    borderRadius: 16,
     padding: 16,
     marginHorizontal: 15,
-    marginBottom: 12,
+    marginBottom: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.18,
+    shadowRadius: 5,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "#DAD7CD",
   },
+
   header: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 12,
   },
+
   clubImage: {
     width: 48,
     height: 48,
     borderRadius: 12,
     marginRight: 12,
   },
+
   placeholderImage: {
     width: 48,
     height: 48,
     borderRadius: 12,
     marginRight: 12,
-    backgroundColor: "#444",
+    backgroundColor: "#3A3A3A",
   },
+
   meta: {
     flexDirection: "column",
   },
+
   clubName: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontWeight: "600",
     fontSize: 16,
     marginBottom: 2,
   },
+
   timestamp: {
-    color: "#888",
+    color: "#C2C2C2",
     fontSize: 13,
   },
+
   body: {
-    paddingLeft: 60, // Indent body to line up with text after the image
+    paddingLeft: 60,
   },
+
   title: {
-    color: "#ddd",
+    color: "#F1F1F1",
     fontSize: 15,
     lineHeight: 20,
     marginBottom: 8,
   },
+
   footer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-start",
   },
+
   typeTag: {
-    color: "#aaa",
-    backgroundColor: "#333",
+    color: "#FFFFFF",
+    backgroundColor: "#2F2F2F",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 10,

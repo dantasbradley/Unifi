@@ -2,7 +2,6 @@ import React from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import CustomButton from "./JoinButton";
 
 interface CreateCommunityModalProps {
   visible: boolean;
@@ -29,7 +28,10 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
     <View style={styles.modalOverlay}>
       <View style={styles.modalContainer}>
         <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
-          <Ionicons name="close" size={24} color="#fff" />
+          <Ionicons name="close" size={24} color="#111111" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.postButton} onPress={onCreate}>
+          <Text style={styles.postButtonText}>Post</Text>
         </TouchableOpacity>
         <Text style={styles.modalTitle}>Create New Community</Text>
 
@@ -60,10 +62,6 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             container: { flex: 0, width: "100%" },
           }}
         />
-
-        <View style={styles.modalButtonRow}>
-          <CustomButton title="Create" onPress={onCreate} />
-        </View>
       </View>
     </View>
   );
@@ -81,12 +79,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContainer: {
-    backgroundColor: "#000",
-    padding: 20,
-    borderRadius: 10,
-    width: "80%",
-    alignItems: "center",
-    position: "relative",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderRadius: 16,
+    padding: 30,
+    width: "90%",
+    maxHeight: "90%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    alignItems: "stretch",
   },
   modalCloseButton: {
     position: "absolute",
@@ -94,29 +99,44 @@ const styles = StyleSheet.create({
     left: 10,
   },
   modalTitle: {
-    color: "#fff",
-    fontSize: 18,
+    color: "#111111",
+    fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 24,
+    textAlign: "center",
+    letterSpacing: 0.5,
   },
   modalText: {
-    color: "#fff",
+    color: "#1A1A1A",
     marginBottom: 5,
     alignSelf: "flex-start",
   },
   modalInput: {
-    backgroundColor: "#fff",
-    width: "100%",
-    padding: 10,
+    backgroundColor: "#FAFAFA",
     borderRadius: 5,
+    padding: 12,
     marginBottom: 15,
-    color: "#000",
+    color: "#1A1A1A",
   },
-  modalButtonRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    width: "100%",
-    marginTop: 10,
+  postButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#588157",
+    borderRadius: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  postButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+    fontSize: 14,
+    letterSpacing: 0.3,
   },
 });
 

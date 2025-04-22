@@ -12,13 +12,17 @@ export default function EditToggleButton({ editMode, onPress, style }: EditToggl
   return (
     <TouchableOpacity onPress={onPress} style={[styles.button, style]}>
       {/* Swap icons based on editMode */}
-      <Ionicons name={editMode ? "checkmark" : "create"} size={24} color="#fff" />
+      <Ionicons name={editMode ? "checkmark" : "create"} size={24} color="#344E41" />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    // insert styles later
+    backgroundColor: "#fff",
+    padding: 6,
+    borderRadius: 6,
+    borderWidth: 1,
+  borderColor: "#344E41",
   },
 });

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Switch, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import EditToggleButton from "../components/ExploreComponents/EditToggleButton";
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 
 const ProfileScreen = () => {
     const [name, setName] = useState('');
@@ -12,20 +14,15 @@ const ProfileScreen = () => {
     const [image, setImage] = useState<string | null>(null);
     const [editMode, setEditMode] = useState(false);
     const [imageUrl, setImageUrl] = useState('');
-    const [notifications, setNotifications] = useState({
-        communityUpdates: true,
-        nearbyUpdates: true,
-        eventReminders: true,
-        other: true,
-    });
 
     // Define dynamic styles based on editMode
     const getInputStyle = () => ({
         flex: 1,
-        backgroundColor: editMode ? '#fff' : '#000', // White when editing, black otherwise
-        color: editMode ? '#000' : '#fff', // Black text when editing, white otherwise
+        backgroundColor: editMode ? '#D3D3D3' : '#fff', // Grey when editing, white otherwise
         padding: 12,
         borderRadius: 5,
+        borderWidth: 0.1,
+        borderColor: '#000',
     });
 
     useEffect(() => {
@@ -84,7 +81,6 @@ const ProfileScreen = () => {
             const response = await fetch(`http://3.85.25.255:3000/S3/get/upload-signed-url?filePath=${encodeURIComponent(filePath)}`);
             const { url } = await response.json();
             const blob = await (await fetch(imageUri)).blob();
-            // Use the pre-signed URL to upload the blob
             const uploadResponse = await fetch(url, {
                 method: 'PUT',
                 body: blob,
@@ -96,14 +92,6 @@ const ProfileScreen = () => {
         }
     };
     
-
-    const toggleNotification = (key: keyof typeof notifications, newValue: boolean) => {
-        setNotifications(prevNotifications => ({
-            ...prevNotifications,
-            [key]: newValue
-        }));
-    };
-
     const toggleEditMode = () => {
         if (editMode) {
             handleSave();
@@ -125,7 +113,6 @@ const ProfileScreen = () => {
         }
     };
 
-    // Function to fetch a user attribute from Cognito
     const fetchUserAttribute = async (attributeName : any) => {
         const cognitoSub = await AsyncStorage.getItem('cognitoSub');
         try {
@@ -142,7 +129,6 @@ const ProfileScreen = () => {
         }
     };
     
-    // Function to update a user attribute in Cognito
     const updateUserAttribute = async (attributeName : any, value : any) => {
         const cognitoSub = await AsyncStorage.getItem('cognitoSub');
         try {
@@ -170,65 +156,42 @@ const ProfileScreen = () => {
             <View style={styles.header}>
                 <Text style={styles.headerText}>Account</Text>
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity onPress={toggleEditMode} style={styles.editButton}>
-                        <Text style={styles.buttonText}>{editMode ? 'Save' : 'Edit'}</Text>
-                    </TouchableOpacity>
                     <TouchableOpacity onPress={handleSignOut} style={styles.signOutButton}>
-                        <Text style={styles.buttonText}>Sign Out</Text>
+                        <Ionicons name="log-out-outline" size={24} color="#fff" />
                     </TouchableOpacity>
                 </View>
             </View>
-            <ScrollView style={styles.container}>
-                <View style={styles.imageContainer}>
-                    {imageUrl ? (
-                        <Image source={{ uri: imageUrl }} style={styles.image} />
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                {/* Profile card with image and name */}
+            <View style={styles.profileCard}>
+                <View style={{ position: 'absolute', top: 10, right: 10 }}>
+                    <EditToggleButton editMode={editMode} onPress={toggleEditMode} />
+                </View>
+                <View style={styles.imageWrapper}>
+                    {editMode ? (
+                        <TouchableOpacity onPress={handleImageUpload} style={{ alignItems: 'center' }}>
+                            <Image source={{ uri: imageUrl }} style={styles.image} />
+                            <Text style={styles.changeImageText}>Change Image</Text>
+                        </TouchableOpacity>
                     ) : (
-                        <Text>Loading image...</Text>
+                        <Image source={{ uri: imageUrl }} style={styles.image} />
                     )}
                 </View>
-                <TouchableOpacity style={styles.uploadButton} onPress={handleImageUpload}>
-                    <Text style={styles.uploadButtonText}>📂 Select file to upload</Text>
-                </TouchableOpacity>
-                {image && <Text style={styles.uploadedText}>{image.split('/').pop()} uploaded</Text>}
-                
-                {/* Input container for Full Name */}
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Full Name:</Text>
-                    <TextInput 
-                        style={getInputStyle()}  // Apply dynamic styles here
-                        value={name} 
-                        onChangeText={setName} 
-                        placeholder="Full Name"
-                        editable={editMode} 
-                    />
-                </View>
-                
-                {/* Input container for Email */}
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Email:</Text>
-                    <Text style={styles.input}>{email}</Text>
-                </View>
-                
-                {/* Notifications Section */}
-                <Text style={styles.sectionHeader}>Notifications</Text>
-                {Object.entries(notifications).map(([key, value]) => (
-                    <View key={key} style={styles.notificationRow}>
-                        <Text style={styles.notificationText}>
-                            {key === 'communityUpdates' && 'Receive updates from the communities you follow'}
-                            {key === 'nearbyUpdates' && 'Receive updates from nearby communities based on interests'}
-                            {key === 'eventReminders' && 'Receive reminders of upcoming events'}
-                            {key === 'other' && 'Receive ...'}
-                        </Text>
-                        <Switch
-                            value={value}
-                            onValueChange={(newValue) => {
-                                if (editMode) {
-                                    toggleNotification(key as keyof typeof notifications, newValue);
-                                }
-                            }}
+                    {/* Display user's name */}
+                    <Text style={styles.nameText}>{name}</Text>
+                    {/* Display user's email */}
+                    <Text style={styles.emailText}>{email}</Text>
+                    {/* Editable name input when in edit mode */}
+                    {editMode && (
+                        <TextInput
+                            style={getInputStyle()}
+                            value={name}
+                            onChangeText={setName}
+                            placeholder="Full Name"
+                            editable={editMode}
                         />
-                    </View>
-                ))}
+                    )}
+                </View>
             </ScrollView>
         </View>
     );
@@ -237,11 +200,13 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000',
+        backgroundColor: '#DAD7CD',
+    },
+    scrollContent: {
         padding: 20,
     },
     header: {
-        backgroundColor: '#000',
+        backgroundColor: '#344E41',
         paddingVertical: 20,
         paddingHorizontal: 20,
         borderBottomWidth: 1,
@@ -251,8 +216,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     signOutButton: {
-        padding: 10,
-        backgroundColor: '#c00',  // Red color for the sign-out button
+        padding: 8,
+        backgroundColor: '#5C614A',
         borderRadius: 5,
     },
     buttonContainer: {
@@ -267,30 +232,32 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#fff',
     },
-    sectionHeader: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 18,
-        marginTop: 20,
-        marginBottom: 10,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
+    profileCard: {
+        position: 'relative',
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 20,
         alignItems: 'center',
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    imageWrapper: {
+        position: 'relative',
+    },
+    nameText: {
+        fontSize: 20,
+        fontWeight: '600',
+        marginTop: 10,
+        color: '#344E41',
+    },
+    emailText: {
+        fontSize: 14,
+        color: '#6b6b6b',
         marginBottom: 10,
-    },
-    label: {
-        color: '#fff',
-        marginRight: 10,
-        width: 100,  // Fixed width for alignment
-    },
-    input: {
-        flex: 1,
-        backgroundColor: '#000',
-        color: '#fff',
-        padding: 12,
-        borderRadius: 5,
     },
     imageContainer: {
         justifyContent: 'center',
@@ -303,66 +270,12 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginVertical: 10,
     },
-    placeholderImage: {
-        width: 150,
-        height: 150,
-        borderRadius: 10,
-        backgroundColor: '#ccc',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginVertical: 10,
-    },
-    uploadButton: {
-        backgroundColor: '#d3d3d3',
-        padding: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-        marginVertical: 5,
-    },
-    uploadButtonText: {
-        fontWeight: 'bold',
-    },
-    uploadedText: {
-        color: '#fff',
-        marginBottom: 10,
-    },
-    notificationRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginVertical: 5,
-    },
-    notificationText: {
-        color: '#fff',
-        flex: 1,
-        marginRight: 10,
-    },
-    editButton: {
-        padding: 10,
-        backgroundColor: '#666',
-        borderRadius: 5,
-        marginRight: 15, // Adjusted right margin for spacing
-    },
-    editButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-    },
-    emailContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    inputLabel: {
-        color: '#fff',
-        marginBottom: 10,
-        marginLeft: 90
-    },
-    emailLabel: {
-        color: '#fff',
-        flex: 1,
+    changeImageText: {
         textAlign: 'center',
-    }
+        color: '#344E41',
+        fontWeight: '500',
+        marginTop: 4,
+    },
 });
 
 export default ProfileScreen;
