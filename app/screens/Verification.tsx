@@ -4,12 +4,13 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import Toast, { ToastConfig, ToastConfigParams } from "react-native-toast-message";
 
 const Verification = () => {
-    const router = useRouter();
-    const { email } = useLocalSearchParams();
+    const router = useRouter(); //navigation
+    const { email } = useLocalSearchParams(); //grab email
 
-    const [verificationCode, setVerificationCode] = useState("");
+    const [verificationCode, setVerificationCode] = useState(""); //code input
     const [loading, setLoading] = useState(false);
 
+    //reusable message function
     const showToast = (type: "success" | "error" | "info", text1: string, text2: string) => {
         Toast.show({
             type,
@@ -22,6 +23,7 @@ const Verification = () => {
         });
     };
 
+    //submit verification code
     const handleVerification = async () => {
         if (!email) {
             showToast("error", "Error", "Email not found, please sign up again.");
@@ -49,6 +51,7 @@ const Verification = () => {
                 return;
             }
 
+            //show success & navigate to login
             showToast("success", "Verified", "Your account is now verified. Redirecting to login...");
             setTimeout(() => router.push("/screens/Login"), 1500);
         } catch (error) {
@@ -69,17 +72,18 @@ const Verification = () => {
                     onChangeText={setVerificationCode}
                 />
 
+                {/* button with spinner */}
                 <TouchableOpacity style={styles.verifyButton} onPress={handleVerification} disabled={loading}>
                     {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.verifyText}>Verify</Text>}
                 </TouchableOpacity>
             </View>
 
-            <Toast config={toastConfig} />
+            <Toast config={toastConfig} /> //toast ui component
         </View>
     );
 };
 
-// ✅ Fix: Ensure correct TypeScript typing for toastConfig
+//custom styles
 const toastConfig: ToastConfig = {
     success: ({ text1, text2 }: ToastConfigParams<any>) => (
         <View style={[styles.toastContainer, { backgroundColor: "green" }]}>

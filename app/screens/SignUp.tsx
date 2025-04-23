@@ -4,13 +4,16 @@ import { useRouter } from "expo-router";
 import Toast, { ToastConfig, ToastConfigParams } from "react-native-toast-message";
 
 const SignUp = () => {
-    const router = useRouter();
+    const router = useRouter(); //navigation
+
+    //password requirement state
     const [minLength, setMinLength] = useState(false);
     const [hasUpper, setHasUpper] = useState(false);
     const [hasLower, setHasLower] = useState(false);
     const [hasNumber, setHasNumber] = useState(false);
     const [hasSpecial, setHasSpecial] = useState(false);
 
+    //form input
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [passwordConf, setPasswordConf] = useState("");
@@ -18,9 +21,13 @@ const SignUp = () => {
     const [lastName, setLastName] = useState("");
     const [loading, setLoading] = useState(false);
 
+    //validate email format
     const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+
+    //validate min password length
     const isValidPassword = (password: string) => password.length >= 8;
 
+    //reuseable message
     const showToast = (type: "success" | "error" | "info", text1: string, text2: string) => {
         Toast.show({
             type,
@@ -33,6 +40,7 @@ const SignUp = () => {
         });
     };
 
+    //update live password strength feedback
     const updatePasswordRequirements = (password: string) => {
         setMinLength(password.length >= 8);
         setHasUpper(/[A-Z]/.test(password));
@@ -41,6 +49,7 @@ const SignUp = () => {
         setHasSpecial(/[@$!%*?&#]/.test(password));
     };
 
+    //handle form submission
     const handleSignUp = async () => {
         if (!email || !password || !firstName || !lastName || !passwordConf) {
             showToast("error", "Missing Fields", "Please fill in all fields.");
@@ -75,6 +84,7 @@ const SignUp = () => {
                 return;
             }
 
+            //success → redirect to verification screen
             showToast("success", "Signup Successful", "Check your email for verification.");
             setTimeout(() => router.push(`/screens/Verification?email=${encodeURIComponent(email)}`), 1000);
 
@@ -92,17 +102,19 @@ const SignUp = () => {
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="always">
                     <View style={styles.form}>
+                        {/* name fields */}
                         <Text style={styles.label}>First Name</Text>
                         <TextInput style={styles.input} placeholder="Enter your first name" value={firstName} placeholderTextColor="#888" onChangeText={setFirstName} />
 
                         <Text style={styles.label}>Last Name</Text>
                         <TextInput style={styles.input} placeholder="Enter your last name" value={lastName} placeholderTextColor="#888" onChangeText={setLastName} />
 
+                        {/* email */}
                         <Text style={styles.label}>Email</Text>
                         <TextInput style={styles.input} placeholder="Enter your email" keyboardType="email-address" value={email} placeholderTextColor="#888" onChangeText={setEmail} />
                         
+                        {/* password with dynamic rules */}
                         <Text style={styles.label}>Password</Text>
-                        
                         <View style={styles.passwordRequirements}>
                             <Text style={[styles.requirement, minLength ? styles.met : null]}>• At least 8 characters</Text>
                             <Text style={[styles.requirement, hasUpper ? styles.met : null]}>• Includes an uppercase letter</Text>
@@ -110,7 +122,6 @@ const SignUp = () => {
                             <Text style={[styles.requirement, hasNumber ? styles.met : null]}>• Includes a number</Text>
                             <Text style={[styles.requirement, hasSpecial ? styles.met : null]}>• Includes a special character</Text>
                         </View>
-                        
                         <TextInput
                             style={styles.input}
                             placeholder="Enter your password"
@@ -123,9 +134,11 @@ const SignUp = () => {
                             }}
                         />
 
+                        {/* confirm password */}
                         <Text style={styles.label}>Confirm Password</Text>
                         <TextInput style={styles.input} placeholder="Re-enter your password" secureTextEntry value={passwordConf} placeholderTextColor="#888" onChangeText={setPasswordConf} />
 
+                        {/* sign up button */}
                         <TouchableOpacity style={styles.signupButton} onPress={handleSignUp} disabled={loading}>
                             {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.signupText}>Sign Up</Text>}
                         </TouchableOpacity>

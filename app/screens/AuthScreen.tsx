@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(52, 74, 52, 0.39)", // subtle green overlay
+    backgroundColor: "rgba(52, 74, 52, 0.39)", //green overlay
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 20,
@@ -62,8 +62,8 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   logo: {
-    width: 120, // Adjust to match Figma design
-    height: 120, // Adjust to match Figma design
+    width: 120, 
+    height: 120, 
     marginBottom: 20,
   },
   appName: {

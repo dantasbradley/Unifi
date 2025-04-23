@@ -4,14 +4,14 @@ import { useRouter } from "expo-router";
 import Toast, { ToastShowParams } from "react-native-toast-message";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 const Login = () => {
-  const router = useRouter();
+  const router = useRouter(); //navigation
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); //loading spinner toggle
 
+  //store user id from backend in async storage
   const storeCognitoSub = async (cognitoSub : string) => {
     try {
       await AsyncStorage.setItem("cognitoSub", cognitoSub);
@@ -21,8 +21,10 @@ const Login = () => {
     }
   }
 
+  //handle login form submission
   const handleLogin = async () => {
     if (!email || !password) {
+      //toast for empty fields
       Toast.show({
         type: "error",
         text1: "Missing Fields",
@@ -37,6 +39,7 @@ const Login = () => {
 
     setLoading(true);
     try {
+      //send login request
       const response = await fetch("http://3.85.25.255:3000/login", {
         method: "POST",
         headers: {
@@ -48,6 +51,7 @@ const Login = () => {
       const result = await response.json();
       setLoading(false);
 
+      //handle bad credentials
       if (!response.ok) {
         if (response.status === 401) {
           Toast.show({
@@ -64,8 +68,9 @@ const Login = () => {
         throw new Error("Something went wrong.");
       }
 
-      await storeCognitoSub(result.cognitoSub);  
+      await storeCognitoSub(result.cognitoSub); //save login token
 
+      //show success message
       Toast.show({
         type: "success",
         text1: "Success",
@@ -76,7 +81,7 @@ const Login = () => {
         text2Style: { fontSize: 20 },
       });
 
-      // Navigate after showing toast
+      //navigate after short delay
       setTimeout(() => {
         router.push("/tabs/ExploreScreen");
       }, 1000);
@@ -119,6 +124,7 @@ const Login = () => {
           onChangeText={setPassword}
         />
 
+        {/* login button or loading spinner */}
         <TouchableOpacity
           style={styles.loginButton}
           onPress={handleLogin}
@@ -127,16 +133,18 @@ const Login = () => {
           {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginText}>Login</Text>}
         </TouchableOpacity>
 
+        {/* link to reset password */}
         <TouchableOpacity onPress={() => router.push("/screens/resetEmail")}>
           <Text style={styles.forgotPassword}>Forgot password?</Text>
         </TouchableOpacity>
       </View>
 
-      <Toast config={toastConfig} />
+      <Toast config={toastConfig} /> //toast notifications
     </View>
   );
 };
 
+//custom toast styling
 const toastConfig = {
   success: (props: ToastShowParams) => (
     <View style={[styles.toastContainer, { backgroundColor: "green" }]}>

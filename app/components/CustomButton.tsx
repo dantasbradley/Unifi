@@ -1,20 +1,21 @@
 import React, { forwardRef } from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 
+//button text label and onPress handler
 interface ButtonProps {
   title: string;
   onPress: () => void;
 }
 
-//I believe forwardRef is needed to keep Link happy when we use asChild since it expects that the component it's wrapping will use this func,
-//however, even without it still seems to run fine
-const CustomButton: React.FC<ButtonProps> = forwardRef<any, ButtonProps>(({ title, onPress}, ref) => (
+//forwardRef to work with link wrappers
+const CustomButton: React.FC<ButtonProps> = forwardRef<any, ButtonProps>(({ title, onPress }, ref) => (
   <TouchableOpacity style={styles.button} onPress={onPress}>
     <Text style={styles.text}>{title}</Text>
   </TouchableOpacity>
 ));
-CustomButton.displayName = "CustomButton";
+CustomButton.displayName = "CustomButton"; 
 
+//button styling
 const styles = StyleSheet.create({
   button: {
     backgroundColor: "#fff",

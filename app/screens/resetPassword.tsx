@@ -4,16 +4,19 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import Toast, { ToastShowParams } from "react-native-toast-message";
 
 const Verification = () => {
-  const router = useRouter();
-  const { email } = useLocalSearchParams();
+  const router = useRouter(); //navigation
+  const { email } = useLocalSearchParams(); //get email from query
 
-  const [verificationCode, setVerificationCode] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [verificationCode, setVerificationCode] = useState(""); //code from user
+  const [newPassword, setNewPassword] = useState(""); //new password
+  const [confirmPassword, setConfirmPassword] = useState(""); //confirmation password
   const [loading, setLoading] = useState(false);
 
+  //password reset logic
   const handleResetPassword = async () => {
     if (!verificationCode || !newPassword || !confirmPassword) {
+      
+      //error for empty fields
       Toast.show({
         type: "error",
         text1: "Missing Fields",
@@ -27,6 +30,8 @@ const Verification = () => {
     }
 
     if (newPassword !== confirmPassword) {
+      
+      //error for mismatched passwords
       Toast.show({
         type: "error",
         text1: "Passwords Do Not Match",
@@ -41,6 +46,8 @@ const Verification = () => {
 
     setLoading(true);
     try {
+
+      //send request to reset password
       const response = await fetch("http://3.85.25.255:3000/reset_password", {
         method: "POST",
         headers: {
@@ -60,6 +67,7 @@ const Verification = () => {
         throw new Error(result.message || "Failed to reset password.");
       }
 
+      //success message
       Toast.show({
         type: "success",
         text1: "Password Reset Successful",
@@ -70,16 +78,17 @@ const Verification = () => {
         text2Style: { fontSize: 18 },
       });
 
-      // Redirect to login page after success
+      //redirect to login screen
       setTimeout(() => {
         router.push("/screens/Login");
       }, 1000);
 
     } catch (error) {
       setLoading(false);
-      
+
       const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
 
+      //error for failure
       Toast.show({
         type: "error",
         text1: "Reset Failed",
@@ -122,6 +131,7 @@ const Verification = () => {
           onChangeText={setConfirmPassword}
         />
 
+        {/* submit button*/}
         <TouchableOpacity
           style={styles.resetButton}
           onPress={handleResetPassword}
@@ -131,11 +141,12 @@ const Verification = () => {
         </TouchableOpacity>
       </View>
 
-      <Toast config={toastConfig} />
+      <Toast config={toastConfig} /> //toast config component
     </View>
   );
 };
 
+//custom styling for success and error
 const toastConfig = {
   success: (props: ToastShowParams) => (
     <View style={[styles.toastContainer, { backgroundColor: "green" }]}>

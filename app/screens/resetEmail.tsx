@@ -4,12 +4,15 @@ import Toast, { ToastShowParams } from "react-native-toast-message";
 import { useRouter } from "expo-router";
 
 const VerifyEmail = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(""); //email input state
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const router = useRouter(); //navigation handler
 
+  //handle email verification request
   const handleVerify = async () => {
     if (!email) {
+
+      //show error if email is empty
       Toast.show({
         type: "error",
         text1: "Missing Email",
@@ -24,6 +27,7 @@ const VerifyEmail = () => {
 
     setLoading(true);
     try {
+      //send request to backend
       const response = await fetch("http://3.85.25.255:3000/verify", {
         method: "POST",
         headers: {
@@ -39,6 +43,7 @@ const VerifyEmail = () => {
         throw new Error(result.message || "Something went wrong.");
       }
 
+      //display success
       Toast.show({
         type: "success",
         text1: "Verification Sent",
@@ -49,16 +54,17 @@ const VerifyEmail = () => {
         text2Style: { fontSize: 18 },
       });
 
-      // Navigate to verification screen after a short delay
+      //redirect to reset password screen
       setTimeout(() => {
         router.push(`/screens/resetPassword?email=${encodeURIComponent(email)}`);
       }, 1000);
 
     } catch (error) {
       setLoading(false);
-      
+
       const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
 
+      //show error
       Toast.show({
         type: "error",
         text1: "Verification Failed",
@@ -84,6 +90,7 @@ const VerifyEmail = () => {
           onChangeText={setEmail}
         />
 
+        {/*verify button*/}
         <TouchableOpacity
           style={styles.verifyButton}
           onPress={handleVerify}
@@ -93,11 +100,12 @@ const VerifyEmail = () => {
         </TouchableOpacity>
       </View>
 
-      <Toast config={toastConfig} />
+      <Toast config={toastConfig} /> //toast component
     </View>
   );
 };
 
+//custom display styles
 const toastConfig = {
   success: (props: ToastShowParams) => (
     <View style={[styles.toastContainer, { backgroundColor: "green" }]}>
