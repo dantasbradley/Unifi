@@ -3,6 +3,24 @@ import { useRouter, Link } from "expo-router";
 import { View, ActivityIndicator } from "react-native";
 import {NavigationContainer} from '@react-navigation/native';
 
+if (__DEV__) {
+  const originalConsoleError = console.error;
+  console.error = (...args) => {
+    const errorMessage = args[0];
+
+    // Filter out the VirtualizedLists warning
+    if (
+      typeof errorMessage === "string" &&
+      errorMessage.includes("VirtualizedLists should never be nested inside plain ScrollViews")
+    ) {
+      return; // Silently ignore this warning
+    }
+
+    // Everything else logs normally
+    originalConsoleError(...args);
+  };
+}
+
 export default function Index() {
   const router = useRouter();
 
