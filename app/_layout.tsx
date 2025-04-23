@@ -24,8 +24,33 @@ export default function Layout() {
             headerTintColor: "#fff",
           }}
         />
-
-        <Stack.Screen name="screens/Verification" options={{ title: "Verification" }} />
+        <Stack.Screen
+           name="screens/Verification"
+          options={{
+            title: "Verification Page",
+            headerStyle: { backgroundColor: "#344E41" }, // Dark green background
+            headerTintColor: "#fff", // White back arrow + title text
+            headerTitleStyle: { fontWeight: "bold" },
+            }}
+          />
+          <Stack.Screen
+          name="screens/resetPassword"
+          options={{
+            title: "Change Password",
+            headerStyle: { backgroundColor: "#344E41" }, // Dark green
+            headerTintColor: "#fff", // White back arrow & text
+            headerTitleStyle: { fontWeight: "bold" },
+          }}
+        />
+        <Stack.Screen
+          name="screens/resetEmail"
+          options={{
+            title: "Reset Password",
+            headerStyle: { backgroundColor: "#344E41" }, // Dark green
+            headerTintColor: "#fff", // White back arrow & text
+            headerTitleStyle: { fontWeight: "bold" },
+          }}
+        />
         <Stack.Screen name="tabs" options={{ headerShown: false }} />
       </Stack>
     </HamburgerProvider>
