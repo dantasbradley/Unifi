@@ -373,9 +373,8 @@ export default function CommunityDetailsScreen() {
       if (response.ok) {
         await handleRefreshEvents();
         setEventModalVisible(false);
+        setHideAddButton(false);
         console.log("Event created successfully");
-        setHidePostAddButton(false);
-        console.log("Event created successfully2");
         setNewEventTitle("");
         setNewEventDate("");
         setNewEventStartTime("");
@@ -386,7 +385,6 @@ export default function CommunityDetailsScreen() {
         const datetime = formatEventDateTime(newEventDate, newEventStartTime, newEventEndTime);
         const createMessage = `Event title: ${newEventTitle} \nWhen: ${datetime}`;
         handleCreateNotification(createMessage, "Event Created");
-        setHidePostAddButton(false);
       } else {
         Alert.alert("Error", data.message || "Failed to create event.");
       }
@@ -767,7 +765,7 @@ export default function CommunityDetailsScreen() {
               editEventStartTime,editEventEndTime,editEventLocation,editEventDescription, changes)}
           />
   
-          {isAdmin === "true" && (
+            {isAdmin === "true" && !hideAddButton && (
             <TouchableOpacity
               style={styles.addButton}
               onPress={() => {
@@ -801,7 +799,7 @@ export default function CommunityDetailsScreen() {
                         setEditPostContent(item.content);
                         setEditPostImageUri(item.imageUri);
                         setEditPostModalVisible(true);
-                        // setHidePostAddButton(true);
+                        setHidePostAddButton(true);
                       }
                     : undefined
                 }
@@ -845,7 +843,7 @@ export default function CommunityDetailsScreen() {
               style={styles.addButton}
               onPress={() => {
                 setPostModalVisible(true);
-                // setHidePostAddButton(true);
+                setHidePostAddButton(true);
               }}
             >
               <Ionicons name="add" size={32} color="black" />
