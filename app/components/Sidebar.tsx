@@ -166,3 +166,98 @@ const Sidebar = () => {
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  overlay: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    zIndex: 1,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "#344E41",
+    padding: 15,
+  },
+  sidebar: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 350,
+    backgroundColor: "black",
+    zIndex: 2,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: Platform.OS === "android"
+      ? (StatusBar.currentHeight || 0) + (70 - (StatusBar.currentHeight || 0))
+      : 70,
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  title: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  closeButton: {
+    marginRight: 0,
+  },
+  closeHitbox: {
+    width: 44,
+    height: 44,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  filterRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  filterButton: {
+    flex: 1,
+    paddingVertical: 8,
+    marginHorizontal: 5,
+    borderWidth: 1,
+    borderColor: "white",
+    borderRadius: 5,
+    alignItems: "center",
+    backgroundColor: "white"  //ensure default background is white
+  },
+  activeFilter: {
+    backgroundColor: "#999999",
+  },
+  filterText: {
+    color: "black",
+    fontSize: 14,
+  },
+  activeFilterText: {
+    color: "white",
+  },
+  regularAddButton: {
+    backgroundColor: "#fff",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignSelf: "flex-start",
+    marginBottom: 10,
+  },
+  regularAddButtonText: {
+    color: "black",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  separator: {
+    height: 1,
+    width: "100%",
+    backgroundColor: "#999999",
+    opacity: 1,
+    marginVertical: 6,
+  },
+});
+
+export default Sidebar;
