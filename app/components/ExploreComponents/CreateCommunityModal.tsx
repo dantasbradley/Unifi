@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-nativ
 import { Ionicons } from "@expo/vector-icons";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
+// Define the props
 interface CreateCommunityModalProps {
   visible: boolean;
   onClose: () => void;
@@ -13,6 +14,7 @@ interface CreateCommunityModalProps {
   onCreate: () => void;
 }
 
+// Functional component for creating new community
 const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
   visible,
   onClose,
@@ -22,6 +24,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
   onChangeLocation,
   onCreate,
 }) => {
+  // If modal not visible, don't render
   if (!visible) return null;
 
   return (

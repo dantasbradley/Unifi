@@ -3,6 +3,7 @@ import {View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from "react
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 
+// Define the props 
 interface AddPostModalProps {
   visible: boolean;
   onClose: () => void;
@@ -22,10 +23,12 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
   onChangeContent,
   onCreate,
 }) => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null); // Local state for selected image URI
 
+  // Do not render modal if it's not visible
   if (!visible) return null;
 
+  // Open image picker and store selected image URI
   const handleImagePick = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
@@ -41,14 +44,16 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
+      setSelectedImage(result.assets[0].uri); // Save the selected image URI
     }
   };
 
+  // Remove the selected image
   const handleRemoveImage = () => {
     setSelectedImage(null);
   };
 
+  // Handle post creation and pass selected image URI
   const handleCreate = () => {
     onCreate(selectedImage); // Pass selected image or null to parent
   };
@@ -93,7 +98,7 @@ const AddPostModal: React.FC<AddPostModalProps> = ({
             <View style={styles.previewContainer}>
               <Image source={{ uri: selectedImage }} style={styles.previewImage} />
               <TouchableOpacity onPress={handleRemoveImage}>
-                <Text style={styles.removeText}>❌ Remove</Text>
+                <Text style={styles.removeText}>Remove</Text>
               </TouchableOpacity>
             </View>
           )}

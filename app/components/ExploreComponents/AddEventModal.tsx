@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import 'react-native-get-random-values';
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete"; // Google Places input
+import 'react-native-get-random-values'; //Google needs this
 
+// Define props 
 interface AddEventModalProps {
   visible: boolean;
   onClose: () => void;
@@ -23,6 +24,7 @@ interface AddEventModalProps {
   onCreate: () => void;
 }
 
+// Functional component 
 const AddEventModal: React.FC<AddEventModalProps> = ({
   visible,
   onClose,
@@ -40,12 +42,14 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   onChangeDescription,
   onCreate,
 }) => {
+  // Set initial state values or default to current date
   const initialDate = newEventDate && !isNaN(Date.parse(newEventDate)) ? new Date(newEventDate) : new Date();
   const [date, setDate] = useState(initialDate);
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const googlePlacesRef = useRef(null);
 
+  // When modal becomes visible, sync local state with props
   useEffect(() => {
     if (visible){
       const currentDate = date;
@@ -58,6 +62,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
     }
   }, [visible]);
 
+  // Handlers for date and time pickers
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setDate(currentDate);
@@ -78,10 +83,12 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
     onChangeEndTime(adjustedTime.toISOString().split("T")[1].substr(0, 8));
   };
 
+  // Handle location selection from autocomplete
   const handleLocationSelect = (data) => {
     onChangeLocation(data.description);
   };
 
+  // Validate fields before creating event
   const handleCreate = () => {
     const missingFields = [];
     if (!newEventTitle) missingFields.push("Title");
@@ -102,8 +109,10 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   };
 
 
+  // Do not render modal if it's not visible
   if (!visible) return null;
 
+  // Define the form fields to render
   const formFields = [
     { id: "title", label: "Title", value: newEventTitle, onChangeText: onChangeTitle, placeholder: "e.g. Book Drive" },
     { id: "date", label: "Date", component: (

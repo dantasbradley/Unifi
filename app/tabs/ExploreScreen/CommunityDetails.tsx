@@ -299,6 +299,7 @@ export default function CommunityDetailsScreen() {
       const data = await response.json();
   
       if (!response.ok) throw new Error("Failed to create notification");
+      setHidePostAddButton(false);
       console.log(`Notification created as ${changeType}:\n${eventTitle}`);
     } catch (error) {
       console.error("Error creating notification:", error);
@@ -372,6 +373,8 @@ export default function CommunityDetailsScreen() {
       if (response.ok) {
         await handleRefreshEvents();
         setEventModalVisible(false);
+        setHideAddButton(false);
+        console.log("Event created successfully");
         setNewEventTitle("");
         setNewEventDate("");
         setNewEventStartTime("");
@@ -762,7 +765,7 @@ export default function CommunityDetailsScreen() {
               editEventStartTime,editEventEndTime,editEventLocation,editEventDescription, changes)}
           />
   
-          {isAdmin === "true" && !hideAddButton && (
+            {isAdmin === "true" && !hideAddButton && (
             <TouchableOpacity
               style={styles.addButton}
               onPress={() => {

@@ -3,8 +3,10 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CustomButton from "./JoinButton"; 
 
+// Fallback image in case community doesn't have an image
 const placeholderImage = require("../../../assets/images/placeholder.png");
 
+// Define structure
 export interface Community {
   id: string;
   name: string;
@@ -14,6 +16,7 @@ export interface Community {
   imageUrl: string;
 }
 
+// Props expected by the CommunityCard
 interface CommunityCardProps {
   community: Community;
   isJoined: boolean;
@@ -30,6 +33,7 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
   isAdmin,
 }) => {
 
+  // Functional component for rendering community card
   return (
     <View style={styles.cardContainer}>
       <TouchableOpacity style={styles.infoContainer} onPress={onPress} activeOpacity={0.8}>
